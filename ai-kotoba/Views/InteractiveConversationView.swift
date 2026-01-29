@@ -1,4 +1,5 @@
 import SwiftUI
+import Speech
 
 struct InteractiveConversationView: View {
     @State var sessionState: InteractiveSessionState
@@ -14,7 +15,7 @@ struct InteractiveConversationView: View {
     @State private var isRecording = false
     @State private var speechError: String?
     @StateObject private var ttsService = TTSService.shared
-    @StateObject private var speechService = SpeechRecognitionService.shared
+    @State private var speechService = SpeechRecognitionService.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -184,7 +185,7 @@ struct InteractiveConversationView: View {
                                 .frame(width: 44, height: 44)
                         }
                         .buttonStyle(.bordered)
-                        .disabled(speechService.authorizationStatus == .denied || speechService.authorizationStatus == .restricted)
+                        .disabled(speechService.authorizationStatus == SFSpeechRecognizerAuthorizationStatus.denied || speechService.authorizationStatus == SFSpeechRecognizerAuthorizationStatus.restricted)
                     }
 
                     if let error = speechError {
@@ -534,7 +535,7 @@ struct InteractiveConversationView: View {
         speechError = nil
 
         // Request authorization if needed
-        if speechService.authorizationStatus == .notDetermined {
+        if speechService.authorizationStatus == SFSpeechRecognizerAuthorizationStatus.notDetermined {
             Task {
                 let authorized = await speechService.requestAuthorization()
                 if authorized {
@@ -543,7 +544,7 @@ struct InteractiveConversationView: View {
                     speechError = "语音识别需要授权"
                 }
             }
-        } else if speechService.authorizationStatus == .authorized {
+        } else if speechService.authorizationStatus == SFSpeechRecognizerAuthorizationStatus.authorized {
             performStartRecording()
         } else {
             speechError = "语音识别未授权。请在系统设置中授权。"
@@ -556,7 +557,7 @@ struct InteractiveConversationView: View {
                 onResult: { [self] transcription in
                     userInput = transcription
                 },
-                onError: { [self] error in
+                onError: { [self] (error: Error) in
                     speechError = error.localizedDescription
                     isRecording = false
                 }

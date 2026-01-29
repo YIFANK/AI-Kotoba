@@ -1,7 +1,7 @@
 # Xcode 产生的临时文件
 build/
 DerivedData/
-
+CLAUDE.md
 *.pbxuser
 *.mode1v3
 *.mode2v3

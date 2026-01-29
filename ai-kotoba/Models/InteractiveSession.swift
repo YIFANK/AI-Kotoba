@@ -65,9 +65,11 @@ class InteractiveSessionState {
         case .both:
             return true
         case .personA:
-            return currentLine.speaker == speakers.first
+            // Person A speaks on even-indexed lines (0, 2, 4, ...)
+            return currentLine.orderIndex % 2 == 0
         case .personB:
-            return speakers.count > 1 ? currentLine.speaker == speakers[1] : false
+            // Person B speaks on odd-indexed lines (1, 3, 5, ...)
+            return currentLine.orderIndex % 2 == 1
         }
     }
 

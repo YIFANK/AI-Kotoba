@@ -64,7 +64,11 @@ class ClaudeService {
         print("=== END TRANSLATED RESPONSE ===")
 
         // Parse and return the final result
-        return try parseScenarioJSON(translatedText)
+        do {
+            return try JSONParsingUtility.parseScenarioJSON(translatedText)
+        } catch {
+            throw ClaudeError.parsingError
+        }
     }
 
     // Helper method to make Claude API calls
@@ -162,118 +166,10 @@ class ClaudeService {
             throw ClaudeError.parsingError
         }
 
-        return try parseFeedbackJSON(text)
-    }
-
-    // Helper to extract JSON from text (handles markdown and plain responses)
-    private func extractJSON(from text: String) -> String {
-        // Try to extract from markdown code blocks first
-        if let jsonBlockStart = text.range(of: "```json"),
-           let jsonBlockEnd = text.range(of: "```", range: jsonBlockStart.upperBound..<text.endIndex) {
-            let jsonContent = text[jsonBlockStart.upperBound..<jsonBlockEnd.lowerBound]
-            return jsonContent.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-
-        // Try generic code block
-        if let codeBlockStart = text.range(of: "```"),
-           let codeBlockEnd = text.range(of: "```", range: codeBlockStart.upperBound..<text.endIndex) {
-            let jsonContent = text[codeBlockStart.upperBound..<codeBlockEnd.lowerBound]
-            return jsonContent.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-
-        // Find JSON object by matching braces
-        guard let firstBrace = text.firstIndex(of: "{") else {
-            return text.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-
-        var braceCount = 0
-        var lastBrace: String.Index?
-
-        for (index, char) in text[firstBrace...].enumerated() {
-            let currentIndex = text.index(firstBrace, offsetBy: index)
-            if char == "{" {
-                braceCount += 1
-            } else if char == "}" {
-                braceCount -= 1
-                if braceCount == 0 {
-                    lastBrace = currentIndex
-                    break
-                }
-            }
-        }
-
-        if let lastBrace = lastBrace {
-            return String(text[firstBrace...lastBrace])
-        }
-
-        return text.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private func parseScenarioJSON(_ text: String) throws -> ScenarioResult {
-        print("=== PARSING JSON ===")
-
-        // Extract JSON from text (handles markdown and plain text)
-        let jsonText = extractJSON(from: text)
-
-        print("JSON text to parse:")
-        print(jsonText)
-
-        guard let jsonData = jsonText.data(using: .utf8) else {
-            print("ERROR: Could not convert text to data")
+        do {
+            return try JSONParsingUtility.parseFeedbackJSON(text)
+        } catch {
             throw ClaudeError.parsingError
         }
-
-        let decoder = JSONDecoder()
-        let scenarioResponse = try decoder.decode(ScenarioResponse.self, from: jsonData)
-
-        print("✓ Successfully decoded JSON")
-        print("Conversation items: \(scenarioResponse.conversation.count)")
-        print("Vocabulary items: \(scenarioResponse.vocabulary.count)")
-
-        // Convert to ConversationLine objects
-        let conversationLines = scenarioResponse.conversation.enumerated().map { index, item in
-            ConversationLine(
-                japaneseText: item.japanese,
-                chineseTranslation: item.chinese,
-                speaker: item.speaker,
-                orderIndex: index
-            )
-        }
-
-        // Convert to VocabularySuggestion objects
-        let vocabularySuggestions = scenarioResponse.vocabulary.map { item in
-            VocabularySuggestion(
-                word: item.word,
-                reading: item.reading,
-                meaning: item.meaning,
-                example: item.example
-            )
-        }
-
-        print("=== PARSING COMPLETE ===")
-        print("Total conversation lines: \(conversationLines.count)")
-        print("Total vocabulary suggestions: \(vocabularySuggestions.count)")
-
-        return ScenarioResult(
-            conversationLines: conversationLines,
-            vocabularySuggestions: vocabularySuggestions
-        )
-    }
-
-    private func parseFeedbackJSON(_ text: String) throws -> FeedbackResult {
-        // Extract JSON from text
-        let jsonText = extractJSON(from: text)
-
-        guard let jsonData = jsonText.data(using: .utf8) else {
-            throw ClaudeError.parsingError
-        }
-
-        let decoder = JSONDecoder()
-        let feedbackResponse = try decoder.decode(FeedbackResponse.self, from: jsonData)
-
-        return FeedbackResult(
-            score: feedbackResponse.score,
-            explanation: feedbackResponse.explanation
-        )
     }
 }

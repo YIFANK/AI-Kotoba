@@ -46,9 +46,20 @@ class ScenarioViewModel {
                 result = try await openaiService.generateScenario(scenario: scenarioTitle)
             }
 
+            // Convert vocabulary suggestions to vocabulary item data for storage
+            let vocabularyData = result.vocabularySuggestions.map { suggestion in
+                VocabularyItemData(
+                    word: suggestion.word,
+                    reading: suggestion.reading,
+                    meaning: suggestion.meaning,
+                    example: suggestion.example
+                )
+            }
+
             let scenario = Scenario(
                 title: scenarioTitle,
                 conversationLines: result.conversationLines,
+                vocabularyItems: vocabularyData,
                 createdAt: Date(),
                 isFavorite: false
             )

@@ -57,13 +57,29 @@ class SpeechRecognitionService {
         }
         recognitionRequest.shouldReportPartialResults = true
 
+        // On macOS, set task hint to dictation for better recognition
+        #if os(macOS)
+        recognitionRequest.taskHint = .dictation
+        #endif
+
         // 5. Configure Audio Engine
         let newEngine = AVAudioEngine()
         audioEngine = newEngine
-        
+
         let inputNode = newEngine.inputNode
-        // Use inputFormat for the tap to ensure compatibility with the hardware
+
+        // On macOS, we need to use the output format from the input node
+        // and ensure it's compatible with speech recognition
+        #if os(macOS)
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        #else
         let recordingFormat = inputNode.inputFormat(forBus: 0)
+        #endif
+
+        // Verify we have a valid format
+        guard recordingFormat.sampleRate > 0 && recordingFormat.channelCount > 0 else {
+            throw SpeechRecognitionError.audioEngineUnavailable
+        }
 
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
             self.recognitionRequest?.append(buffer)

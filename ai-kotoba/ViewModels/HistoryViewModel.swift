@@ -52,4 +52,21 @@ class HistoryViewModel {
             print("Failed to delete scenario: \(error)")
         }
     }
+
+    func saveVocabularySuggestion(_ suggestion: VocabularySuggestion) {
+        let vocabItem = VocabularyItem(
+            word: suggestion.word,
+            reading: suggestion.reading,
+            meaning: suggestion.meaning,
+            exampleSentence: suggestion.example
+        )
+
+        modelContext.insert(vocabItem)
+
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save vocabulary: \(error)")
+        }
+    }
 }

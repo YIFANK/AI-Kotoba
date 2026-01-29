@@ -10,14 +10,26 @@ struct FavoritesView: View {
         VStack {
             if let viewModel {
                 if let scenario = selectedScenario {
+                    // Convert stored vocabulary data to vocabulary suggestions
+                    let vocabularySuggestions = (scenario.vocabularyItems ?? []).map { item in
+                        VocabularySuggestion(
+                            word: item.word,
+                            reading: item.reading,
+                            meaning: item.meaning,
+                            example: item.example
+                        )
+                    }
+
                     ConversationView(
                         scenario: scenario,
-                        vocabularySuggestions: [],
+                        vocabularySuggestions: vocabularySuggestions,
                         onBack: {
                             selectedScenario = nil
                             viewModel.loadScenarios()
                         },
-                        onSaveVocabulary: { _ in }
+                        onSaveVocabulary: { suggestion in
+                            viewModel.saveVocabularySuggestion(suggestion)
+                        }
                     )
                 } else {
                     favoritesListView(viewModel: viewModel)
