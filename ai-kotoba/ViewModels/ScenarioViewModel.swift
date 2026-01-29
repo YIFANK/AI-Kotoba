@@ -8,12 +8,23 @@ class ScenarioViewModel {
     var errorMessage: String?
     var generatedScenario: Scenario?
     var vocabularySuggestions: [VocabularySuggestion] = []
+    var apiProvider: AIProvider = .claude
 
     private let claudeService = ClaudeService()
+    private let openaiService = OpenAIService()
     private let modelContext: ModelContext
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
+    }
+
+    func hasAPIKey() -> Bool {
+        switch apiProvider {
+        case .claude:
+            return APIKeyManager.shared.hasAPIKey()
+        case .openai:
+            return APIKeyManager.shared.hasOpenAIKey()
+        }
     }
 
     @MainActor
@@ -27,7 +38,13 @@ class ScenarioViewModel {
         errorMessage = nil
 
         do {
-            let result = try await claudeService.generateScenario(scenario: scenarioTitle)
+            let result: ScenarioResult
+            switch apiProvider {
+            case .claude:
+                result = try await claudeService.generateScenario(scenario: scenarioTitle)
+            case .openai:
+                result = try await openaiService.generateScenario(scenario: scenarioTitle)
+            }
 
             let scenario = Scenario(
                 title: scenarioTitle,
@@ -52,6 +69,24 @@ class ScenarioViewModel {
         }
 
         isGenerating = false
+    }
+
+    @MainActor
+    func requestFeedback(userResponse: String, correctResponse: String, chinesePrompt: String) async throws -> FeedbackResult {
+        switch apiProvider {
+        case .claude:
+            return try await claudeService.compareFeedback(
+                userResponse: userResponse,
+                correctResponse: correctResponse,
+                chinesePrompt: chinesePrompt
+            )
+        case .openai:
+            return try await openaiService.compareFeedback(
+                userResponse: userResponse,
+                correctResponse: correctResponse,
+                chinesePrompt: chinesePrompt
+            )
+        }
     }
 
     @MainActor

@@ -13,13 +13,53 @@ class APIKeyManager {
 
     private init() {}
 
+    // MARK: - Claude API Key
+
     func saveAPIKey(_ apiKey: String) throws {
-        let data = apiKey.data(using: .utf8)!
+        try saveKey(apiKey, account: Constants.Keychain.apiKeyAccount)
+    }
+
+    func loadAPIKey() throws -> String {
+        try loadKey(account: Constants.Keychain.apiKeyAccount)
+    }
+
+    func deleteAPIKey() throws {
+        try deleteKey(account: Constants.Keychain.apiKeyAccount)
+    }
+
+    func hasAPIKey() -> Bool {
+        hasKey(account: Constants.Keychain.apiKeyAccount)
+    }
+
+    // MARK: - OpenAI API Key
+
+    func saveOpenAIKey(_ apiKey: String) throws {
+        try saveKey(apiKey, account: Constants.Keychain.openAIKeyAccount)
+    }
+
+    func loadOpenAIKey() throws -> String {
+        try loadKey(account: Constants.Keychain.openAIKeyAccount)
+    }
+
+    func deleteOpenAIKey() throws {
+        try deleteKey(account: Constants.Keychain.openAIKeyAccount)
+    }
+
+    func hasOpenAIKey() -> Bool {
+        hasKey(account: Constants.Keychain.openAIKeyAccount)
+    }
+
+    // MARK: - Private Helpers
+
+    private func saveKey(_ apiKey: String, account: String) throws {
+        // Trim whitespace and newlines from API key
+        let trimmedKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let data = trimmedKey.data(using: .utf8)!
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: Constants.Keychain.service,
-            kSecAttrAccount as String: Constants.Keychain.apiKeyAccount,
+            kSecAttrAccount as String: account,
             kSecValueData as String: data
         ]
 
@@ -34,11 +74,11 @@ class APIKeyManager {
         }
     }
 
-    func loadAPIKey() throws -> String {
+    private func loadKey(account: String) throws -> String {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: Constants.Keychain.service,
-            kSecAttrAccount as String: Constants.Keychain.apiKeyAccount,
+            kSecAttrAccount as String: account,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
@@ -55,14 +95,15 @@ class APIKeyManager {
             throw APIKeyError.loadFailed
         }
 
-        return apiKey
+        // Trim whitespace and newlines when loading
+        return apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    func deleteAPIKey() throws {
+    private func deleteKey(account: String) throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: Constants.Keychain.service,
-            kSecAttrAccount as String: Constants.Keychain.apiKeyAccount
+            kSecAttrAccount as String: account
         ]
 
         let status = SecItemDelete(query as CFDictionary)
@@ -72,9 +113,9 @@ class APIKeyManager {
         }
     }
 
-    func hasAPIKey() -> Bool {
+    private func hasKey(account: String) -> Bool {
         do {
-            _ = try loadAPIKey()
+            _ = try loadKey(account: account)
             return true
         } catch {
             return false

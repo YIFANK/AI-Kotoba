@@ -1,45 +1,49 @@
 import Foundation
 
-enum ClaudeError: Error {
+enum OpenAIError: Error {
     case invalidAPIKey
     case invalidResponse
     case networkError(Error)
     case parsingError
 }
 
-struct ClaudeMessage: Codable {
+struct OpenAIMessage: Codable {
     let role: String
     let content: String
 }
 
-struct ClaudeRequest: Codable {
+struct OpenAIRequest: Codable {
     let model: String
-    let max_tokens: Int
-    let messages: [ClaudeMessage]
+    let messages: [OpenAIMessage]
+
+    enum CodingKeys: String, CodingKey {
+        case model
+        case messages
+    }
 }
 
-struct ClaudeResponse: Codable {
+struct OpenAIResponse: Codable {
     let id: String
-    let type: String
-    let role: String
-    let content: [ContentBlock]
+    let object: String
+    let created: Int
     let model: String
-    let stop_reason: String?
+    let choices: [Choice]
 
-    struct ContentBlock: Codable {
-        let type: String
-        let text: String
+    struct Choice: Codable {
+        let index: Int
+        let message: OpenAIMessage
+        let finish_reason: String?
     }
 }
 
 @Observable
-class ClaudeService {
+class OpenAIService {
     var isLoading = false
-    var lastError: ClaudeError?
+    var lastError: OpenAIError?
 
     func generateScenario(scenario: String) async throws -> ScenarioResult {
-        guard let apiKey = try? APIKeyManager.shared.loadAPIKey() else {
-            throw ClaudeError.invalidAPIKey
+        guard let apiKey = try? APIKeyManager.shared.loadOpenAIKey() else {
+            throw OpenAIError.invalidAPIKey
         }
 
         isLoading = true
@@ -48,7 +52,7 @@ class ClaudeService {
         // TURN 1: Generate Japanese content
         print("=== TURN 1: Generating Japanese content ===")
         let japanesePrompt = Constants.Prompts.scenarioPromptJapanese(scenario: scenario)
-        let japaneseText = try await callClaudeAPI(apiKey: apiKey, prompt: japanesePrompt, maxTokens: 2048)
+        let japaneseText = try await callOpenAIAPI(apiKey: apiKey, prompt: japanesePrompt, maxTokens: 2048)
 
         print("=== JAPANESE RESPONSE ===")
         print(japaneseText)
@@ -57,7 +61,7 @@ class ClaudeService {
         // TURN 2: Translate to Chinese
         print("=== TURN 2: Translating to Chinese ===")
         let translationPrompt = Constants.Prompts.scenarioPromptTranslation(japaneseJSON: japaneseText)
-        let translatedText = try await callClaudeAPI(apiKey: apiKey, prompt: translationPrompt, maxTokens: 2048)
+        let translatedText = try await callOpenAIAPI(apiKey: apiKey, prompt: translationPrompt, maxTokens: 2048)
 
         print("=== TRANSLATED RESPONSE ===")
         print(translatedText)
@@ -67,25 +71,23 @@ class ClaudeService {
         return try parseScenarioJSON(translatedText)
     }
 
-    // Helper method to make Claude API calls
-    private func callClaudeAPI(apiKey: String, prompt: String, maxTokens: Int) async throws -> String {
-        let request = ClaudeRequest(
-            model: Constants.defaultModel,
-            max_tokens: maxTokens,
+    // Helper method to make OpenAI API calls
+    private func callOpenAIAPI(apiKey: String, prompt: String, maxTokens: Int) async throws -> String {
+        let request = OpenAIRequest(
+            model: Constants.OpenAI.defaultModel,
             messages: [
-                ClaudeMessage(role: "user", content: prompt)
-            ]
+                OpenAIMessage(role: "user", content: prompt)
+            ],
         )
 
-        guard let url = URL(string: Constants.claudeAPIEndpoint) else {
-            throw ClaudeError.invalidResponse
+        guard let url = URL(string: Constants.OpenAI.endpoint) else {
+            throw OpenAIError.invalidResponse
         }
 
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
-        urlRequest.setValue(apiKey, forHTTPHeaderField: "x-api-key")
-        urlRequest.setValue(Constants.claudeAPIVersion, forHTTPHeaderField: "anthropic-version")
-        urlRequest.setValue("application/json", forHTTPHeaderField: "content-type")
+        urlRequest.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         let encoder = JSONEncoder()
         urlRequest.httpBody = try encoder.encode(request)
@@ -93,29 +95,29 @@ class ClaudeService {
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw ClaudeError.invalidResponse
+            throw OpenAIError.invalidResponse
         }
 
         guard (200...299).contains(httpResponse.statusCode) else {
             if let errorString = String(data: data, encoding: .utf8) {
                 print("API Error: \(errorString)")
             }
-            throw ClaudeError.invalidResponse
+            throw OpenAIError.invalidResponse
         }
 
         let decoder = JSONDecoder()
-        let claudeResponse = try decoder.decode(ClaudeResponse.self, from: data)
+        let openAIResponse = try decoder.decode(OpenAIResponse.self, from: data)
 
-        guard let text = claudeResponse.content.first?.text else {
-            throw ClaudeError.parsingError
+        guard let text = openAIResponse.choices.first?.message.content else {
+            throw OpenAIError.parsingError
         }
 
         return text
     }
 
     func compareFeedback(userResponse: String, correctResponse: String, chinesePrompt: String) async throws -> FeedbackResult {
-        guard let apiKey = try? APIKeyManager.shared.loadAPIKey() else {
-            throw ClaudeError.invalidAPIKey
+        guard let apiKey = try? APIKeyManager.shared.loadOpenAIKey() else {
+            throw OpenAIError.invalidAPIKey
         }
 
         isLoading = true
@@ -127,23 +129,21 @@ class ClaudeService {
             correctResponse: correctResponse
         )
 
-        let request = ClaudeRequest(
-            model: Constants.defaultModel,
-            max_tokens: 512,
+        let request = OpenAIRequest(
+            model: Constants.OpenAI.defaultModel,
             messages: [
-                ClaudeMessage(role: "user", content: prompt)
-            ]
+                OpenAIMessage(role: "user", content: prompt)
+            ],
         )
 
-        guard let url = URL(string: Constants.claudeAPIEndpoint) else {
-            throw ClaudeError.invalidResponse
+        guard let url = URL(string: Constants.OpenAI.endpoint) else {
+            throw OpenAIError.invalidResponse
         }
 
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
-        urlRequest.setValue(apiKey, forHTTPHeaderField: "x-api-key")
-        urlRequest.setValue(Constants.claudeAPIVersion, forHTTPHeaderField: "anthropic-version")
-        urlRequest.setValue("application/json", forHTTPHeaderField: "content-type")
+        urlRequest.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         let encoder = JSONEncoder()
         urlRequest.httpBody = try encoder.encode(request)
@@ -152,14 +152,14 @@ class ClaudeService {
 
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
-            throw ClaudeError.invalidResponse
+            throw OpenAIError.invalidResponse
         }
 
         let decoder = JSONDecoder()
-        let claudeResponse = try decoder.decode(ClaudeResponse.self, from: data)
+        let openAIResponse = try decoder.decode(OpenAIResponse.self, from: data)
 
-        guard let text = claudeResponse.content.first?.text else {
-            throw ClaudeError.parsingError
+        guard let text = openAIResponse.choices.first?.message.content else {
+            throw OpenAIError.parsingError
         }
 
         return try parseFeedbackJSON(text)
@@ -220,7 +220,7 @@ class ClaudeService {
 
         guard let jsonData = jsonText.data(using: .utf8) else {
             print("ERROR: Could not convert text to data")
-            throw ClaudeError.parsingError
+            throw OpenAIError.parsingError
         }
 
         let decoder = JSONDecoder()
@@ -265,7 +265,7 @@ class ClaudeService {
         let jsonText = extractJSON(from: text)
 
         guard let jsonData = jsonText.data(using: .utf8) else {
-            throw ClaudeError.parsingError
+            throw OpenAIError.parsingError
         }
 
         let decoder = JSONDecoder()

@@ -1,0 +1,716 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A75022852F2B27F8005F1C95 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A75022842F2B27F8005F1C95 /* SpeechRecognitionService.swift */; };
+		A790B5A92F2AA21900325D12 /* AI_KotobaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5A72F2AA21900325D12 /* AI_KotobaApp.swift */; };
+		A790B5AA2F2AA21900325D12 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5A52F2AA21900325D12 /* VocabularyView.swift */; };
+		A790B5AB2F2AA21900325D12 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5972F2AA21900325D12 /* Constants.swift */; };
+		A790B5AC2F2AA21900325D12 /* FlashCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5A12F2AA21900325D12 /* FlashCardView.swift */; };
+		A790B5AD2F2AA21900325D12 /* SRSAlgorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5932F2AA21900325D12 /* SRSAlgorithm.swift */; };
+		A790B5AE2F2AA21900325D12 /* ClaudeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5922F2AA21900325D12 /* ClaudeService.swift */; };
+		A790B5AF2F2AA21900325D12 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B59A2F2AA21900325D12 /* HistoryViewModel.swift */; };
+		A790B5B02F2AA21900325D12 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B59E2F2AA21900325D12 /* ContentView.swift */; };
+		A790B5B12F2AA21900325D12 /* FlashCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5992F2AA21900325D12 /* FlashCardViewModel.swift */; };
+		A790B5B22F2AA21900325D12 /* APIKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5962F2AA21900325D12 /* APIKeyManager.swift */; };
+		A790B5B32F2AA21900325D12 /* VocabularyItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5902F2AA21900325D12 /* VocabularyItem.swift */; };
+		A790B5B42F2AA21900325D12 /* FlashCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B58E2F2AA21900325D12 /* FlashCard.swift */; };
+		A790B5B52F2AA21900325D12 /* Scenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B58F2F2AA21900325D12 /* Scenario.swift */; };
+		A790B5B62F2AA21900325D12 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5A42F2AA21900325D12 /* SettingsView.swift */; };
+		A790B5B72F2AA21900325D12 /* ConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B59F2F2AA21900325D12 /* ConversationView.swift */; };
+		A790B5B82F2AA21900325D12 /* ScenarioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5A32F2AA21900325D12 /* ScenarioView.swift */; };
+		A790B5B92F2AA21900325D12 /* ConversationLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B58D2F2AA21900325D12 /* ConversationLine.swift */; };
+		A790B5BA2F2AA21900325D12 /* ScenarioViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B59B2F2AA21900325D12 /* ScenarioViewModel.swift */; };
+		A790B5BB2F2AA21900325D12 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5A02F2AA21900325D12 /* FavoritesView.swift */; };
+		A790B5BC2F2AA21900325D12 /* TTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5942F2AA21900325D12 /* TTSService.swift */; };
+		A790B5BD2F2AA21900325D12 /* VocabularyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B59C2F2AA21900325D12 /* VocabularyViewModel.swift */; };
+		A790B5BE2F2AA21900325D12 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5A22F2AA21900325D12 /* HistoryView.swift */; };
+		A790B5C62F2AC2CB00325D12 /* CharacterSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5C52F2AC2CB00325D12 /* CharacterSelectionView.swift */; };
+		A790B5C82F2AC2D400325D12 /* InteractiveConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5C72F2AC2D400325D12 /* InteractiveConversationView.swift */; };
+		A790B5CA2F2AC2DA00325D12 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5C92F2AC2DA00325D12 /* OpenAIService.swift */; };
+		A790B5CC2F2AC44800325D12 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5CB2F2AC44800325D12 /* SharedModels.swift */; };
+		A790B5CF2F2AC53500325D12 /* ConversationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5CD2F2AC53500325D12 /* ConversationMode.swift */; };
+		A790B5D02F2AC53500325D12 /* InteractiveSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5CE2F2AC53500325D12 /* InteractiveSession.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A790B56F2F2AA05200325D12 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A790B5562F2AA04E00325D12 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A790B55D2F2AA04E00325D12;
+			remoteInfo = "AI-Kotoba";
+		};
+		A790B5792F2AA05200325D12 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A790B5562F2AA04E00325D12 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A790B55D2F2AA04E00325D12;
+			remoteInfo = "AI-Kotoba";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A75022842F2B27F8005F1C95 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
+		A790B55E2F2AA04E00325D12 /* AI-Kotoba.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AI-Kotoba.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A790B56E2F2AA05200325D12 /* AI-KotobaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AI-KotobaTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A790B5782F2AA05200325D12 /* AI-KotobaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AI-KotobaUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A790B58D2F2AA21900325D12 /* ConversationLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationLine.swift; sourceTree = "<group>"; };
+		A790B58E2F2AA21900325D12 /* FlashCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashCard.swift; sourceTree = "<group>"; };
+		A790B58F2F2AA21900325D12 /* Scenario.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scenario.swift; sourceTree = "<group>"; };
+		A790B5902F2AA21900325D12 /* VocabularyItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyItem.swift; sourceTree = "<group>"; };
+		A790B5922F2AA21900325D12 /* ClaudeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeService.swift; sourceTree = "<group>"; };
+		A790B5932F2AA21900325D12 /* SRSAlgorithm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSAlgorithm.swift; sourceTree = "<group>"; };
+		A790B5942F2AA21900325D12 /* TTSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSService.swift; sourceTree = "<group>"; };
+		A790B5962F2AA21900325D12 /* APIKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeyManager.swift; sourceTree = "<group>"; };
+		A790B5972F2AA21900325D12 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		A790B5992F2AA21900325D12 /* FlashCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashCardViewModel.swift; sourceTree = "<group>"; };
+		A790B59A2F2AA21900325D12 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
+		A790B59B2F2AA21900325D12 /* ScenarioViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenarioViewModel.swift; sourceTree = "<group>"; };
+		A790B59C2F2AA21900325D12 /* VocabularyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewModel.swift; sourceTree = "<group>"; };
+		A790B59E2F2AA21900325D12 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A790B59F2F2AA21900325D12 /* ConversationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationView.swift; sourceTree = "<group>"; };
+		A790B5A02F2AA21900325D12 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
+		A790B5A12F2AA21900325D12 /* FlashCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashCardView.swift; sourceTree = "<group>"; };
+		A790B5A22F2AA21900325D12 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		A790B5A32F2AA21900325D12 /* ScenarioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenarioView.swift; sourceTree = "<group>"; };
+		A790B5A42F2AA21900325D12 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A790B5A52F2AA21900325D12 /* VocabularyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyView.swift; sourceTree = "<group>"; };
+		A790B5A72F2AA21900325D12 /* AI_KotobaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AI_KotobaApp.swift; sourceTree = "<group>"; };
+		A790B5C52F2AC2CB00325D12 /* CharacterSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterSelectionView.swift; sourceTree = "<group>"; };
+		A790B5C72F2AC2D400325D12 /* InteractiveConversationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveConversationView.swift; sourceTree = "<group>"; };
+		A790B5C92F2AC2DA00325D12 /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
+		A790B5CB2F2AC44800325D12 /* SharedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedModels.swift; sourceTree = "<group>"; };
+		A790B5CD2F2AC53500325D12 /* ConversationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationMode.swift; sourceTree = "<group>"; };
+		A790B5CE2F2AC53500325D12 /* InteractiveSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveSession.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A790B5712F2AA05200325D12 /* AI-KotobaTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "AI-KotobaTests";
+			sourceTree = "<group>";
+		};
+		A790B57B2F2AA05200325D12 /* AI-KotobaUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "AI-KotobaUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A790B55B2F2AA04E00325D12 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A790B56B2F2AA05200325D12 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A790B5752F2AA05200325D12 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A790B5552F2AA04E00325D12 = {
+			isa = PBXGroup;
+			children = (
+				A790B5A82F2AA21900325D12 /* ai-kotoba */,
+				A790B5712F2AA05200325D12 /* AI-KotobaTests */,
+				A790B57B2F2AA05200325D12 /* AI-KotobaUITests */,
+				A790B55F2F2AA04E00325D12 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A790B55F2F2AA04E00325D12 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A790B55E2F2AA04E00325D12 /* AI-Kotoba.app */,
+				A790B56E2F2AA05200325D12 /* AI-KotobaTests.xctest */,
+				A790B5782F2AA05200325D12 /* AI-KotobaUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A790B5912F2AA21900325D12 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A790B5CD2F2AC53500325D12 /* ConversationMode.swift */,
+				A790B5CE2F2AC53500325D12 /* InteractiveSession.swift */,
+				A790B58D2F2AA21900325D12 /* ConversationLine.swift */,
+				A790B58E2F2AA21900325D12 /* FlashCard.swift */,
+				A790B58F2F2AA21900325D12 /* Scenario.swift */,
+				A790B5902F2AA21900325D12 /* VocabularyItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A790B5952F2AA21900325D12 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A790B5922F2AA21900325D12 /* ClaudeService.swift */,
+				A75022842F2B27F8005F1C95 /* SpeechRecognitionService.swift */,
+				A790B5932F2AA21900325D12 /* SRSAlgorithm.swift */,
+				A790B5942F2AA21900325D12 /* TTSService.swift */,
+				A790B5C92F2AC2DA00325D12 /* OpenAIService.swift */,
+				A790B5CB2F2AC44800325D12 /* SharedModels.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A790B5982F2AA21900325D12 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A790B5962F2AA21900325D12 /* APIKeyManager.swift */,
+				A790B5972F2AA21900325D12 /* Constants.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		A790B59D2F2AA21900325D12 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A790B5992F2AA21900325D12 /* FlashCardViewModel.swift */,
+				A790B59A2F2AA21900325D12 /* HistoryViewModel.swift */,
+				A790B59B2F2AA21900325D12 /* ScenarioViewModel.swift */,
+				A790B59C2F2AA21900325D12 /* VocabularyViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A790B5A62F2AA21900325D12 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A790B59E2F2AA21900325D12 /* ContentView.swift */,
+				A790B59F2F2AA21900325D12 /* ConversationView.swift */,
+				A790B5A02F2AA21900325D12 /* FavoritesView.swift */,
+				A790B5A12F2AA21900325D12 /* FlashCardView.swift */,
+				A790B5A22F2AA21900325D12 /* HistoryView.swift */,
+				A790B5A32F2AA21900325D12 /* ScenarioView.swift */,
+				A790B5A42F2AA21900325D12 /* SettingsView.swift */,
+				A790B5A52F2AA21900325D12 /* VocabularyView.swift */,
+				A790B5C52F2AC2CB00325D12 /* CharacterSelectionView.swift */,
+				A790B5C72F2AC2D400325D12 /* InteractiveConversationView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A790B5A82F2AA21900325D12 /* ai-kotoba */ = {
+			isa = PBXGroup;
+			children = (
+				A790B5912F2AA21900325D12 /* Models */,
+				A790B5952F2AA21900325D12 /* Services */,
+				A790B5982F2AA21900325D12 /* Utilities */,
+				A790B59D2F2AA21900325D12 /* ViewModels */,
+				A790B5A62F2AA21900325D12 /* Views */,
+				A790B5A72F2AA21900325D12 /* AI_KotobaApp.swift */,
+			);
+			path = "ai-kotoba";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A790B55D2F2AA04E00325D12 /* AI-Kotoba */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A790B5822F2AA05200325D12 /* Build configuration list for PBXNativeTarget "AI-Kotoba" */;
+			buildPhases = (
+				A790B55A2F2AA04E00325D12 /* Sources */,
+				A790B55B2F2AA04E00325D12 /* Frameworks */,
+				A790B55C2F2AA04E00325D12 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "AI-Kotoba";
+			packageProductDependencies = (
+			);
+			productName = "AI-Kotoba";
+			productReference = A790B55E2F2AA04E00325D12 /* AI-Kotoba.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A790B56D2F2AA05200325D12 /* AI-KotobaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A790B5852F2AA05200325D12 /* Build configuration list for PBXNativeTarget "AI-KotobaTests" */;
+			buildPhases = (
+				A790B56A2F2AA05200325D12 /* Sources */,
+				A790B56B2F2AA05200325D12 /* Frameworks */,
+				A790B56C2F2AA05200325D12 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A790B5702F2AA05200325D12 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A790B5712F2AA05200325D12 /* AI-KotobaTests */,
+			);
+			name = "AI-KotobaTests";
+			packageProductDependencies = (
+			);
+			productName = "AI-KotobaTests";
+			productReference = A790B56E2F2AA05200325D12 /* AI-KotobaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A790B5772F2AA05200325D12 /* AI-KotobaUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A790B5882F2AA05200325D12 /* Build configuration list for PBXNativeTarget "AI-KotobaUITests" */;
+			buildPhases = (
+				A790B5742F2AA05200325D12 /* Sources */,
+				A790B5752F2AA05200325D12 /* Frameworks */,
+				A790B5762F2AA05200325D12 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A790B57A2F2AA05200325D12 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A790B57B2F2AA05200325D12 /* AI-KotobaUITests */,
+			);
+			name = "AI-KotobaUITests";
+			packageProductDependencies = (
+			);
+			productName = "AI-KotobaUITests";
+			productReference = A790B5782F2AA05200325D12 /* AI-KotobaUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A790B5562F2AA04E00325D12 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					A790B55D2F2AA04E00325D12 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					A790B56D2F2AA05200325D12 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = A790B55D2F2AA04E00325D12;
+					};
+					A790B5772F2AA05200325D12 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = A790B55D2F2AA04E00325D12;
+					};
+				};
+			};
+			buildConfigurationList = A790B5592F2AA04E00325D12 /* Build configuration list for PBXProject "AI-Kotoba" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A790B5552F2AA04E00325D12;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A790B55F2F2AA04E00325D12 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A790B55D2F2AA04E00325D12 /* AI-Kotoba */,
+				A790B56D2F2AA05200325D12 /* AI-KotobaTests */,
+				A790B5772F2AA05200325D12 /* AI-KotobaUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A790B55C2F2AA04E00325D12 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A790B56C2F2AA05200325D12 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A790B5762F2AA05200325D12 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A790B55A2F2AA04E00325D12 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A790B5C82F2AC2D400325D12 /* InteractiveConversationView.swift in Sources */,
+				A790B5A92F2AA21900325D12 /* AI_KotobaApp.swift in Sources */,
+				A790B5AA2F2AA21900325D12 /* VocabularyView.swift in Sources */,
+				A790B5AB2F2AA21900325D12 /* Constants.swift in Sources */,
+				A790B5AC2F2AA21900325D12 /* FlashCardView.swift in Sources */,
+				A790B5AD2F2AA21900325D12 /* SRSAlgorithm.swift in Sources */,
+				A790B5AE2F2AA21900325D12 /* ClaudeService.swift in Sources */,
+				A790B5AF2F2AA21900325D12 /* HistoryViewModel.swift in Sources */,
+				A790B5CC2F2AC44800325D12 /* SharedModels.swift in Sources */,
+				A790B5B02F2AA21900325D12 /* ContentView.swift in Sources */,
+				A790B5B12F2AA21900325D12 /* FlashCardViewModel.swift in Sources */,
+				A790B5B22F2AA21900325D12 /* APIKeyManager.swift in Sources */,
+				A790B5B32F2AA21900325D12 /* VocabularyItem.swift in Sources */,
+				A790B5B42F2AA21900325D12 /* FlashCard.swift in Sources */,
+				A790B5B52F2AA21900325D12 /* Scenario.swift in Sources */,
+				A790B5B62F2AA21900325D12 /* SettingsView.swift in Sources */,
+				A75022852F2B27F8005F1C95 /* SpeechRecognitionService.swift in Sources */,
+				A790B5C62F2AC2CB00325D12 /* CharacterSelectionView.swift in Sources */,
+				A790B5B72F2AA21900325D12 /* ConversationView.swift in Sources */,
+				A790B5B82F2AA21900325D12 /* ScenarioView.swift in Sources */,
+				A790B5B92F2AA21900325D12 /* ConversationLine.swift in Sources */,
+				A790B5BA2F2AA21900325D12 /* ScenarioViewModel.swift in Sources */,
+				A790B5BB2F2AA21900325D12 /* FavoritesView.swift in Sources */,
+				A790B5BC2F2AA21900325D12 /* TTSService.swift in Sources */,
+				A790B5CA2F2AC2DA00325D12 /* OpenAIService.swift in Sources */,
+				A790B5BD2F2AA21900325D12 /* VocabularyViewModel.swift in Sources */,
+				A790B5CF2F2AC53500325D12 /* ConversationMode.swift in Sources */,
+				A790B5D02F2AC53500325D12 /* InteractiveSession.swift in Sources */,
+				A790B5BE2F2AA21900325D12 /* HistoryView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A790B56A2F2AA05200325D12 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A790B5742F2AA05200325D12 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A790B5702F2AA05200325D12 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A790B55D2F2AA04E00325D12 /* AI-Kotoba */;
+			targetProxy = A790B56F2F2AA05200325D12 /* PBXContainerItemProxy */;
+		};
+		A790B57A2F2AA05200325D12 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A790B55D2F2AA04E00325D12 /* AI-Kotoba */;
+			targetProxy = A790B5792F2AA05200325D12 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A790B5802F2AA05200325D12 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = MKHUZYDLZP;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A790B5812F2AA05200325D12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = MKHUZYDLZP;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		A790B5832F2AA05200325D12 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MKHUZYDLZP;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.yifank.AI-Kotoba";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A790B5842F2AA05200325D12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MKHUZYDLZP;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.yifank.AI-Kotoba";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A790B5862F2AA05200325D12 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MKHUZYDLZP;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.yifank.AI-KotobaTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AI-Kotoba.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AI-Kotoba";
+			};
+			name = Debug;
+		};
+		A790B5872F2AA05200325D12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MKHUZYDLZP;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.yifank.AI-KotobaTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AI-Kotoba.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AI-Kotoba";
+			};
+			name = Release;
+		};
+		A790B5892F2AA05200325D12 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MKHUZYDLZP;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.yifank.AI-KotobaUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "AI-Kotoba";
+			};
+			name = Debug;
+		};
+		A790B58A2F2AA05200325D12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MKHUZYDLZP;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.yifank.AI-KotobaUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "AI-Kotoba";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A790B5592F2AA04E00325D12 /* Build configuration list for PBXProject "AI-Kotoba" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A790B5802F2AA05200325D12 /* Debug */,
+				A790B5812F2AA05200325D12 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A790B5822F2AA05200325D12 /* Build configuration list for PBXNativeTarget "AI-Kotoba" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A790B5832F2AA05200325D12 /* Debug */,
+				A790B5842F2AA05200325D12 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A790B5852F2AA05200325D12 /* Build configuration list for PBXNativeTarget "AI-KotobaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A790B5862F2AA05200325D12 /* Debug */,
+				A790B5872F2AA05200325D12 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A790B5882F2AA05200325D12 /* Build configuration list for PBXNativeTarget "AI-KotobaUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A790B5892F2AA05200325D12 /* Debug */,
+				A790B58A2F2AA05200325D12 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A790B5562F2AA04E00325D12 /* Project object */;
+}
