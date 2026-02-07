@@ -3,6 +3,39 @@ import SwiftData
 
 struct VocabularyView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var selectedTab: VocabularyTab = .myVocabulary
+
+    enum VocabularyTab: String, CaseIterable {
+        case myVocabulary = "我的词汇"
+        case jlptLibrary = "JLPT词汇库"
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Tab Picker
+            Picker("Vocabulary Tab", selection: $selectedTab) {
+                ForEach(VocabularyTab.allCases, id: \.self) { tab in
+                    Text(tab.rawValue).tag(tab)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding()
+
+            // Tab Content
+            TabView(selection: $selectedTab) {
+                MyVocabularyView()
+                    .tag(VocabularyTab.myVocabulary)
+
+                JLPTLibraryView()
+                    .tag(VocabularyTab.jlptLibrary)
+            }
+            .tabViewStyle(.automatic)
+        }
+    }
+}
+
+struct MyVocabularyView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var viewModel: VocabularyViewModel?
     @State private var showingAddSheet = false
     @State private var editingItem: VocabularyItem?
@@ -12,7 +45,7 @@ struct VocabularyView: View {
             if let viewModel {
                 // Header
                 HStack {
-                    Text("词汇表")
+                    Text("我的词汇")
                         .font(.largeTitle)
                         .fontWeight(.bold)
 
@@ -41,7 +74,7 @@ struct VocabularyView: View {
                     ContentUnavailableView(
                         "没有词汇",
                         systemImage: "book",
-                        description: Text("点击添加按钮来添加新词汇")
+                        description: Text("点击添加按钮来添加新词汇，或从JLPT词汇库导入")
                     )
                 } else {
                     List {

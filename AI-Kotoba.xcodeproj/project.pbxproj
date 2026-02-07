@@ -37,6 +37,16 @@
 		A790B5CC2F2AC44800325D12 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5CB2F2AC44800325D12 /* SharedModels.swift */; };
 		A790B5CF2F2AC53500325D12 /* ConversationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5CD2F2AC53500325D12 /* ConversationMode.swift */; };
 		A790B5D02F2AC53500325D12 /* InteractiveSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5CE2F2AC53500325D12 /* InteractiveSession.swift */; };
+		A7F840232F36F3AD00A96E6A /* N1.md in Resources */ = {isa = PBXBuildFile; fileRef = A7F840192F36F3AD00A96E6A /* N1.md */; };
+		A7F840242F36F3AD00A96E6A /* N4.md in Resources */ = {isa = PBXBuildFile; fileRef = A7F8401C2F36F3AD00A96E6A /* N4.md */; };
+		A7F840252F36F3AD00A96E6A /* N4_vocabulary.md in Resources */ = {isa = PBXBuildFile; fileRef = A7F8401F2F36F3AD00A96E6A /* N4_vocabulary.md */; };
+		A7F840262F36F3AD00A96E6A /* N5_vocabulary.md in Resources */ = {isa = PBXBuildFile; fileRef = A7F840202F36F3AD00A96E6A /* N5_vocabulary.md */; };
+		A7F840272F36F3AD00A96E6A /* N2.md in Resources */ = {isa = PBXBuildFile; fileRef = A7F8401A2F36F3AD00A96E6A /* N2.md */; };
+		A7F840282F36F3AD00A96E6A /* N3.md in Resources */ = {isa = PBXBuildFile; fileRef = A7F8401B2F36F3AD00A96E6A /* N3.md */; };
+		A7F840292F36F3AD00A96E6A /* N5.md in Resources */ = {isa = PBXBuildFile; fileRef = A7F8401D2F36F3AD00A96E6A /* N5.md */; };
+		A7F8402B2F36F3C700A96E6A /* JLPTVocabulary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F8402A2F36F3C700A96E6A /* JLPTVocabulary.swift */; };
+		A7F8402D2F36F3DD00A96E6A /* JLPTVocabularyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F8402C2F36F3DD00A96E6A /* JLPTVocabularyService.swift */; };
+		A7F8402F2F36F41A00A96E6A /* JLPTLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F8402E2F36F41A00A96E6A /* JLPTLibraryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +100,16 @@
 		A790B5CB2F2AC44800325D12 /* SharedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedModels.swift; sourceTree = "<group>"; };
 		A790B5CD2F2AC53500325D12 /* ConversationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationMode.swift; sourceTree = "<group>"; };
 		A790B5CE2F2AC53500325D12 /* InteractiveSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveSession.swift; sourceTree = "<group>"; };
+		A7F840192F36F3AD00A96E6A /* N1.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = N1.md; sourceTree = "<group>"; };
+		A7F8401A2F36F3AD00A96E6A /* N2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = N2.md; sourceTree = "<group>"; };
+		A7F8401B2F36F3AD00A96E6A /* N3.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = N3.md; sourceTree = "<group>"; };
+		A7F8401C2F36F3AD00A96E6A /* N4.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = N4.md; sourceTree = "<group>"; };
+		A7F8401D2F36F3AD00A96E6A /* N5.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = N5.md; sourceTree = "<group>"; };
+		A7F8401F2F36F3AD00A96E6A /* N4_vocabulary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = N4_vocabulary.md; sourceTree = "<group>"; };
+		A7F840202F36F3AD00A96E6A /* N5_vocabulary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = N5_vocabulary.md; sourceTree = "<group>"; };
+		A7F8402A2F36F3C700A96E6A /* JLPTVocabulary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JLPTVocabulary.swift; sourceTree = "<group>"; };
+		A7F8402C2F36F3DD00A96E6A /* JLPTVocabularyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JLPTVocabularyService.swift; sourceTree = "<group>"; };
+		A7F8402E2F36F41A00A96E6A /* JLPTLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JLPTLibraryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -158,6 +178,7 @@
 				A790B58D2F2AA21900325D12 /* ConversationLine.swift */,
 				A790B58E2F2AA21900325D12 /* FlashCard.swift */,
 				A790B58F2F2AA21900325D12 /* Scenario.swift */,
+				A7F8402A2F36F3C700A96E6A /* JLPTVocabulary.swift */,
 				A790B5902F2AA21900325D12 /* VocabularyItem.swift */,
 			);
 			path = Models;
@@ -170,6 +191,7 @@
 				A75022842F2B27F8005F1C95 /* SpeechRecognitionService.swift */,
 				A790B5932F2AA21900325D12 /* SRSAlgorithm.swift */,
 				A790B5942F2AA21900325D12 /* TTSService.swift */,
+				A7F8402C2F36F3DD00A96E6A /* JLPTVocabularyService.swift */,
 				A790B5C92F2AC2DA00325D12 /* OpenAIService.swift */,
 				A790B5CB2F2AC44800325D12 /* SharedModels.swift */,
 			);
@@ -203,6 +225,7 @@
 				A790B59F2F2AA21900325D12 /* ConversationView.swift */,
 				A790B5A02F2AA21900325D12 /* FavoritesView.swift */,
 				A790B5A12F2AA21900325D12 /* FlashCardView.swift */,
+				A7F8402E2F36F41A00A96E6A /* JLPTLibraryView.swift */,
 				A790B5A22F2AA21900325D12 /* HistoryView.swift */,
 				A790B5A32F2AA21900325D12 /* ScenarioView.swift */,
 				A790B5A42F2AA21900325D12 /* SettingsView.swift */,
@@ -223,8 +246,39 @@
 				A790B59D2F2AA21900325D12 /* ViewModels */,
 				A790B5A62F2AA21900325D12 /* Views */,
 				A790B5A72F2AA21900325D12 /* AI_KotobaApp.swift */,
+				A7F840222F36F3AD00A96E6A /* Resources */,
 			);
 			path = "ai-kotoba";
+			sourceTree = "<group>";
+		};
+		A7F8401E2F36F3AD00A96E6A /* Grammar */ = {
+			isa = PBXGroup;
+			children = (
+				A7F840192F36F3AD00A96E6A /* N1.md */,
+				A7F8401A2F36F3AD00A96E6A /* N2.md */,
+				A7F8401B2F36F3AD00A96E6A /* N3.md */,
+				A7F8401C2F36F3AD00A96E6A /* N4.md */,
+				A7F8401D2F36F3AD00A96E6A /* N5.md */,
+			);
+			path = Grammar;
+			sourceTree = "<group>";
+		};
+		A7F840212F36F3AD00A96E6A /* Vocabulary */ = {
+			isa = PBXGroup;
+			children = (
+				A7F8401F2F36F3AD00A96E6A /* N4_vocabulary.md */,
+				A7F840202F36F3AD00A96E6A /* N5_vocabulary.md */,
+			);
+			path = Vocabulary;
+			sourceTree = "<group>";
+		};
+		A7F840222F36F3AD00A96E6A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A7F8401E2F36F3AD00A96E6A /* Grammar */,
+				A7F840212F36F3AD00A96E6A /* Vocabulary */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -344,6 +398,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7F840232F36F3AD00A96E6A /* N1.md in Resources */,
+				A7F840242F36F3AD00A96E6A /* N4.md in Resources */,
+				A7F840252F36F3AD00A96E6A /* N4_vocabulary.md in Resources */,
+				A7F840262F36F3AD00A96E6A /* N5_vocabulary.md in Resources */,
+				A7F840272F36F3AD00A96E6A /* N2.md in Resources */,
+				A7F840282F36F3AD00A96E6A /* N3.md in Resources */,
+				A7F840292F36F3AD00A96E6A /* N5.md in Resources */,
 				A75022932F2C1B00005F1C95 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -380,8 +441,10 @@
 				A790B5CC2F2AC44800325D12 /* SharedModels.swift in Sources */,
 				A790B5B02F2AA21900325D12 /* ContentView.swift in Sources */,
 				A790B5B12F2AA21900325D12 /* FlashCardViewModel.swift in Sources */,
+				A7F8402D2F36F3DD00A96E6A /* JLPTVocabularyService.swift in Sources */,
 				A790B5B22F2AA21900325D12 /* APIKeyManager.swift in Sources */,
 				A790B5B32F2AA21900325D12 /* VocabularyItem.swift in Sources */,
+				A7F8402B2F36F3C700A96E6A /* JLPTVocabulary.swift in Sources */,
 				A790B5B42F2AA21900325D12 /* FlashCard.swift in Sources */,
 				A790B5B52F2AA21900325D12 /* Scenario.swift in Sources */,
 				A790B5B62F2AA21900325D12 /* SettingsView.swift in Sources */,
@@ -393,6 +456,7 @@
 				A790B5BA2F2AA21900325D12 /* ScenarioViewModel.swift in Sources */,
 				A790B5BB2F2AA21900325D12 /* FavoritesView.swift in Sources */,
 				A790B5BC2F2AA21900325D12 /* TTSService.swift in Sources */,
+				A7F8402F2F36F41A00A96E6A /* JLPTLibraryView.swift in Sources */,
 				A790B5CA2F2AC2DA00325D12 /* OpenAIService.swift in Sources */,
 				A790B5BD2F2AA21900325D12 /* VocabularyViewModel.swift in Sources */,
 				A790B5CF2F2AC53500325D12 /* ConversationMode.swift in Sources */,

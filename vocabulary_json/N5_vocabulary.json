@@ -1,0 +1,2820 @@
+{
+  "level": "N5",
+  "total_items": 402,
+  "vocabulary": [
+    {
+      "word": "いち",
+      "reading": "いち",
+      "meaning": "1",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "に",
+      "reading": "に",
+      "meaning": "2",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "さん",
+      "reading": "さん",
+      "meaning": "3",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "よん / し",
+      "reading": "よん / し",
+      "meaning": "4",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "ご",
+      "reading": "ご",
+      "meaning": "5",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "ろく",
+      "reading": "ろく",
+      "meaning": "6",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "なな / しち",
+      "reading": "なな / しち",
+      "meaning": "7",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "はち",
+      "reading": "はち",
+      "meaning": "8",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "きゅう / く",
+      "reading": "きゅう / く",
+      "meaning": "9",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "じゅう",
+      "reading": "じゅう",
+      "meaning": "10",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "じゅういち",
+      "reading": "じゅういち",
+      "meaning": "11",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "じゅうに",
+      "reading": "じゅうに",
+      "meaning": "12",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "じゅうよん",
+      "reading": "じゅうよん",
+      "meaning": "14",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "にじゅう",
+      "reading": "にじゅう",
+      "meaning": "20",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "さんじゅう",
+      "reading": "さんじゅう",
+      "meaning": "30",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "さんじゅういち",
+      "reading": "さんじゅういち",
+      "meaning": "31",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "ひゃく",
+      "reading": "ひゃく",
+      "meaning": "100",
+      "level": "N5",
+      "category": "Number"
+    },
+    {
+      "word": "ぎんこういん",
+      "reading": "ぎんこういん",
+      "meaning": "bank employee",
+      "level": "N5",
+      "category": "Occupation"
+    },
+    {
+      "word": "かいしゃいん",
+      "reading": "かいしゃいん",
+      "meaning": "company employee",
+      "level": "N5",
+      "category": "Occupation"
+    },
+    {
+      "word": "いしゃ",
+      "reading": "いしゃ",
+      "meaning": "doctor",
+      "level": "N5",
+      "category": "Occupation"
+    },
+    {
+      "word": "せんせい",
+      "reading": "せんせい",
+      "meaning": "teacher",
+      "level": "N5",
+      "category": "Occupation"
+    },
+    {
+      "word": "エンジニア",
+      "reading": "エンジニア",
+      "meaning": "engineer",
+      "level": "N5",
+      "category": "Occupation"
+    },
+    {
+      "word": "てんいん",
+      "reading": "てんいん",
+      "meaning": "clerk",
+      "level": "N5",
+      "category": "Occupation"
+    },
+    {
+      "word": "かしゅ",
+      "reading": "かしゅ",
+      "meaning": "singer",
+      "level": "N5",
+      "category": "Occupation"
+    },
+    {
+      "word": "けいさつかん",
+      "reading": "けいさつかん",
+      "meaning": "police man",
+      "level": "N5",
+      "category": "Occupation"
+    },
+    {
+      "word": "がくせい",
+      "reading": "がくせい",
+      "meaning": "student",
+      "level": "N5",
+      "category": "Occupation"
+    },
+    {
+      "word": "しゅふ",
+      "reading": "しゅふ",
+      "meaning": "housewife",
+      "level": "N5",
+      "category": "Occupation"
+    },
+    {
+      "word": "くに",
+      "reading": "くに",
+      "meaning": "country",
+      "level": "N5",
+      "category": "Country"
+    },
+    {
+      "word": "にほん",
+      "reading": "にほん",
+      "meaning": "Japan",
+      "level": "N5",
+      "category": "Country"
+    },
+    {
+      "word": "かんこく",
+      "reading": "かんこく",
+      "meaning": "Korea",
+      "level": "N5",
+      "category": "Country"
+    },
+    {
+      "word": "ちゅうごく",
+      "reading": "ちゅうごく",
+      "meaning": "China",
+      "level": "N5",
+      "category": "Country"
+    },
+    {
+      "word": "フィリピン",
+      "reading": "フィリピン",
+      "meaning": "Philippines",
+      "level": "N5",
+      "category": "Country"
+    },
+    {
+      "word": "アメリカ",
+      "reading": "アメリカ",
+      "meaning": "America",
+      "level": "N5",
+      "category": "Country"
+    },
+    {
+      "word": "ドイツ",
+      "reading": "ドイツ",
+      "meaning": "German",
+      "level": "N5",
+      "category": "Country"
+    },
+    {
+      "word": "イギリス",
+      "reading": "イギリス",
+      "meaning": "The United Kingdom",
+      "level": "N5",
+      "category": "Country"
+    },
+    {
+      "word": "にほんご",
+      "reading": "にほんご",
+      "meaning": "Japanese language",
+      "level": "N5",
+      "category": "Language"
+    },
+    {
+      "word": "かんこくご",
+      "reading": "かんこくご",
+      "meaning": "Korean language",
+      "level": "N5",
+      "category": "Language"
+    },
+    {
+      "word": "ちゅうごくご",
+      "reading": "ちゅうごくご",
+      "meaning": "Chinese language",
+      "level": "N5",
+      "category": "Language"
+    },
+    {
+      "word": "えいご",
+      "reading": "えいご",
+      "meaning": "English",
+      "level": "N5",
+      "category": "Language"
+    },
+    {
+      "word": "ぎんこう",
+      "reading": "ぎんこう",
+      "meaning": "bank",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "ゆうびんきょく",
+      "reading": "ゆうびんきょく",
+      "meaning": "post office",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "くすりや or やっきょく",
+      "reading": "くすりや or やっきょく",
+      "meaning": "drug store",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "びょういん",
+      "reading": "びょういん",
+      "meaning": "hospital",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "かいしゃ",
+      "reading": "かいしゃ",
+      "meaning": "company",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "スーパー",
+      "reading": "スーパー",
+      "meaning": "supermarket",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "きっさてん or カフェ",
+      "reading": "きっさてん or カフェ",
+      "meaning": "café",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "レストラン",
+      "reading": "レストラン",
+      "meaning": "restaurant",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "デパート",
+      "reading": "デパート",
+      "meaning": "department store",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "えいがかん",
+      "reading": "えいがかん",
+      "meaning": "cinema",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "ほんや",
+      "reading": "ほんや",
+      "meaning": "book store",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "はなや",
+      "reading": "はなや",
+      "meaning": "flower stop",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "ケーキや",
+      "reading": "ケーキや",
+      "meaning": "cake shop",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "ラーメンや",
+      "reading": "ラーメンや",
+      "meaning": "ramen shop",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "カレーや",
+      "reading": "カレーや",
+      "meaning": "curry shop",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "コンビニ",
+      "reading": "コンビニ",
+      "meaning": "convenience store",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "うち",
+      "reading": "うち",
+      "meaning": "home",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "がっこう",
+      "reading": "がっこう",
+      "meaning": "school",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "だいがく",
+      "reading": "だいがく",
+      "meaning": "university",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "アパート",
+      "reading": "アパート",
+      "meaning": "apartment",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "トイレ / おてあらい",
+      "reading": "トイレ / おてあらい",
+      "meaning": "toilet",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "はくぶつかん",
+      "reading": "はくぶつかん",
+      "meaning": "museum",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "こうえん",
+      "reading": "こうえん",
+      "meaning": "park",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "たいしかん",
+      "reading": "たいしかん",
+      "meaning": "embassy",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "まち",
+      "reading": "まち",
+      "meaning": "town",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "きたぐち",
+      "reading": "きたぐち",
+      "meaning": "north exit",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "みなみぐち",
+      "reading": "みなみぐち",
+      "meaning": "south exit",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "ひがしぐち",
+      "reading": "ひがしぐち",
+      "meaning": "east exit",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "にしぐち",
+      "reading": "にしぐち",
+      "meaning": "west exit",
+      "level": "N5",
+      "category": "Places"
+    },
+    {
+      "word": "きせつ",
+      "reading": "きせつ",
+      "meaning": "season",
+      "level": "N5",
+      "category": "Season"
+    },
+    {
+      "word": "はる",
+      "reading": "はる",
+      "meaning": "spring",
+      "level": "N5",
+      "category": "Season"
+    },
+    {
+      "word": "なつ",
+      "reading": "なつ",
+      "meaning": "summer",
+      "level": "N5",
+      "category": "Season"
+    },
+    {
+      "word": "あき",
+      "reading": "あき",
+      "meaning": "autumn",
+      "level": "N5",
+      "category": "Season"
+    },
+    {
+      "word": "ふゆ",
+      "reading": "ふゆ",
+      "meaning": "winter",
+      "level": "N5",
+      "category": "Season"
+    },
+    {
+      "word": "かぞく",
+      "reading": "かぞく",
+      "meaning": "family",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "ともだち",
+      "reading": "ともだち",
+      "meaning": "friend",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "ちち",
+      "reading": "ちち",
+      "meaning": "(my) father",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おとうさん",
+      "reading": "おとうさん",
+      "meaning": "(someone else's) father / dad",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "はは",
+      "reading": "はは",
+      "meaning": "(my) mother",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おかあさん",
+      "reading": "おかあさん",
+      "meaning": "(someone else's) father / mom",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "あに",
+      "reading": "あに",
+      "meaning": "(my) older brother",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おにいさん",
+      "reading": "おにいさん",
+      "meaning": "(someone else's) older brother",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "あね",
+      "reading": "あね",
+      "meaning": "(my) older sister",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おねえさん",
+      "reading": "おねえさん",
+      "meaning": "(someone else's) older sister",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おとうと",
+      "reading": "おとうと",
+      "meaning": "younger brother",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "いもうと",
+      "reading": "いもうと",
+      "meaning": "younger sister",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "きょうだい",
+      "reading": "きょうだい",
+      "meaning": "sibling",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "むすこ",
+      "reading": "むすこ",
+      "meaning": "son",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "むすめ",
+      "reading": "むすめ",
+      "meaning": "daughter",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おとこ or だんせい",
+      "reading": "おとこ or だんせい",
+      "meaning": "man",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おんな or じょせい",
+      "reading": "おんな or じょせい",
+      "meaning": "woman",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おっと",
+      "reading": "おっと",
+      "meaning": "(my) husband",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "ごしゅじん",
+      "reading": "ごしゅじん",
+      "meaning": "(someone else's) husband",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "つま",
+      "reading": "つま",
+      "meaning": "(my) wife",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おくさん",
+      "reading": "おくさん",
+      "meaning": "(someone else's) wife",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "りょうしん",
+      "reading": "りょうしん",
+      "meaning": "parents",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "こども",
+      "reading": "こども",
+      "meaning": "child",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "そふ",
+      "reading": "そふ",
+      "meaning": "(my) grandfather",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おじいさん",
+      "reading": "おじいさん",
+      "meaning": "(someone else's) grandfather",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "そぼ",
+      "reading": "そぼ",
+      "meaning": "(my) grandmother",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おばあさん",
+      "reading": "おばあさん",
+      "meaning": "(someone else's) grandmother",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おじ",
+      "reading": "おじ",
+      "meaning": "uncle",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "おば",
+      "reading": "おば",
+      "meaning": "aunt",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "まご",
+      "reading": "まご",
+      "meaning": "grandchild",
+      "level": "N5",
+      "category": "People"
+    },
+    {
+      "word": "どうぶつ",
+      "reading": "どうぶつ",
+      "meaning": "animal",
+      "level": "N5",
+      "category": "Animals"
+    },
+    {
+      "word": "いぬ",
+      "reading": "いぬ",
+      "meaning": "dog",
+      "level": "N5",
+      "category": "Animals"
+    },
+    {
+      "word": "ねこ",
+      "reading": "ねこ",
+      "meaning": "cat",
+      "level": "N5",
+      "category": "Animals"
+    },
+    {
+      "word": "ぶた",
+      "reading": "ぶた",
+      "meaning": "pig",
+      "level": "N5",
+      "category": "Animals"
+    },
+    {
+      "word": "うし",
+      "reading": "うし",
+      "meaning": "cow",
+      "level": "N5",
+      "category": "Animals"
+    },
+    {
+      "word": "にわとり",
+      "reading": "にわとり",
+      "meaning": "chicken",
+      "level": "N5",
+      "category": "Animals"
+    },
+    {
+      "word": "とり",
+      "reading": "とり",
+      "meaning": "bird",
+      "level": "N5",
+      "category": "Animals"
+    },
+    {
+      "word": "ふく",
+      "reading": "ふく",
+      "meaning": "clothes",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "きもの",
+      "reading": "きもの",
+      "meaning": "kimono",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "ぼうし",
+      "reading": "ぼうし",
+      "meaning": "hat / cap",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "スーツ",
+      "reading": "スーツ",
+      "meaning": "suit",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "ジャケット",
+      "reading": "ジャケット",
+      "meaning": "jacket",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "セーター",
+      "reading": "セーター",
+      "meaning": "sweater",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "コート",
+      "reading": "コート",
+      "meaning": "coat",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "Tシャツ",
+      "reading": "Tシャツ",
+      "meaning": "T-shirt",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "ドレス",
+      "reading": "ドレス",
+      "meaning": "dress",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "したぎ",
+      "reading": "したぎ",
+      "meaning": "underwear",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "イヤリング",
+      "reading": "イヤリング",
+      "meaning": "earing",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "ベルト",
+      "reading": "ベルト",
+      "meaning": "belt",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "ネクタイ",
+      "reading": "ネクタイ",
+      "meaning": "necktie",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "てぶくろ",
+      "reading": "てぶくろ",
+      "meaning": "glove / mitten",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "めがね",
+      "reading": "めがね",
+      "meaning": "glasses",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "サングラス",
+      "reading": "サングラス",
+      "meaning": "sunglasses",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "ズボン",
+      "reading": "ズボン",
+      "meaning": "pants",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "スカート",
+      "reading": "スカート",
+      "meaning": "skirt",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "くつした",
+      "reading": "くつした",
+      "meaning": "socks",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "くつ",
+      "reading": "くつ",
+      "meaning": "shoes",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "サンダル",
+      "reading": "サンダル",
+      "meaning": "sandals",
+      "level": "N5",
+      "category": "Clothing"
+    },
+    {
+      "word": "うみ",
+      "reading": "うみ",
+      "meaning": "sea",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "かわ",
+      "reading": "かわ",
+      "meaning": "river",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "やま",
+      "reading": "やま",
+      "meaning": "mountain",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "かぜ",
+      "reading": "かぜ",
+      "meaning": "wind",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "き",
+      "reading": "き",
+      "meaning": "tree",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "もり",
+      "reading": "もり",
+      "meaning": "forest",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "そら",
+      "reading": "そら",
+      "meaning": "sky",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "くも",
+      "reading": "くも",
+      "meaning": "cloud",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "いけ",
+      "reading": "いけ",
+      "meaning": "pond",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "はな",
+      "reading": "はな",
+      "meaning": "flower",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "くさ",
+      "reading": "くさ",
+      "meaning": "grass",
+      "level": "N5",
+      "category": "Nature"
+    },
+    {
+      "word": "からだ",
+      "reading": "からだ",
+      "meaning": "body",
+      "level": "N5",
+      "category": "Body Parts"
+    },
+    {
+      "word": "あたま",
+      "reading": "あたま",
+      "meaning": "head",
+      "level": "N5",
+      "category": "Body Parts"
+    },
+    {
+      "word": "くび",
+      "reading": "くび",
+      "meaning": "neck",
+      "level": "N5",
+      "category": "Body Parts"
+    },
+    {
+      "word": "うで",
+      "reading": "うで",
+      "meaning": "arm",
+      "level": "N5",
+      "category": "Body Parts"
+    },
+    {
+      "word": "ゆび",
+      "reading": "ゆび",
+      "meaning": "finger",
+      "level": "N5",
+      "category": "Body Parts"
+    },
+    {
+      "word": "くち",
+      "reading": "くち",
+      "meaning": "mouth",
+      "level": "N5",
+      "category": "Body Parts"
+    },
+    {
+      "word": "みみ",
+      "reading": "みみ",
+      "meaning": "ear",
+      "level": "N5",
+      "category": "Body Parts"
+    },
+    {
+      "word": "め",
+      "reading": "め",
+      "meaning": "eye",
+      "level": "N5",
+      "category": "Body Parts"
+    },
+    {
+      "word": "はな",
+      "reading": "はな",
+      "meaning": "nose",
+      "level": "N5",
+      "category": "Body Parts"
+    },
+    {
+      "word": "かみ",
+      "reading": "かみ",
+      "meaning": "hair",
+      "level": "N5",
+      "category": "Body Parts"
+    },
+    {
+      "word": "たべもの",
+      "reading": "たべもの",
+      "meaning": "food",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "りょうり",
+      "reading": "りょうり",
+      "meaning": "cuisine / dish",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "ごはん",
+      "reading": "ごはん",
+      "meaning": "rice / meal",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "パン",
+      "reading": "パン",
+      "meaning": "bread",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "ラーメン",
+      "reading": "ラーメン",
+      "meaning": "ramen",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "スパゲッティ",
+      "reading": "スパゲッティ",
+      "meaning": "spaghetti",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "カレーライス",
+      "reading": "カレーライス",
+      "meaning": "curry and rice",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "ハンバーガー",
+      "reading": "ハンバーガー",
+      "meaning": "hamburger",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "サンドウィッチ",
+      "reading": "サンドウィッチ",
+      "meaning": "sandwich",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "ドーナッツ",
+      "reading": "ドーナッツ",
+      "meaning": "donut",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "べんとう",
+      "reading": "べんとう",
+      "meaning": "lunch box",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "アイスクリーム",
+      "reading": "アイスクリーム",
+      "meaning": "ice cream",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "ケーキ",
+      "reading": "ケーキ",
+      "meaning": "cake",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "あさごはん",
+      "reading": "あさごはん",
+      "meaning": "breakfast",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "ひるごはん",
+      "reading": "ひるごはん",
+      "meaning": "lunch",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "ばんごはん",
+      "reading": "ばんごはん",
+      "meaning": "dinner",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "スープ",
+      "reading": "スープ",
+      "meaning": "soup",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "うどん",
+      "reading": "うどん",
+      "meaning": "udon",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "みそしる",
+      "reading": "みそしる",
+      "meaning": "miso soup",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "ピザ",
+      "reading": "ピザ",
+      "meaning": "pizza",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "おにぎり",
+      "reading": "おにぎり",
+      "meaning": "rice ball",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "さかな",
+      "reading": "さかな",
+      "meaning": "fish",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "ぎゅうにく",
+      "reading": "ぎゅうにく",
+      "meaning": "beef",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "ぶたにく",
+      "reading": "ぶたにく",
+      "meaning": "pork",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "とりにく",
+      "reading": "とりにく",
+      "meaning": "chicken",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "たまご",
+      "reading": "たまご",
+      "meaning": "egg",
+      "level": "N5",
+      "category": "Food"
+    },
+    {
+      "word": "みず",
+      "reading": "みず",
+      "meaning": "water",
+      "level": "N5",
+      "category": "Beverage"
+    },
+    {
+      "word": "ぎゅうにゅう",
+      "reading": "ぎゅうにゅう",
+      "meaning": "milk",
+      "level": "N5",
+      "category": "Beverage"
+    },
+    {
+      "word": "ビール",
+      "reading": "ビール",
+      "meaning": "beer",
+      "level": "N5",
+      "category": "Beverage"
+    },
+    {
+      "word": "おちゃ",
+      "reading": "おちゃ",
+      "meaning": "tea",
+      "level": "N5",
+      "category": "Beverage"
+    },
+    {
+      "word": "コーヒー",
+      "reading": "コーヒー",
+      "meaning": "coffee",
+      "level": "N5",
+      "category": "Beverage"
+    },
+    {
+      "word": "ワイン",
+      "reading": "ワイン",
+      "meaning": "wine",
+      "level": "N5",
+      "category": "Beverage"
+    },
+    {
+      "word": "ジュース",
+      "reading": "ジュース",
+      "meaning": "juice",
+      "level": "N5",
+      "category": "Beverage"
+    },
+    {
+      "word": "おさけ",
+      "reading": "おさけ",
+      "meaning": "liquor",
+      "level": "N5",
+      "category": "Beverage"
+    },
+    {
+      "word": "りんご",
+      "reading": "りんご",
+      "meaning": "apple",
+      "level": "N5",
+      "category": "Fruits"
+    },
+    {
+      "word": "バナナ",
+      "reading": "バナナ",
+      "meaning": "banana",
+      "level": "N5",
+      "category": "Fruits"
+    },
+    {
+      "word": "みかん",
+      "reading": "みかん",
+      "meaning": "mandarin orange",
+      "level": "N5",
+      "category": "Fruits"
+    },
+    {
+      "word": "いちご",
+      "reading": "いちご",
+      "meaning": "strawberry",
+      "level": "N5",
+      "category": "Fruits"
+    },
+    {
+      "word": "くるま",
+      "reading": "くるま",
+      "meaning": "car",
+      "level": "N5",
+      "category": "Vehicles"
+    },
+    {
+      "word": "タクシー",
+      "reading": "タクシー",
+      "meaning": "taxi",
+      "level": "N5",
+      "category": "Vehicles"
+    },
+    {
+      "word": "バス",
+      "reading": "バス",
+      "meaning": "bus",
+      "level": "N5",
+      "category": "Vehicles"
+    },
+    {
+      "word": "バイク",
+      "reading": "バイク",
+      "meaning": "motorcycle",
+      "level": "N5",
+      "category": "Vehicles"
+    },
+    {
+      "word": "じてんしゃ",
+      "reading": "じてんしゃ",
+      "meaning": "bicycle",
+      "level": "N5",
+      "category": "Vehicles"
+    },
+    {
+      "word": "でんしゃ",
+      "reading": "でんしゃ",
+      "meaning": "train",
+      "level": "N5",
+      "category": "Vehicles"
+    },
+    {
+      "word": "ちかてつ",
+      "reading": "ちかてつ",
+      "meaning": "subway",
+      "level": "N5",
+      "category": "Vehicles"
+    },
+    {
+      "word": "ひこうき",
+      "reading": "ひこうき",
+      "meaning": "airplane",
+      "level": "N5",
+      "category": "Vehicles"
+    },
+    {
+      "word": "ふね",
+      "reading": "ふね",
+      "meaning": "ship",
+      "level": "N5",
+      "category": "Vehicles"
+    },
+    {
+      "word": "テニス",
+      "reading": "テニス",
+      "meaning": "tennis",
+      "level": "N5",
+      "category": "Sports"
+    },
+    {
+      "word": "サッカー",
+      "reading": "サッカー",
+      "meaning": "soccer",
+      "level": "N5",
+      "category": "Sports"
+    },
+    {
+      "word": "バスケットボール",
+      "reading": "バスケットボール",
+      "meaning": "basketball",
+      "level": "N5",
+      "category": "Sports"
+    },
+    {
+      "word": "ゴルフ",
+      "reading": "ゴルフ",
+      "meaning": "golf",
+      "level": "N5",
+      "category": "Sports"
+    },
+    {
+      "word": "やきゅう",
+      "reading": "やきゅう",
+      "meaning": "baseball",
+      "level": "N5",
+      "category": "Sports"
+    },
+    {
+      "word": "たっきゅう",
+      "reading": "たっきゅう",
+      "meaning": "table tennis",
+      "level": "N5",
+      "category": "Sports"
+    },
+    {
+      "word": "えんぴつ",
+      "reading": "えんぴつ",
+      "meaning": "pencil",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "ペン",
+      "reading": "ペン",
+      "meaning": "pen",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "ボールペン",
+      "reading": "ボールペン",
+      "meaning": "ballpoint pen",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "シャーペン",
+      "reading": "シャーペン",
+      "meaning": "mechanical pencil",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "まんねんひつ",
+      "reading": "まんねんひつ",
+      "meaning": "fountain pen",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "けしゴム",
+      "reading": "けしゴム",
+      "meaning": "eraser",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "はさみ",
+      "reading": "はさみ",
+      "meaning": "scissors",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "かみ",
+      "reading": "かみ",
+      "meaning": "paper",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "ノート",
+      "reading": "ノート",
+      "meaning": "notebook",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "ふでばこ",
+      "reading": "ふでばこ",
+      "meaning": "pencil case",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "けいさんき",
+      "reading": "けいさんき",
+      "meaning": "calculator",
+      "level": "N5",
+      "category": "Stationery"
+    },
+    {
+      "word": "いえ / うち",
+      "reading": "いえ / うち",
+      "meaning": "home",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "げんかん",
+      "reading": "げんかん",
+      "meaning": "entrance hall",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "だいどころ",
+      "reading": "だいどころ",
+      "meaning": "kitchen",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "へや",
+      "reading": "へや",
+      "meaning": "room",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "ドア / と",
+      "reading": "ドア / と",
+      "meaning": "door",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "テーブル",
+      "reading": "テーブル",
+      "meaning": "table",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "イス",
+      "reading": "イス",
+      "meaning": "chair",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "つくえ",
+      "reading": "つくえ",
+      "meaning": "desk",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "おしいれ",
+      "reading": "おしいれ",
+      "meaning": "closet",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "ほんだな",
+      "reading": "ほんだな",
+      "meaning": "bookshelf",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "まど",
+      "reading": "まど",
+      "meaning": "window",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "かいだん",
+      "reading": "かいだん",
+      "meaning": "stairs",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "ベッド",
+      "reading": "ベッド",
+      "meaning": "bed",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "かびん",
+      "reading": "かびん",
+      "meaning": "vase",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "やね",
+      "reading": "やね",
+      "meaning": "roof",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "キッチン",
+      "reading": "キッチン",
+      "meaning": "kitchen",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "エアコン",
+      "reading": "エアコン",
+      "meaning": "air conditioner",
+      "level": "N5",
+      "category": "Home"
+    },
+    {
+      "word": "にちようび",
+      "reading": "にちようび",
+      "meaning": "Sunday",
+      "level": "N5",
+      "category": "Day of the week"
+    },
+    {
+      "word": "げつようび",
+      "reading": "げつようび",
+      "meaning": "Monday",
+      "level": "N5",
+      "category": "Day of the week"
+    },
+    {
+      "word": "かようび",
+      "reading": "かようび",
+      "meaning": "Tuesday",
+      "level": "N5",
+      "category": "Day of the week"
+    },
+    {
+      "word": "すいようび",
+      "reading": "すいようび",
+      "meaning": "Wednesday",
+      "level": "N5",
+      "category": "Day of the week"
+    },
+    {
+      "word": "もくようび",
+      "reading": "もくようび",
+      "meaning": "Thursday",
+      "level": "N5",
+      "category": "Day of the week"
+    },
+    {
+      "word": "きんようび",
+      "reading": "きんようび",
+      "meaning": "Friday",
+      "level": "N5",
+      "category": "Day of the week"
+    },
+    {
+      "word": "どようび",
+      "reading": "どようび",
+      "meaning": "Saturday",
+      "level": "N5",
+      "category": "Day of the week"
+    },
+    {
+      "word": "おととい",
+      "reading": "おととい",
+      "meaning": "day before yesterday",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "きのう",
+      "reading": "きのう",
+      "meaning": "yesterday",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "きょう",
+      "reading": "きょう",
+      "meaning": "today",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "あした",
+      "reading": "あした",
+      "meaning": "tomorrow",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "あさって",
+      "reading": "あさって",
+      "meaning": "day after tomorrow",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "せんしゅう",
+      "reading": "せんしゅう",
+      "meaning": "last week",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "こんしゅう",
+      "reading": "こんしゅう",
+      "meaning": "this week",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "らいしゅう",
+      "reading": "らいしゅう",
+      "meaning": "next week",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "せんげつ",
+      "reading": "せんげつ",
+      "meaning": "last month",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "こんげつ",
+      "reading": "こんげつ",
+      "meaning": "this month",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "らいげつ",
+      "reading": "らいげつ",
+      "meaning": "next month",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "きょねん",
+      "reading": "きょねん",
+      "meaning": "last year",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "ことし",
+      "reading": "ことし",
+      "meaning": "this year",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "らいねん",
+      "reading": "らいねん",
+      "meaning": "next year",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "まいにち",
+      "reading": "まいにち",
+      "meaning": "every day",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "まいしゅう",
+      "reading": "まいしゅう",
+      "meaning": "every week",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "まいばん",
+      "reading": "まいばん",
+      "meaning": "every night",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "けさ",
+      "reading": "けさ",
+      "meaning": "this morning",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "こんばん",
+      "reading": "こんばん",
+      "meaning": "this evening",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "きのうの よる",
+      "reading": "きのうの よる",
+      "meaning": "last night",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "たんじょうび",
+      "reading": "たんじょうび",
+      "meaning": "birthday",
+      "level": "N5",
+      "category": "Date / Time"
+    },
+    {
+      "word": "おんがく",
+      "reading": "おんがく",
+      "meaning": "music",
+      "level": "N5",
+      "category": "Music / Instrument"
+    },
+    {
+      "word": "ピアノ",
+      "reading": "ピアノ",
+      "meaning": "piano",
+      "level": "N5",
+      "category": "Music / Instrument"
+    },
+    {
+      "word": "ギター",
+      "reading": "ギター",
+      "meaning": "guitar",
+      "level": "N5",
+      "category": "Music / Instrument"
+    },
+    {
+      "word": "カラオケ",
+      "reading": "カラオケ",
+      "meaning": "karaoke",
+      "level": "N5",
+      "category": "Music / Instrument"
+    },
+    {
+      "word": "はたらきます",
+      "reading": "はたらきます",
+      "meaning": "to work",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "いきます",
+      "reading": "いきます",
+      "meaning": "to go",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "かえります",
+      "reading": "かえります",
+      "meaning": "to return / to go home",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "のみます",
+      "reading": "のみます",
+      "meaning": "to drink",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "よみます",
+      "reading": "よみます",
+      "meaning": "to read",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "かいます",
+      "reading": "かいます",
+      "meaning": "to buy",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "ききます",
+      "reading": "ききます",
+      "meaning": "to listen",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "かきます",
+      "reading": "かきます",
+      "meaning": "to write",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "とります",
+      "reading": "とります",
+      "meaning": "to take (a picture)",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "あいます",
+      "reading": "あいます",
+      "meaning": "to meet",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "すいます",
+      "reading": "すいます",
+      "meaning": "to smoke",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "きります",
+      "reading": "きります",
+      "meaning": "to cut",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "おわります",
+      "reading": "おわります",
+      "meaning": "to finish",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "ならいます",
+      "reading": "ならいます",
+      "meaning": "to learn",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "かします",
+      "reading": "かします",
+      "meaning": "to lend",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "もらいます",
+      "reading": "もらいます",
+      "meaning": "to receive",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "わらいます",
+      "reading": "わらいます",
+      "meaning": "to laugh",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "わたします",
+      "reading": "わたします",
+      "meaning": "to hand over",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "しかります",
+      "reading": "しかります",
+      "meaning": "to scold",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "うたいます",
+      "reading": "うたいます",
+      "meaning": "to sing",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "おどります",
+      "reading": "おどります",
+      "meaning": "to dance",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "ひきます",
+      "reading": "ひきます",
+      "meaning": "to play (piano, gitar)",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "なきます",
+      "reading": "なきます",
+      "meaning": "to cry",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "おこります",
+      "reading": "おこります",
+      "meaning": "to get angry",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "いいます",
+      "reading": "いいます",
+      "meaning": "to say",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "はなします",
+      "reading": "はなします",
+      "meaning": "to speak / to talk",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "たちます",
+      "reading": "たちます",
+      "meaning": "to stand up",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "すわります",
+      "reading": "すわります",
+      "meaning": "to sit down",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "だします",
+      "reading": "だします",
+      "meaning": "to put out",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "すみます",
+      "reading": "すみます",
+      "meaning": "to live",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "つくります",
+      "reading": "つくります",
+      "meaning": "to make",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "うります",
+      "reading": "うります",
+      "meaning": "to sell",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "つかいます",
+      "reading": "つかいます",
+      "meaning": "to use",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "あそびます",
+      "reading": "あそびます",
+      "meaning": "to play",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "かかります",
+      "reading": "かかります",
+      "meaning": "to cost / to take (time)",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "いそぎます",
+      "reading": "いそぎます",
+      "meaning": "to hurry",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "おなか がすく",
+      "reading": "おなか がすく",
+      "meaning": "to get hungry",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "のどが かわく",
+      "reading": "のどが かわく",
+      "meaning": "to get thirsty",
+      "level": "N5",
+      "category": "Verb 1 (U-verbs)"
+    },
+    {
+      "word": "おきます",
+      "reading": "おきます",
+      "meaning": "to wake up",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "ねます",
+      "reading": "ねます",
+      "meaning": "to sleep",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "たべます",
+      "reading": "たべます",
+      "meaning": "to eat",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "みます",
+      "reading": "みます",
+      "meaning": "to watch / see / look",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "みせます",
+      "reading": "みせます",
+      "meaning": "to show",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "でかける",
+      "reading": "でかける",
+      "meaning": "to go out",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "（シャワーを）あびます",
+      "reading": "（シャワーを）あびます",
+      "meaning": "to take (a shower)",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "かけます",
+      "reading": "かけます",
+      "meaning": "to make a call",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "はじめます",
+      "reading": "はじめます",
+      "meaning": "to start",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "おしえます",
+      "reading": "おしえます",
+      "meaning": "to teach",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "かります",
+      "reading": "かります",
+      "meaning": "to borrow",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "あげます",
+      "reading": "あげます",
+      "meaning": "to give",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "いれます",
+      "reading": "いれます",
+      "meaning": "to put in",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "たります",
+      "reading": "たります",
+      "meaning": "to be enough",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "つとめます",
+      "reading": "つとめます",
+      "meaning": "to work for",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "あけます",
+      "reading": "あけます",
+      "meaning": "to open",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "しめます",
+      "reading": "しめます",
+      "meaning": "to close",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "つけます",
+      "reading": "つけます",
+      "meaning": "to turn on",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "けします",
+      "reading": "けします",
+      "meaning": "to turn off",
+      "level": "N5",
+      "category": "Verb 2 (Ru-verbs)"
+    },
+    {
+      "word": "べんきょうします",
+      "reading": "べんきょうします",
+      "meaning": "to study",
+      "level": "N5",
+      "category": "Verb 3 (Irregular verbs)"
+    },
+    {
+      "word": "しょくじします",
+      "reading": "しょくじします",
+      "meaning": "to have a meal",
+      "level": "N5",
+      "category": "Verb 3 (Irregular verbs)"
+    },
+    {
+      "word": "きます",
+      "reading": "きます",
+      "meaning": "to come",
+      "level": "N5",
+      "category": "Verb 3 (Irregular verbs)"
+    },
+    {
+      "word": "（sportsを）します",
+      "reading": "（sportsを）します",
+      "meaning": "to play (sports)",
+      "level": "N5",
+      "category": "Verb 3 (Irregular verbs)"
+    },
+    {
+      "word": "します",
+      "reading": "します",
+      "meaning": "to play",
+      "level": "N5",
+      "category": "Verb 3 (Irregular verbs)"
+    },
+    {
+      "word": "します",
+      "reading": "します",
+      "meaning": "to do",
+      "level": "N5",
+      "category": "Verb 3 (Irregular verbs)"
+    },
+    {
+      "word": "れんしゅうします",
+      "reading": "れんしゅうします",
+      "meaning": "to practice",
+      "level": "N5",
+      "category": "Verb 3 (Irregular verbs)"
+    },
+    {
+      "word": "ふくしゅうします",
+      "reading": "ふくしゅうします",
+      "meaning": "to review",
+      "level": "N5",
+      "category": "Verb 3 (Irregular verbs)"
+    },
+    {
+      "word": "けっこんします",
+      "reading": "けっこんします",
+      "meaning": "to marry",
+      "level": "N5",
+      "category": "Verb 3 (Irregular verbs)"
+    },
+    {
+      "word": "いつも",
+      "reading": "いつも",
+      "meaning": "always",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "たいてい",
+      "reading": "たいてい",
+      "meaning": "usually",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "よく",
+      "reading": "よく",
+      "meaning": "often",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "ときどき",
+      "reading": "ときどき",
+      "meaning": "sometimes",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "あまり",
+      "reading": "あまり",
+      "meaning": "not very",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "ぜんぜん",
+      "reading": "ぜんぜん",
+      "meaning": "not at all",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "とても",
+      "reading": "とても",
+      "meaning": "very",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "もっと",
+      "reading": "もっと",
+      "meaning": "more",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "たくさん",
+      "reading": "たくさん",
+      "meaning": "a lot",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "すこし",
+      "reading": "すこし",
+      "meaning": "a little",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "ゆっくり",
+      "reading": "ゆっくり",
+      "meaning": "slowly",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "もう",
+      "reading": "もう",
+      "meaning": "already",
+      "level": "N5",
+      "category": "Adverbs"
+    },
+    {
+      "word": "おおきい",
+      "reading": "おおきい",
+      "meaning": "big",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "ちいさい",
+      "reading": "ちいさい",
+      "meaning": "small",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "たかい",
+      "reading": "たかい",
+      "meaning": "high / tall / expensive",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "やすい",
+      "reading": "やすい",
+      "meaning": "cheap",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "ひくい",
+      "reading": "ひくい",
+      "meaning": "low",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "いい / よい",
+      "reading": "いい / よい",
+      "meaning": "good",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "わるい",
+      "reading": "わるい",
+      "meaning": "bad",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "とおい",
+      "reading": "とおい",
+      "meaning": "far",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "ちかい",
+      "reading": "ちかい",
+      "meaning": "near",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "あたらしい",
+      "reading": "あたらしい",
+      "meaning": "new",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "ふるい",
+      "reading": "ふるい",
+      "meaning": "old",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "からい",
+      "reading": "からい",
+      "meaning": "spicy",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "あまい",
+      "reading": "あまい",
+      "meaning": "sweet",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "にがい",
+      "reading": "にがい",
+      "meaning": "bitter",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "むずかしい",
+      "reading": "むずかしい",
+      "meaning": "difficult",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "わかい",
+      "reading": "わかい",
+      "meaning": "young",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "ながい",
+      "reading": "ながい",
+      "meaning": "long",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "みじかい",
+      "reading": "みじかい",
+      "meaning": "short",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "はやい",
+      "reading": "はやい",
+      "meaning": "fast / early",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "おそい",
+      "reading": "おそい",
+      "meaning": "slow",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "うるさい",
+      "reading": "うるさい",
+      "meaning": "noisy",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "あかるい",
+      "reading": "あかるい",
+      "meaning": "bright",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "くらい",
+      "reading": "くらい",
+      "meaning": "dark",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "きたない",
+      "reading": "きたない",
+      "meaning": "dirty",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "おもしろい",
+      "reading": "おもしろい",
+      "meaning": "interesting",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "つまらない",
+      "reading": "つまらない",
+      "meaning": "boring",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "うれしい",
+      "reading": "うれしい",
+      "meaning": "happy",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "かなしい",
+      "reading": "かなしい",
+      "meaning": "sad",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "たのしい",
+      "reading": "たのしい",
+      "meaning": "fun",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "さびしい",
+      "reading": "さびしい",
+      "meaning": "lonely",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "こわい",
+      "reading": "こわい",
+      "meaning": "scary",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "あつい",
+      "reading": "あつい",
+      "meaning": "hot",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "さむい",
+      "reading": "さむい",
+      "meaning": "cold (weather)",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "つめたい",
+      "reading": "つめたい",
+      "meaning": "cold (objects)",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "あたたかい",
+      "reading": "あたたかい",
+      "meaning": "warm",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "すずしい",
+      "reading": "すずしい",
+      "meaning": "cool",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "さむい",
+      "reading": "さむい",
+      "meaning": "cold",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "せまい",
+      "reading": "せまい",
+      "meaning": "narrow",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "ひろい",
+      "reading": "ひろい",
+      "meaning": "wide",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "いそがしい",
+      "reading": "いそがしい",
+      "meaning": "busy",
+      "level": "N5",
+      "category": "i - Adjective"
+    },
+    {
+      "word": "しんせつ",
+      "reading": "しんせつ",
+      "meaning": "kind",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "かんたん",
+      "reading": "かんたん",
+      "meaning": "easy",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "きれい",
+      "reading": "きれい",
+      "meaning": "beautiful / clean",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "ゆうめい",
+      "reading": "ゆうめい",
+      "meaning": "famous",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "ハンサム",
+      "reading": "ハンサム",
+      "meaning": "handsome",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "にぎやか",
+      "reading": "にぎやか",
+      "meaning": "lively",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "しずか",
+      "reading": "しずか",
+      "meaning": "quiet",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "じょうずな",
+      "reading": "じょうずな",
+      "meaning": "good at / skillful",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "へたな",
+      "reading": "へたな",
+      "meaning": "poor at / unskillful",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "すきな",
+      "reading": "すきな",
+      "meaning": "like / favorite",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "きらいな",
+      "reading": "きらいな",
+      "meaning": "dislike",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "ひまな",
+      "reading": "ひまな",
+      "meaning": "free",
+      "level": "N5",
+      "category": "na - Adjective"
+    },
+    {
+      "word": "なに / なん",
+      "reading": "なに / なん",
+      "meaning": "what",
+      "level": "N5",
+      "category": "Interrogative"
+    },
+    {
+      "word": "どれ / どの（Noun）",
+      "reading": "どれ / どの（Noun）",
+      "meaning": "which",
+      "level": "N5",
+      "category": "Interrogative"
+    },
+    {
+      "word": "だれ",
+      "reading": "だれ",
+      "meaning": "who",
+      "level": "N5",
+      "category": "Interrogative"
+    },
+    {
+      "word": "だれの",
+      "reading": "だれの",
+      "meaning": "whose",
+      "level": "N5",
+      "category": "Interrogative"
+    },
+    {
+      "word": "いつ",
+      "reading": "いつ",
+      "meaning": "when",
+      "level": "N5",
+      "category": "Interrogative"
+    },
+    {
+      "word": "どこ",
+      "reading": "どこ",
+      "meaning": "where",
+      "level": "N5",
+      "category": "Interrogative"
+    },
+    {
+      "word": "どうして",
+      "reading": "どうして",
+      "meaning": "why",
+      "level": "N5",
+      "category": "Interrogative"
+    }
+  ]
+}
