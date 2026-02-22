@@ -49,6 +49,60 @@ class APIKeyManager {
         hasKey(account: Constants.Keychain.openAIKeyAccount)
     }
 
+    // MARK: - ElevenLabs API Key
+
+    func saveElevenLabsKey(_ apiKey: String) throws {
+        try saveKey(apiKey, account: Constants.Keychain.elevenLabsKeyAccount)
+    }
+
+    func loadElevenLabsKey() throws -> String {
+        try loadKey(account: Constants.Keychain.elevenLabsKeyAccount)
+    }
+
+    func deleteElevenLabsKey() throws {
+        try deleteKey(account: Constants.Keychain.elevenLabsKeyAccount)
+    }
+
+    func hasElevenLabsKey() -> Bool {
+        hasKey(account: Constants.Keychain.elevenLabsKeyAccount)
+    }
+
+    // MARK: - Google Cloud API Key
+
+    func saveGoogleCloudKey(_ apiKey: String) throws {
+        try saveKey(apiKey, account: Constants.Keychain.googleCloudKeyAccount)
+    }
+
+    func loadGoogleCloudKey() throws -> String {
+        try loadKey(account: Constants.Keychain.googleCloudKeyAccount)
+    }
+
+    func deleteGoogleCloudKey() throws {
+        try deleteKey(account: Constants.Keychain.googleCloudKeyAccount)
+    }
+
+    func hasGoogleCloudKey() -> Bool {
+        hasKey(account: Constants.Keychain.googleCloudKeyAccount)
+    }
+
+    // MARK: - Google Cloud Service Account
+
+    func saveGoogleCloudServiceAccount(_ json: String) throws {
+        try saveKey(json, account: Constants.Keychain.googleCloudServiceAccountKey)
+    }
+
+    func loadGoogleCloudServiceAccount() throws -> String {
+        try loadKey(account: Constants.Keychain.googleCloudServiceAccountKey)
+    }
+
+    func deleteGoogleCloudServiceAccount() throws {
+        try deleteKey(account: Constants.Keychain.googleCloudServiceAccountKey)
+    }
+
+    func hasGoogleCloudServiceAccount() -> Bool {
+        hasKey(account: Constants.Keychain.googleCloudServiceAccountKey)
+    }
+
     // MARK: - Private Helpers
 
     private func saveKey(_ apiKey: String, account: String) throws {

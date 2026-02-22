@@ -5,6 +5,20 @@ enum AIProvider: String, Codable {
     case openai = "openai"
 }
 
+enum TTSProvider: String, Codable, CaseIterable {
+    case apple = "apple"
+    case elevenlabs = "elevenlabs"
+    case googlecloud = "googlecloud"
+
+    var displayName: String {
+        switch self {
+        case .apple: return "Apple"
+        case .elevenlabs: return "ElevenLabs"
+        case .googlecloud: return "Google Cloud"
+        }
+    }
+}
+
 enum Constants {
     static let maxHistoryCount = 100
     static let claudeAPIEndpoint = "https://api.anthropic.com/v1/messages"
@@ -20,6 +34,36 @@ enum Constants {
         static let service = "com.aikotoba.api"
         static let apiKeyAccount = "claude-api-key"
         static let openAIKeyAccount = "openai-api-key"
+        static let elevenLabsKeyAccount = "elevenlabs-api-key"
+        static let googleCloudKeyAccount = "google-cloud-api-key"
+        static let googleCloudServiceAccountKey = "google-cloud-service-account"
+    }
+
+    enum GoogleCloud {
+        static let endpoint = "https://texttospeech.googleapis.com/v1/text:synthesize"
+        static let defaultVoice = "ja-JP-Neural2-B"
+        static let voiceKey = "google_tts_voice"
+        static let keyAccount = "google-cloud-api-key"
+
+        // Quality Japanese voices available in Google Cloud TTS
+        static let voices: [(name: String, label: String)] = [
+            ("ja-JP-Neural2-B", "Neural2-B (Female) — Recommended"),
+            ("ja-JP-Neural2-C", "Neural2-C (Male)"),
+            ("ja-JP-Neural2-D", "Neural2-D (Female)"),
+            ("ja-JP-Wavenet-A", "Wavenet-A (Female)"),
+            ("ja-JP-Wavenet-B", "Wavenet-B (Male)"),
+            ("ja-JP-Wavenet-C", "Wavenet-C (Male)"),
+            ("ja-JP-Wavenet-D", "Wavenet-D (Female)")
+        ]
+    }
+
+    enum ElevenLabs {
+        static let endpoint = "https://api.elevenlabs.io/v1/text-to-speech"
+        static let defaultModel = "eleven_multilingual_v2"
+        // Default voice ID — user can override in Settings
+        // Find voices at: https://elevenlabs.io/voice-library
+        static let defaultVoiceID = "21m00Tcm4TlvDq8ikWAM"
+        static let voiceIDKey = "elevenlabs_voice_id"
     }
 
     enum Prompts {

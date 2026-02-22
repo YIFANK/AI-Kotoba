@@ -17,9 +17,9 @@
 
 > 📸 *Screenshots coming soon*
 
-| Practice | Interactive Mode | Flashcards |
+| Practice | History Conversations | JLPT Vocabs|
 |----------|-----------------|------------|
-| ![Practice](docs/screenshots/practice.png) | ![Interactive](docs/screenshots/interactive.png) | ![Flashcards](docs/screenshots/flashcards.png) |
+| ![Practice](docs/screenshots/practice.png) | ![History Conversations](docs/screenshots/history.png) | ![JLPT](docs/screenshots/JLPT.png) |
 
 ---
 

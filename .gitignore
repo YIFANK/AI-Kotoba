@@ -7,3 +7,8 @@ CLAUDE.md
 *.mode2v3
 *.perspectivev3
 xcuserdata/
+
+# Google Cloud service account keys (contain private keys — never commit)
+*-credentials.json
+gen-lang-client-*.json
+service-account*.json

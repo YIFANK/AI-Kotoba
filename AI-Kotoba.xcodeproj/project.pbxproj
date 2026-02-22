@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A75022852F2B27F8005F1C95 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A75022842F2B27F8005F1C95 /* SpeechRecognitionService.swift */; };
+		E67D790FAD2443B3954EE931 /* GoogleCloudAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD9D0AA1BE59427FB212A8F7 /* GoogleCloudAuthService.swift */; };
 		A75022932F2C1B00005F1C95 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A75022922F2C1B00005F1C95 /* Assets.xcassets */; };
 		A790B5A92F2AA21900325D12 /* AI_KotobaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5A72F2AA21900325D12 /* AI_KotobaApp.swift */; };
 		A790B5AA2F2AA21900325D12 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A790B5A52F2AA21900325D12 /* VocabularyView.swift */; };
@@ -68,6 +69,7 @@
 
 /* Begin PBXFileReference section */
 		A75022842F2B27F8005F1C95 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
+		FD9D0AA1BE59427FB212A8F7 /* GoogleCloudAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCloudAuthService.swift; sourceTree = "<group>"; };
 		A75022922F2C1B00005F1C95 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A790B55E2F2AA04E00325D12 /* AI-Kotoba.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AI-Kotoba.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A790B56E2F2AA05200325D12 /* AI-KotobaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AI-KotobaTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -189,6 +191,7 @@
 			children = (
 				A790B5922F2AA21900325D12 /* ClaudeService.swift */,
 				A75022842F2B27F8005F1C95 /* SpeechRecognitionService.swift */,
+				FD9D0AA1BE59427FB212A8F7 /* GoogleCloudAuthService.swift */,
 				A790B5932F2AA21900325D12 /* SRSAlgorithm.swift */,
 				A790B5942F2AA21900325D12 /* TTSService.swift */,
 				A7F8402C2F36F3DD00A96E6A /* JLPTVocabularyService.swift */,
@@ -449,6 +452,7 @@
 				A790B5B52F2AA21900325D12 /* Scenario.swift in Sources */,
 				A790B5B62F2AA21900325D12 /* SettingsView.swift in Sources */,
 				A75022852F2B27F8005F1C95 /* SpeechRecognitionService.swift in Sources */,
+				E67D790FAD2443B3954EE931 /* GoogleCloudAuthService.swift in Sources */,
 				A790B5C62F2AC2CB00325D12 /* CharacterSelectionView.swift in Sources */,
 				A790B5B72F2AA21900325D12 /* ConversationView.swift in Sources */,
 				A790B5B82F2AA21900325D12 /* ScenarioView.swift in Sources */,

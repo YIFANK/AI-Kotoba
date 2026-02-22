@@ -3,8 +3,14 @@ import SwiftUI
 struct SettingsView: View {
     @State private var claudeAPIKey = ""
     @State private var openaiAPIKey = ""
+    @State private var elevenLabsAPIKey = ""
+    @State private var elevenLabsVoiceID = ""
+    @State private var selectedGoogleVoice = Constants.GoogleCloud.defaultVoice
+    @State private var googleCloudConfigured = false
     @State private var showClaudeKey = false
     @State private var showOpenAIKey = false
+    @State private var showElevenLabsKey = false
+    @State private var selectedTTSProvider: TTSProvider = TTSService.shared.provider
     @State private var saveMessage: String?
     @State private var errorMessage: String?
 
@@ -62,6 +68,96 @@ struct SettingsView: View {
                                 "前往 platform.openai.com 获取 API 密钥"
                             }
                         )
+                    }
+
+                    // TTS Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("语音朗读")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+
+                        Text("选择日语朗读引擎")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+
+                        Picker("语音引擎", selection: $selectedTTSProvider) {
+                            ForEach(TTSProvider.allCases, id: \.self) { provider in
+                                Text(provider.displayName).tag(provider)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .onChange(of: selectedTTSProvider) { _, newValue in
+                            TTSService.shared.provider = newValue
+                        }
+
+                        if selectedTTSProvider == .googlecloud {
+                            Divider()
+
+                            googleCloudSection()
+
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("声音选择")
+                                    .font(.headline)
+
+                                Picker("声音", selection: $selectedGoogleVoice) {
+                                    ForEach(Constants.GoogleCloud.voices, id: \.name) { voice in
+                                        Text(voice.label).tag(voice.name)
+                                    }
+                                }
+                                .onChange(of: selectedGoogleVoice) { _, newValue in
+                                    UserDefaults.standard.set(newValue, forKey: Constants.GoogleCloud.voiceKey)
+                                }
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.05))
+                            .cornerRadius(8)
+                        }
+
+                        if selectedTTSProvider == .elevenlabs {
+                            Divider()
+
+                            apiKeySection(
+                                title: "ElevenLabs API Key",
+                                keyBinding: $elevenLabsAPIKey,
+                                showKeyBinding: $showElevenLabsKey,
+                                hasKey: APIKeyManager.shared.hasElevenLabsKey(),
+                                onSave: saveElevenLabs,
+                                onDelete: deleteElevenLabs,
+                                getInstructions: { "前往 elevenlabs.io 获取 API 密钥" }
+                            )
+
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Voice ID（可选）")
+                                    .font(.headline)
+
+                                Text("留空使用默认声音。在 elevenlabs.io/voice-library 查找声音 ID")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+
+                                HStack {
+                                    TextField(
+                                        "例：21m00Tcm4TlvDq8ikWAM",
+                                        text: $elevenLabsVoiceID
+                                    )
+                                    .textFieldStyle(.roundedBorder)
+
+                                    Button("保存") {
+                                        let id = elevenLabsVoiceID.trimmingCharacters(in: .whitespacesAndNewlines)
+                                        if id.isEmpty {
+                                            UserDefaults.standard.removeObject(forKey: Constants.ElevenLabs.voiceIDKey)
+                                        } else {
+                                            UserDefaults.standard.set(id, forKey: Constants.ElevenLabs.voiceIDKey)
+                                        }
+                                        saveMessage = "Voice ID 已保存"
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { saveMessage = nil }
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                }
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.05))
+                            .cornerRadius(8)
+                        }
                     }
 
                     // About Section
@@ -125,6 +221,62 @@ struct SettingsView: View {
             loadAPIKeys()
         }
     }
+
+    // MARK: - Google Cloud Service Account Section
+
+    @ViewBuilder
+    private func googleCloudSection() -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Google Cloud 服务账号")
+                    .font(.headline)
+
+                Spacer()
+
+                if googleCloudConfigured {
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("已配置")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                    }
+                } else {
+                    HStack(spacing: 4) {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .foregroundColor(.orange)
+                        Text("未配置")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+                }
+            }
+
+            Text("在 Google Cloud Console 中创建服务账号，下载 JSON 密钥文件，然后在此处选择该文件。")
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            HStack(spacing: 12) {
+                Button("选择 JSON 密钥文件…") {
+                    selectServiceAccountFile()
+                }
+                .buttonStyle(.borderedProminent)
+
+                if googleCloudConfigured {
+                    Button("移除") {
+                        deleteGoogleCloudServiceAccount()
+                    }
+                    .buttonStyle(.bordered)
+                    .foregroundColor(.red)
+                }
+            }
+        }
+        .padding()
+        .background(Color.gray.opacity(0.05))
+        .cornerRadius(8)
+    }
+
+    // MARK: - API Key Section (text-field style)
 
     @ViewBuilder
     private func apiKeySection(
@@ -211,12 +363,48 @@ struct SettingsView: View {
     // MARK: - Actions
 
     private func loadAPIKeys() {
-        // Try to load masked versions (just show if they exist)
-        if APIKeyManager.shared.hasAPIKey() {
-            claudeAPIKey = "" // Don't load actual key for security
+        claudeAPIKey = ""
+        openaiAPIKey = ""
+        elevenLabsAPIKey = ""
+        elevenLabsVoiceID = UserDefaults.standard.string(forKey: Constants.ElevenLabs.voiceIDKey) ?? ""
+        selectedGoogleVoice = UserDefaults.standard.string(forKey: Constants.GoogleCloud.voiceKey) ?? Constants.GoogleCloud.defaultVoice
+        selectedTTSProvider = TTSService.shared.provider
+        googleCloudConfigured = GoogleCloudAuthService.shared.hasCredentials()
+    }
+
+    private func selectServiceAccountFile() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        panel.message = "选择 Google Cloud 服务账号 JSON 密钥文件"
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        do {
+            let jsonString = try String(contentsOf: url, encoding: .utf8)
+            try GoogleCloudAuthService.shared.saveCredentials(jsonString: jsonString)
+            googleCloudConfigured = true
+            saveMessage = "Google Cloud 服务账号已配置"
+            errorMessage = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { saveMessage = nil }
+        } catch {
+            errorMessage = "加载失败: \(error.localizedDescription)"
+            saveMessage = nil
         }
-        if APIKeyManager.shared.hasOpenAIKey() {
-            openaiAPIKey = "" // Don't load actual key for security
+    }
+
+    private func deleteGoogleCloudServiceAccount() {
+        do {
+            try GoogleCloudAuthService.shared.deleteCredentials()
+            googleCloudConfigured = false
+            saveMessage = "Google Cloud 服务账号已移除"
+            errorMessage = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { saveMessage = nil }
+        } catch {
+            errorMessage = "删除失败: \(error.localizedDescription)"
+            saveMessage = nil
         }
     }
 
@@ -226,11 +414,7 @@ struct SettingsView: View {
             saveMessage = "Claude API 密钥已保存"
             errorMessage = nil
             claudeAPIKey = ""
-
-            // Clear message after 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                saveMessage = nil
-            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { saveMessage = nil }
         } catch {
             errorMessage = "保存失败: \(error.localizedDescription)"
             saveMessage = nil
@@ -243,11 +427,7 @@ struct SettingsView: View {
             saveMessage = "OpenAI API 密钥已保存"
             errorMessage = nil
             openaiAPIKey = ""
-
-            // Clear message after 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                saveMessage = nil
-            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { saveMessage = nil }
         } catch {
             errorMessage = "保存失败: \(error.localizedDescription)"
             saveMessage = nil
@@ -260,11 +440,33 @@ struct SettingsView: View {
             saveMessage = "Claude API 密钥已删除"
             errorMessage = nil
             claudeAPIKey = ""
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { saveMessage = nil }
+        } catch {
+            errorMessage = "删除失败: \(error.localizedDescription)"
+            saveMessage = nil
+        }
+    }
 
-            // Clear message after 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                saveMessage = nil
-            }
+    private func saveElevenLabs() {
+        do {
+            try APIKeyManager.shared.saveElevenLabsKey(elevenLabsAPIKey)
+            saveMessage = "ElevenLabs API 密钥已保存"
+            errorMessage = nil
+            elevenLabsAPIKey = ""
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { saveMessage = nil }
+        } catch {
+            errorMessage = "保存失败: \(error.localizedDescription)"
+            saveMessage = nil
+        }
+    }
+
+    private func deleteElevenLabs() {
+        do {
+            try APIKeyManager.shared.deleteElevenLabsKey()
+            saveMessage = "ElevenLabs API 密钥已删除"
+            errorMessage = nil
+            elevenLabsAPIKey = ""
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { saveMessage = nil }
         } catch {
             errorMessage = "删除失败: \(error.localizedDescription)"
             saveMessage = nil
@@ -277,11 +479,7 @@ struct SettingsView: View {
             saveMessage = "OpenAI API 密钥已删除"
             errorMessage = nil
             openaiAPIKey = ""
-
-            // Clear message after 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                saveMessage = nil
-            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { saveMessage = nil }
         } catch {
             errorMessage = "删除失败: \(error.localizedDescription)"
             saveMessage = nil
