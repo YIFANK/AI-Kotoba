@@ -1041,15 +1041,15 @@ function renderSettings() {
     <div class="card settings-section">
       <h3>AI 服务</h3>
       <div class="provider-row" style="grid-template-columns:repeat(3,1fr)">
-        <button class="provider-opt ${s.provider === 'local' ? 'active' : ''}" data-p="local">
+        <button class="provider-opt ai-provider-opt ${s.provider === 'local' ? 'active' : ''}" data-p="local">
           <div class="pn">本地 CLI <span class="tag" style="background:var(--green-soft);color:var(--green);font-weight:600">免 Key</span></div>
           <div class="pd">调用本机已登录的 Claude Code / Codex</div>
         </button>
-        <button class="provider-opt ${s.provider === 'claude' ? 'active' : ''}" data-p="claude">
+        <button class="provider-opt ai-provider-opt ${s.provider === 'claude' ? 'active' : ''}" data-p="claude">
           <div class="pn">Claude API</div>
           <div class="pd">日语表达更自然 · 需 API Key</div>
         </button>
-        <button class="provider-opt ${s.provider === 'openai' ? 'active' : ''}" data-p="openai">
+        <button class="provider-opt ai-provider-opt ${s.provider === 'openai' ? 'active' : ''}" data-p="openai">
           <div class="pn">OpenAI API</div>
           <div class="pd">GPT 系列 · 需 API Key</div>
         </button>
@@ -1130,10 +1130,10 @@ function renderSettings() {
   `;
 
   let provider = s.provider;
-  view.querySelectorAll('.provider-opt').forEach(btn => {
+  view.querySelectorAll('.ai-provider-opt').forEach(btn => {
     btn.addEventListener('click', () => {
       provider = btn.dataset.p;
-      view.querySelectorAll('.provider-opt').forEach(b => b.classList.toggle('active', b === btn));
+      view.querySelectorAll('.ai-provider-opt').forEach(b => b.classList.toggle('active', b === btn));
     });
   });
 

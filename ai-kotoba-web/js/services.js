@@ -78,11 +78,15 @@ async function callOpenAI(prompt, settings) {
 // 本地 CLI 桥接（server.py 提供 /api/ai，调用本机已登录的 claude / codex，免 API Key）
 async function callLocal(prompt, settings) {
   let res;
+  const engine = settings.localEngine || 'claude';
+  const model = engine === 'codex'
+    ? (settings.openaiModel || '')
+    : (settings.claudeModel || '');
   try {
     res = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ prompt, engine: settings.localEngine || 'claude' }),
+      body: JSON.stringify({ prompt, engine, model }),
     });
   } catch {
     throw new Error('无法连接本地桥接服务，请用 python3 server.py 启动本站（而非普通静态服务器）');

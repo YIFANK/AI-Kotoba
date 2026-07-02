@@ -32,13 +32,16 @@ def find_cli(name):
     return shutil.which(name)
 
 
-def run_claude(prompt):
+def run_claude(prompt, model=None):
     cli = find_cli("claude")
     if not cli:
         raise FileNotFoundError("未找到 claude 命令，请先安装并登录 Claude Code")
+    cmd = [cli, "-p", prompt, "--output-format", "text"]
+    if model:
+        cmd.extend(["--model", model])
     # 在临时目录运行，避免加载项目上下文（CLAUDE.md 等），更快更干净
     r = subprocess.run(
-        [cli, "-p", prompt, "--output-format", "text"],
+        cmd,
         capture_output=True, text=True, timeout=TIMEOUT, cwd=tempfile.gettempdir(),
     )
     if r.returncode != 0:
@@ -46,16 +49,19 @@ def run_claude(prompt):
     return r.stdout.strip()
 
 
-def run_codex(prompt):
+def run_codex(prompt, model=None):
     cli = find_cli("codex")
     if not cli:
         raise FileNotFoundError("未找到 codex 命令，请先安装并登录 Codex CLI")
     with tempfile.NamedTemporaryFile(mode="r", suffix=".txt", delete=False) as f:
         outfile = f.name
     try:
+        cmd = [cli, "exec", "--skip-git-repo-check", "--output-last-message", outfile]
+        if model:
+            cmd.extend(["--model", model])
+        cmd.append(prompt)
         r = subprocess.run(
-            [cli, "exec", "--skip-git-repo-check", "--output-last-message", outfile, prompt],
-            capture_output=True, text=True, timeout=TIMEOUT, cwd=tempfile.gettempdir(),
+            cmd, capture_output=True, text=True, timeout=TIMEOUT, cwd=tempfile.gettempdir(),
         )
         with open(outfile) as f:
             last = f.read().strip()
@@ -124,7 +130,8 @@ class Handler(SimpleHTTPRequestHandler):
             body = json.loads(self.rfile.read(length))
             prompt = body["prompt"]
             engine = body.get("engine", "claude")
-            text = run_codex(prompt) if engine == "codex" else run_claude(prompt)
+            model = (body.get("model") or "").strip()
+            text = run_codex(prompt, model) if engine == "codex" else run_claude(prompt, model)
             if not text:
                 raise RuntimeError("本地模型返回内容为空")
             self.send_json({"text": text})
