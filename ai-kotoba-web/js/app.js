@@ -365,18 +365,18 @@ function startInteractive(sc, role, opts = {}) {
     const supported = sttSupported();
     panel.innerHTML = `
       <div class="user-panel">
-        <div class="turn-label">🎤 轮到你了！请说出这句台词（扮演 ${esc(line.speaker)}）：</div>
-        <div class="target-line jp">${jpHTML(line.japanese, line.furigana)}</div>
-        <div class="target-cn hidden-cn" id="target-cn" title="点击显示中文">${esc(line.chinese)}</div>
+        <div class="turn-label">🎤 轮到你了！请用日语表达下面的意思（扮演 ${esc(line.speaker)}）：</div>
+        <div class="target-line">${esc(line.chinese)}</div>
+        <div class="target-cn">💡 想不起来？<span class="hidden-cn jp" id="jp-hint" title="点击显示日语提示">${jpHTML(line.japanese, line.furigana)}</span></div>
         <div class="input-row">
           <button class="mic-btn" id="mic-btn" title="${supported ? '语音输入（日语）' : '当前浏览器不支持语音识别，请使用 Chrome/Edge/Safari'}" ${supported ? '' : 'disabled style="opacity:.4"'}>${ICONS.mic}</button>
           <input type="text" id="user-input" placeholder="${supported ? '点击麦克风说日语，或直接输入…' : '请输入日语…'}" autocomplete="off">
           <button class="btn primary" id="submit-btn">提交</button>
-          <button class="btn" id="listen-btn" title="听示范发音">${ICONS.speaker}</button>
+          <button class="btn" id="listen-btn" title="听参考发音（会剧透答案哦）">${ICONS.speaker}</button>
         </div>
       </div>
     `;
-    panel.querySelector('#target-cn').addEventListener('click', e => e.currentTarget.classList.remove('hidden-cn'));
+    panel.querySelector('#jp-hint').addEventListener('click', e => e.currentTarget.classList.remove('hidden-cn'));
     panel.querySelector('#listen-btn').addEventListener('click', () => speak(line.japanese, null, voiceFor(i)));
     const input = panel.querySelector('#user-input');
     input.focus();
@@ -430,15 +430,16 @@ function startInteractive(sc, role, opts = {}) {
       const fbRow = appendFeedback('正在点评…');
       let fb;
       try {
-        fb = db.hasAPIKey() ? await getFeedback(line.japanese, text) : localFeedback(line.japanese, text);
+        fb = db.hasAPIKey() ? await getFeedback(line.japanese, line.chinese, text) : localFeedback(line.japanese, text);
       } catch {
         fb = localFeedback(line.japanese, text);
       }
       fbRow.querySelector('.bubble').innerHTML = `<div class="feedback-label">💬 AI 反馈</div>${esc(fb)}`;
 
       panel.innerHTML = `
-        <div style="display:flex;gap:10px;margin-top:16px;justify-content:center">
-          <button class="btn" id="ref-btn">${ICONS.speaker} 听标准答案</button>
+        <div style="text-align:center;margin-top:16px" class="line-cn">参考台词：<span class="jp" style="color:var(--text)">${jpHTML(line.japanese, line.furigana)}</span></div>
+        <div style="display:flex;gap:10px;margin-top:12px;justify-content:center">
+          <button class="btn" id="ref-btn">${ICONS.speaker} 听参考发音</button>
           <button class="btn primary" id="next-btn">下一句 →</button>
         </div>`;
       panel.querySelector('#ref-btn').addEventListener('click', () => speak(line.japanese, null, voiceFor(i)));

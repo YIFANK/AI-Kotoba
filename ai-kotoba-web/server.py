@@ -75,6 +75,11 @@ class Handler(SimpleHTTPRequestHandler):
     def log_message(self, *args):
         pass
 
+    def end_headers(self):
+        # 静态资源禁用缓存，避免代码更新后浏览器仍执行旧版 JS
+        self.send_header("Cache-Control", "no-cache, must-revalidate")
+        super().end_headers()
+
     def send_json(self, obj, code=200):
         data = json.dumps(obj, ensure_ascii=False).encode()
         self.send_response(code)

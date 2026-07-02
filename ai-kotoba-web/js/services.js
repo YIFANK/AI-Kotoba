@@ -259,17 +259,18 @@ export async function generateArticle(request, level, onStatus) {
 }
 
 // ---------- 互动模式的 AI 反馈 ----------
-export async function getFeedback(targetJapanese, userText) {
-  const prompt = `你是一位耐心的日语老师。学习者在角色扮演练习中，需要说出这句日语台词：
-「${targetJapanese}」
+export async function getFeedback(targetJapanese, chinese, userText) {
+  const prompt = `你是一位耐心的日语老师。学习者在角色扮演练习中，任务是把一个中文意思用日语说出来。请评价学习者的日语。
 
-学习者实际说出/输入的内容是：
-「${userText}」
+【任务：要表达的中文意思】${chinese}
+【学习者说出的日语】${userText}
+【场景参考台词（仅供对照）】${targetJapanese}
 
-请用中文给出简短反馈（2-3 句话）：
-- 如果基本一致或意思正确，请肯定并表扬
-- 如果有用词、语法或表达问题，请温和地指出并给出正确说法
-- 语气友好、鼓励为主，直接输出反馈内容，不要任何前缀`;
+要求（用中文回答，2-4 句话）：
+- 只评价【学习者说出的日语】：它是否正确、自然地表达了那个中文意思
+- 不必与参考台词逐字一致，意思对、表达地道就应该明确肯定
+- 如有语法、用词或不自然之处，温和指出并给出更自然的说法
+- 语气友好、鼓励为主，直接输出反馈内容，不要任何前缀或标题`;
   return callAI(prompt);
 }
 
