@@ -20,6 +20,61 @@ function load(key, fallback) {
 }
 function save(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+  scheduleSync();
+}
+
+// ---------- 服务器同步（server.py 持久化到 data.json，跨浏览器共享） ----------
+let syncTimer = null;
+let syncAvailable = true; // 纯静态托管时自动降级为仅 localStorage
+
+function snapshot() {
+  const out = {};
+  for (const [name, key] of Object.entries(KEYS)) {
+    out[name] = load(key, name === 'settings' ? {} : []);
+  }
+  return out;
+}
+function scheduleSync() {
+  if (!syncAvailable) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    fetch('/api/data', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(snapshot()),
+    }).catch(() => { /* 服务器不可用时静默降级 */ });
+  }, 400);
+}
+function mergeById(a, b, tsKey) {
+  const m = new Map();
+  for (const x of [...(a || []), ...(b || [])]) {
+    if (x && x.id && !m.has(x.id)) m.set(x.id, x);
+  }
+  return [...m.values()].sort((x, y) => (y[tsKey] || 0) - (x[tsKey] || 0));
+}
+// 启动时拉取服务器数据并与本地合并（按 id 去重取并集），再回写两边
+export async function initSync() {
+  let server;
+  try {
+    const res = await fetch('/api/data');
+    if (!res.ok) throw new Error();
+    server = await res.json();
+  } catch {
+    syncAvailable = false; // 没有桥接服务（纯静态托管），保持纯本地模式
+    return;
+  }
+  const local = snapshot();
+  const merged = {
+    settings: Object.keys(local.settings || {}).length ? local.settings : (server.settings || {}),
+    scenarios: mergeById(local.scenarios, server.scenarios, 'createdAt'),
+    vocab: mergeById(local.vocab, server.vocab, 'addedAt'),
+    articles: mergeById(local.articles, server.articles, 'createdAt'),
+    checkins: [...new Set([...(local.checkins || []), ...(server.checkins || [])])].sort(),
+  };
+  for (const [name, key] of Object.entries(KEYS)) {
+    localStorage.setItem(key, JSON.stringify(merged[name]));
+  }
+  scheduleSync();
 }
 
 export function getSettings() {

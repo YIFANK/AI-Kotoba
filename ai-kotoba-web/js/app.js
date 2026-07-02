@@ -385,19 +385,36 @@ function startInteractive(sc, role, opts = {}) {
 
     const micBtn = panel.querySelector('#mic-btn');
     if (supported) {
+      const STT_ERRORS = {
+        'not-allowed': '麦克风权限被拒绝。请点击地址栏左侧的图标，允许本站使用麦克风后重试',
+        'service-not-allowed': '浏览器语音服务不可用。Safari 用户请在 系统设置 → 键盘 中开启「听写」',
+        'audio-capture': '没有找到可用的麦克风，请检查系统声音输入设备',
+        'network': '语音识别需要联网（Chrome 使用云端识别服务），请检查网络',
+        'language-not-supported': '当前浏览器不支持日语语音识别，建议使用 Chrome 或 Safari',
+      };
+      const defaultPlaceholder = input.placeholder;
+      const stopUI = () => {
+        recording = false;
+        micBtn.classList.remove('recording');
+        input.placeholder = defaultPlaceholder;
+      };
       micBtn.addEventListener('click', () => {
         if (recording) { recognizer?.stop(); return; }
         recognizer = createRecognizer({
           onResult: (text) => { input.value = text; },
-          onEnd: () => { recording = false; micBtn.classList.remove('recording'); },
+          onEnd: stopUI,
           onError: (err) => {
-            recording = false; micBtn.classList.remove('recording');
-            if (err !== 'aborted' && err !== 'no-speech') toast(`语音识别出错：${err}（请检查麦克风权限）`);
+            stopUI();
+            if (err === 'aborted') return;
+            if (err === 'no-speech') { toast('没有听到声音，请靠近麦克风大声一点再试'); return; }
+            toast(STT_ERRORS[err] || `语音识别出错：${err}`);
           },
         });
         recognizer.start();
         recording = true;
         micBtn.classList.add('recording');
+        input.placeholder = '🎙️ 正在听，请说日语…（再点一次麦克风结束）';
+        input.focus();
       });
     }
 
@@ -968,4 +985,5 @@ function renderSettings() {
 document.addEventListener('tts-fallback', (e) => {
   toast(`ElevenLabs 朗读失败（${e.detail}），已回退到系统语音`);
 });
-switchTab('practice');
+// 先与服务器同步数据（跨浏览器共享），失败则纯本地模式
+db.initSync().finally(() => switchTab('practice'));

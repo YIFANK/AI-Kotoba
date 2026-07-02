@@ -16,6 +16,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8734
 TIMEOUT = 300  # CLI 单次调用超时（秒）
+DATA_FILE = os.path.join(ROOT, "data.json")  # 学习数据持久化（跨浏览器共享）
 
 # GUI 启动时 PATH 可能不含 CLI 安装目录，补上常见位置
 EXTRA_PATHS = [
@@ -88,10 +89,28 @@ class Handler(SimpleHTTPRequestHandler):
                 "claude": bool(find_cli("claude")),
                 "codex": bool(find_cli("codex")),
             })
+        elif self.path == "/api/data":
+            try:
+                with open(DATA_FILE, encoding="utf-8") as f:
+                    self.send_json(json.load(f))
+            except (FileNotFoundError, json.JSONDecodeError):
+                self.send_json({})
         else:
             super().do_GET()
 
     def do_POST(self):
+        if self.path == "/api/data":
+            try:
+                length = int(self.headers.get("content-length", 0))
+                data = json.loads(self.rfile.read(length))
+                tmp = DATA_FILE + ".tmp"
+                with open(tmp, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False)
+                os.replace(tmp, DATA_FILE)
+                self.send_json({"ok": True})
+            except Exception as e:
+                self.send_json({"error": str(e)}, 500)
+            return
         if self.path != "/api/ai":
             self.send_error(404)
             return
