@@ -75,8 +75,36 @@ async function callOpenAI(prompt, settings) {
   return data.choices?.[0]?.message?.content || '';
 }
 
+// 本地 CLI 桥接（server.py 提供 /api/ai，调用本机已登录的 claude / codex，免 API Key）
+async function callLocal(prompt, settings) {
+  let res;
+  try {
+    res = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ prompt, engine: settings.localEngine || 'claude' }),
+    });
+  } catch {
+    throw new Error('无法连接本地桥接服务，请用 python3 server.py 启动本站（而非普通静态服务器）');
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `本地 CLI 调用失败 (${res.status})`);
+  return data.text || '';
+}
+
+export async function localCLIStatus() {
+  try {
+    const res = await fetch('/api/status');
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null; // 桥接服务未运行（例如部署在纯静态托管上）
+  }
+}
+
 async function callAI(prompt) {
   const settings = getSettings();
+  if (settings.provider === 'local') return callLocal(prompt, settings);
   return settings.provider === 'openai' ? callOpenAI(prompt, settings) : callClaude(prompt, settings);
 }
 

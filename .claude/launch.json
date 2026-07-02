@@ -4,7 +4,7 @@
     {
       "name": "ai-kotoba-web",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8734", "-d", "ai-kotoba-web"],
+      "runtimeArgs": ["ai-kotoba-web/server.py", "8734"],
       "port": 8734
     }
   ]

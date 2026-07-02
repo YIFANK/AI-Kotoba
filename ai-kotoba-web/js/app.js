@@ -1,5 +1,5 @@
 import * as db from './storage.js';
-import { generateScenario, demoScenario, getFeedback, localFeedback } from './services.js';
+import { generateScenario, demoScenario, getFeedback, localFeedback, localCLIStatus } from './services.js';
 import { speak, stopSpeaking, sttSupported, createRecognizer } from './speech.js';
 import { applySM2, isDue, formatDue } from './srs.js';
 
@@ -586,15 +586,27 @@ function renderSettings() {
     <p class="page-sub">配置 AI 服务与数据管理</p>
     <div class="card settings-section">
       <h3>AI 服务</h3>
-      <div class="provider-row">
+      <div class="provider-row" style="grid-template-columns:repeat(3,1fr)">
+        <button class="provider-opt ${s.provider === 'local' ? 'active' : ''}" data-p="local">
+          <div class="pn">本地 CLI <span class="tag" style="background:var(--green-soft);color:var(--green);font-weight:600">免 Key</span></div>
+          <div class="pd">调用本机已登录的 Claude Code / Codex</div>
+        </button>
         <button class="provider-opt ${s.provider === 'claude' ? 'active' : ''}" data-p="claude">
-          <div class="pn">Claude (Anthropic)</div>
-          <div class="pd">推荐 · 日语表达更自然</div>
+          <div class="pn">Claude API</div>
+          <div class="pd">日语表达更自然 · 需 API Key</div>
         </button>
         <button class="provider-opt ${s.provider === 'openai' ? 'active' : ''}" data-p="openai">
-          <div class="pn">OpenAI</div>
-          <div class="pd">GPT 系列模型</div>
+          <div class="pn">OpenAI API</div>
+          <div class="pd">GPT 系列 · 需 API Key</div>
         </button>
+      </div>
+      <div class="field">
+        <label class="field-label">本地引擎</label>
+        <select id="local-engine">
+          <option value="claude" ${s.localEngine !== 'codex' ? 'selected' : ''}>Claude Code（claude -p）</option>
+          <option value="codex" ${s.localEngine === 'codex' ? 'selected' : ''}>Codex（codex exec）</option>
+        </select>
+        <p class="hint" id="local-status">正在检测本地 CLI…</p>
       </div>
       <div class="field">
         <label class="field-label">Claude API Key</label>
@@ -615,7 +627,7 @@ function renderSettings() {
         </div>
       </div>
       <button class="btn primary" id="save-settings">保存设置</button>
-      <p class="hint">密钥保存在浏览器本地（localStorage），保存时会自动去除首尾空格。API 请求直接从浏览器发出，不经过任何服务器。</p>
+      <p class="hint">「本地 CLI」通过本站自带的 server.py 调用你电脑上已登录的命令行工具，用订阅额度、无需 API Key，但要求用 python3 server.py 启动本站。API 方式的密钥保存在浏览器本地（localStorage），请求直接从浏览器发出，不经过任何服务器。</p>
     </div>
     <div class="card settings-section">
       <h3>语音朗读（TTS）</h3>
@@ -670,12 +682,25 @@ function renderSettings() {
   view.querySelector('#save-settings').addEventListener('click', () => {
     db.saveSettings(Object.assign(db.getSettings(), {
       provider,
+      localEngine: view.querySelector('#local-engine').value,
       claudeKey: view.querySelector('#claude-key').value,
       openaiKey: view.querySelector('#openai-key').value,
       claudeModel: view.querySelector('#claude-model').value.trim() || 'claude-sonnet-5',
       openaiModel: view.querySelector('#openai-model').value.trim() || 'gpt-4o',
     }));
     toast('设置已保存');
+  });
+
+  // 检测本地 CLI 桥接可用性
+  localCLIStatus().then(st => {
+    const el = view.querySelector('#local-status');
+    if (!el) return;
+    if (!st) {
+      el.innerHTML = '⚠️ 未检测到本地桥接服务。请用 <code>python3 server.py</code> 启动本站后再使用「本地 CLI」。';
+      return;
+    }
+    const mark = ok => ok ? '<span style="color:var(--green)">✓ 已安装</span>' : '<span style="color:#d3455b">✗ 未找到</span>';
+    el.innerHTML = `本地检测：Claude Code ${mark(st.claude)}　·　Codex ${mark(st.codex)}`;
   });
 
   let ttsProvider = s.ttsProvider;

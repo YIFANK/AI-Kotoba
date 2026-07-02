@@ -24,6 +24,7 @@ export function getSettings() {
     {
       provider: 'claude', claudeKey: '', openaiKey: '',
       claudeModel: 'claude-sonnet-5', openaiModel: 'gpt-4o',
+      localEngine: 'claude',
       ttsProvider: 'system', elevenKey: '',
       elevenVoiceId: '21m00Tcm4TlvDq8ikWAM',
       elevenModel: 'eleven_multilingual_v2',
@@ -40,6 +41,7 @@ export function saveSettings(s) {
 }
 export function hasAPIKey() {
   const s = getSettings();
+  if (s.provider === 'local') return true; // 本地 CLI 免 Key，可用性由桥接服务在调用时报告
   return s.provider === 'claude' ? !!s.claudeKey : !!s.openaiKey;
 }
 
