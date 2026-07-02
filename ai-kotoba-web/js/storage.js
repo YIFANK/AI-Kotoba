@@ -3,7 +3,10 @@ const KEYS = {
   settings: 'kotoba.settings',
   scenarios: 'kotoba.scenarios',
   vocab: 'kotoba.vocab',
+  articles: 'kotoba.articles',
+  checkins: 'kotoba.checkins',
 };
+const ARTICLE_LIMIT = 50;
 
 const HISTORY_LIMIT = 100; // 仅非收藏计入上限
 
@@ -20,17 +23,23 @@ function save(key, value) {
 }
 
 export function getSettings() {
-  return Object.assign(
+  const s = Object.assign(
     {
       provider: 'claude', claudeKey: '', openaiKey: '',
       claudeModel: 'claude-sonnet-5', openaiModel: 'gpt-4o',
       localEngine: 'claude',
       ttsProvider: 'system', elevenKey: '',
-      elevenVoiceId: '21m00Tcm4TlvDq8ikWAM',
+      // 角色 A / B 双音色（默认 Sarah 女声 / George 男声，多语模型下日语自然）
+      elevenVoiceA: 'EXAVITQu4vr4xnSDxMaL',
+      elevenVoiceB: 'JBFqnCBsd6RMkjVDRZzb',
       elevenModel: 'eleven_multilingual_v2',
+      showFurigana: true,
     },
     load(KEYS.settings, {})
   );
+  // 迁移：旧版单一 elevenVoiceId → 音色 A
+  if (s.elevenVoiceId && !load(KEYS.settings, {}).elevenVoiceA) s.elevenVoiceA = s.elevenVoiceId;
+  return s;
 }
 export function saveSettings(s) {
   // 密钥去除首尾空白，避免授权失败
@@ -97,10 +106,61 @@ export function updateVocab(item) {
   save(KEYS.vocab, list);
 }
 
+// ---------- 阅读文章 ----------
+export function getArticles() {
+  return load(KEYS.articles, []);
+}
+export function saveArticle(a) {
+  const list = getArticles();
+  list.unshift(a);
+  save(KEYS.articles, list.slice(0, ARTICLE_LIMIT));
+}
+export function deleteArticle(id) {
+  save(KEYS.articles, getArticles().filter(x => x.id !== id));
+}
+
+// ---------- 每日签到 ----------
+function localDateStr(d = new Date()) {
+  return d.toLocaleDateString('sv'); // YYYY-MM-DD（本地时区）
+}
+export function getCheckins() {
+  return load(KEYS.checkins, []);
+}
+// 任何学习行为都会触发签到；返回 true 表示这是今天第一次
+export function recordActivity() {
+  const today = localDateStr();
+  const list = getCheckins();
+  if (list.includes(today)) return false;
+  list.push(today);
+  save(KEYS.checkins, list);
+  return true;
+}
+export function streakInfo() {
+  const set = new Set(getCheckins());
+  const today = localDateStr();
+  const d = new Date();
+  if (!set.has(today)) d.setDate(d.getDate() - 1); // 今天还没签到时，连续天数从昨天往回数
+  let streak = 0;
+  while (set.has(localDateStr(d))) {
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+  // 最近 7 天（含今天），用于周视图
+  const week = [];
+  for (let i = 6; i >= 0; i--) {
+    const w = new Date();
+    w.setDate(w.getDate() - i);
+    week.push({ date: localDateStr(w), day: '日一二三四五六'[w.getDay()], done: set.has(localDateStr(w)) });
+  }
+  return { streak, total: set.size, todayDone: set.has(today), week };
+}
+
 export function exportAll() {
   return JSON.stringify({
     scenarios: getScenarios(),
     vocab: getVocab(),
+    articles: getArticles(),
+    checkins: getCheckins(),
     exportedAt: new Date().toISOString(),
   }, null, 2);
 }
@@ -111,8 +171,12 @@ export function importAll(json) {
   }
   save(KEYS.scenarios, data.scenarios);
   save(KEYS.vocab, data.vocab);
+  if (Array.isArray(data.articles)) save(KEYS.articles, data.articles);
+  if (Array.isArray(data.checkins)) save(KEYS.checkins, data.checkins);
 }
 export function clearAll() {
   localStorage.removeItem(KEYS.scenarios);
   localStorage.removeItem(KEYS.vocab);
+  localStorage.removeItem(KEYS.articles);
+  localStorage.removeItem(KEYS.checkins);
 }

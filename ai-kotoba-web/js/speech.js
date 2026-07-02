@@ -31,10 +31,11 @@ let currentAudio = null;
 const audioCache = new Map(); // text+voice → objectURL，避免重复计费
 const CACHE_MAX = 60;
 
-async function fetchElevenAudio(text, s) {
-  const key = `${s.elevenVoiceId}|${s.elevenModel}|${text}`;
+async function fetchElevenAudio(text, s, voiceId) {
+  const voice = voiceId || s.elevenVoiceA;
+  const key = `${voice}|${s.elevenModel}|${text}`;
   if (audioCache.has(key)) return audioCache.get(key);
-  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(s.elevenVoiceId)}`, {
+  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice)}`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
@@ -62,10 +63,10 @@ async function fetchElevenAudio(text, s) {
 }
 
 let elevenFailWarned = false;
-async function speakEleven(text, onEnd) {
+async function speakEleven(text, onEnd, voiceId) {
   const s = getSettings();
   try {
-    const url = await fetchElevenAudio(text, s);
+    const url = await fetchElevenAudio(text, s, voiceId);
     stopSpeaking();
     currentAudio = new Audio(url);
     currentAudio.onended = () => { currentAudio = null; onEnd?.(); };
@@ -82,10 +83,11 @@ async function speakEleven(text, onEnd) {
 }
 
 // ---------- 对外接口 ----------
-export function speak(text, onEnd) {
+// voiceId：ElevenLabs 音色（用于 A/B 角色区分）；系统语音下忽略
+export function speak(text, onEnd, voiceId) {
   const s = getSettings();
   if (s.ttsProvider === 'elevenlabs' && s.elevenKey) {
-    speakEleven(text, onEnd);
+    speakEleven(text, onEnd, voiceId);
   } else {
     speakSystem(text, onEnd);
   }

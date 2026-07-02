@@ -122,7 +122,7 @@ function promptJapanese(topic, level) {
 {
   "title": "会話のタイトル（日本語）",
   "conversation": [
-    {"speaker": "話者名", "japanese": "セリフ"}
+    {"speaker": "話者名", "japanese": "セリフ", "furigana": "同じセリフに、漢字を含む語の直後に読みがなを[ ]で付けた形式。例：私[わたし]は学生[がくせい]です。"}
   ],
   "vocabulary": [
     {"word": "単語", "reading": "よみかた", "example": "例文"}
@@ -166,6 +166,7 @@ function normalizeScenario(data, topic, level) {
     orderIndex: i,
     speaker: String(l.speaker || (i % 2 === 0 ? 'A' : 'B')),
     japanese: String(l.japanese || ''),
+    furigana: String(l.furigana || ''),
     chinese: String(l.chinese || ''),
   })).filter(l => l.japanese);
   const vocabulary = (data.vocabulary || []).map(v => ({
@@ -183,6 +184,77 @@ function normalizeScenario(data, topic, level) {
     createdAt: Date.now(),
     favorite: false,
     lines, vocabulary,
+  };
+}
+
+// ---------- 阅读文章生成（同样两轮：日语原文 → 中文翻译） ----------
+function promptArticleJapanese(request, level) {
+  return `あなたは経験豊富な日本語教師です。中国語話者の日本語学習者のために、以下のリクエストに沿った読み物（短い文章）を書いてください。
+
+リクエスト：「${request}」
+
+要件：
+- JLPT ${level} レベルに合った語彙と文法を使うこと
+- 3〜6段落、全体で400〜700字程度
+- 自然で読みやすく、内容が面白い文章にすること
+- 文章から学習価値の高い単語・表現を6〜10個選ぶこと
+
+以下のJSON形式のみで出力してください。説明文やその他のテキストは一切不要です：
+{
+  "title": "文章のタイトル（日本語）",
+  "paragraphs": [
+    {"japanese": "段落の本文", "furigana": "同じ本文に、漢字を含む語の直後に読みがなを[ ]で付けた形式。例：私[わたし]は漫画[まんが]が好[す]きです。"}
+  ],
+  "vocabulary": [
+    {"word": "単語", "reading": "よみかた", "example": "例文"}
+  ]
+}`;
+}
+
+function promptArticleTranslation(japaneseJSON) {
+  return `下面是一篇日语文章的 JSON 数据。请为它添加中文翻译，要求：
+
+1. 给 paragraphs 数组中每一项添加 "chinese" 字段，内容为该段自然流畅的中文翻译
+2. 给 vocabulary 数组中每一项添加 "meaning" 字段（该词的中文意思）和 "exampleChinese" 字段（例句的中文翻译）
+3. 添加顶层字段 "titleChinese"（标题的中文翻译），"title" 保持日语不变
+4. 不要修改任何日语内容
+
+只输出完整的 JSON，不要任何其他文字或解释：
+
+${JSON.stringify(japaneseJSON, null, 2)}`;
+}
+
+export async function generateArticle(request, level, onStatus) {
+  onStatus?.('第一轮：正在撰写日语文章…');
+  const raw1 = await callAI(promptArticleJapanese(request, level));
+  const japaneseOnly = extractJSON(raw1);
+  if (!Array.isArray(japaneseOnly.paragraphs) || japaneseOnly.paragraphs.length === 0) {
+    throw new Error('AI 返回的文章内容为空，请重试');
+  }
+
+  onStatus?.('第二轮：正在添加中文翻译…');
+  const raw2 = await callAI(promptArticleTranslation(japaneseOnly));
+  const full = extractJSON(raw2);
+
+  const paragraphs = (full.paragraphs || []).map(p => ({
+    japanese: String(p.japanese || ''),
+    furigana: String(p.furigana || ''),
+    chinese: String(p.chinese || ''),
+  })).filter(p => p.japanese);
+  const vocabulary = (full.vocabulary || []).map(v => ({
+    word: String(v.word || ''),
+    reading: String(v.reading || ''),
+    meaning: String(v.meaning || ''),
+    example: String(v.example || ''),
+    exampleChinese: String(v.exampleChinese || ''),
+  })).filter(v => v.word);
+  return {
+    id: crypto.randomUUID(),
+    title: String(full.title || request),
+    titleChinese: String(full.titleChinese || ''),
+    request, level,
+    createdAt: Date.now(),
+    paragraphs, vocabulary,
   };
 }
 
@@ -218,16 +290,16 @@ export function localFeedback(targetJapanese, userText) {
 // ---------- 演示场景（未配置 API Key 时体验用） ----------
 export function demoScenario() {
   const lines = [
-    ['店員', 'いらっしゃいませ。こちらへどうぞ。', '欢迎光临。这边请。'],
-    ['客', 'すみません、おすすめは何ですか。', '请问,有什么推荐的吗?'],
-    ['店員', '本日のおすすめは醤油ラーメンです。スープが自慢なんですよ。', '今天的推荐是酱油拉面。我们的汤底是招牌哦。'],
-    ['客', 'じゃあ、それをお願いします。あと、餃子もひとつ。', '那就要那个吧。另外再来一份饺子。'],
-    ['店員', 'かしこまりました。お飲み物はいかがですか。', '好的。请问需要喝的吗?'],
-    ['客', 'お水で大丈夫です。', '水就可以了。'],
-    ['店員', 'はい、少々お待ちください。', '好的,请稍等。'],
-    ['客', 'すみません、お会計お願いします。', '不好意思,麻烦结账。'],
-    ['店員', 'お会計は1,200円になります。', '一共是1200日元。'],
-    ['客', 'ごちそうさまでした。とても美味しかったです。', '多谢款待。非常好吃。'],
+    ['店員', 'いらっしゃいませ。こちらへどうぞ。', '欢迎光临。这边请。', 'いらっしゃいませ。こちらへどうぞ。'],
+    ['客', 'すみません、おすすめは何ですか。', '请问,有什么推荐的吗?', 'すみません、おすすめは何[なん]ですか。'],
+    ['店員', '本日のおすすめは醤油ラーメンです。スープが自慢なんですよ。', '今天的推荐是酱油拉面。我们的汤底是招牌哦。', '本日[ほんじつ]のおすすめは醤油[しょうゆ]ラーメンです。スープが自慢[じまん]なんですよ。'],
+    ['客', 'じゃあ、それをお願いします。あと、餃子もひとつ。', '那就要那个吧。另外再来一份饺子。', 'じゃあ、それをお願[ねが]いします。あと、餃子[ぎょうざ]もひとつ。'],
+    ['店員', 'かしこまりました。お飲み物はいかがですか。', '好的。请问需要喝的吗?', 'かしこまりました。お飲[の]み物[もの]はいかがですか。'],
+    ['客', 'お水で大丈夫です。', '水就可以了。', 'お水[みず]で大丈夫[だいじょうぶ]です。'],
+    ['店員', 'はい、少々お待ちください。', '好的,请稍等。', 'はい、少々[しょうしょう]お待[ま]ちください。'],
+    ['客', 'すみません、お会計お願いします。', '不好意思,麻烦结账。', 'すみません、お会計[かいけい]お願[ねが]いします。'],
+    ['店員', 'お会計は1,200円になります。', '一共是1200日元。', 'お会計[かいけい]は1,200円[えん]になります。'],
+    ['客', 'ごちそうさまでした。とても美味しかったです。', '多谢款待。非常好吃。', 'ごちそうさまでした。とても美味[おい]しかったです。'],
   ];
   const vocab = [
     ['いらっしゃいませ', 'いらっしゃいませ', '欢迎光临(店员用语)', 'いらっしゃいませ、何名様ですか。', '欢迎光临,请问几位?'],
@@ -245,7 +317,7 @@ export function demoScenario() {
     level: 'N4',
     createdAt: Date.now(),
     favorite: false,
-    lines: lines.map(([speaker, japanese, chinese], i) => ({ orderIndex: i, speaker, japanese, chinese })),
+    lines: lines.map(([speaker, japanese, chinese, furigana], i) => ({ orderIndex: i, speaker, japanese, chinese, furigana })),
     vocabulary: vocab.map(([word, reading, meaning, example, exampleChinese]) => ({ word, reading, meaning, example, exampleChinese })),
   };
 }

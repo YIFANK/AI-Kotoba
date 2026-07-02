@@ -1,5 +1,5 @@
 import * as db from './storage.js';
-import { generateScenario, demoScenario, getFeedback, localFeedback, localCLIStatus } from './services.js';
+import { generateScenario, generateArticle, demoScenario, getFeedback, localFeedback, localCLIStatus } from './services.js';
 import { speak, stopSpeaking, sttSupported, createRecognizer } from './speech.js';
 import { applySM2, isDue, formatDue } from './srs.js';
 
@@ -22,6 +22,34 @@ function toast(msg) {
 function fmtDate(ts) {
   return new Date(ts).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
+// 把「漢字[かんじ]」标记渲染为 <ruby> 注音
+function rubyHTML(text) {
+  return esc(text).replace(/([㐀-鿿豈-﫿々〆]+)\[([^\[\]]{1,20})\]/g, '<ruby>$1<rt>$2</rt></ruby>');
+}
+// 日语文本 HTML：有注音数据且开关打开时用 ruby，否则纯文本
+function jpHTML(japanese, furigana) {
+  return (furigana && db.getSettings().showFurigana) ? rubyHTML(furigana) : esc(japanese);
+}
+// 角色 A/B 音色（按 orderIndex 奇偶）
+function voiceFor(i) {
+  const s = db.getSettings();
+  return i % 2 === 0 ? s.elevenVoiceA : s.elevenVoiceB;
+}
+// 学习行为触发签到
+function checkIn() {
+  if (db.recordActivity()) {
+    toast(`✅ 今日已签到，连续学习 ${db.streakInfo().streak} 天！`);
+    return true;
+  }
+  return false;
+}
+function toggleFurigana() {
+  const s = db.getSettings();
+  db.saveSettings(Object.assign(s, { showFurigana: !s.showFurigana }));
+}
+function furiganaBtnHTML() {
+  return `<button class="btn small toggle-btn ${db.getSettings().showFurigana ? 'on' : ''}" id="furigana-btn" title="显示/隐藏汉字注音">あ゙ 注音</button>`;
+}
 const ICONS = {
   star: '<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg>',
   trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0l-.8 12a2 2 0 0 1-2 1.9H8.8a2 2 0 0 1-2-1.9L6 7"/></svg>',
@@ -32,7 +60,7 @@ const ICONS = {
 };
 
 // ---------- Tab 切换 ----------
-const TABS = { practice: renderPractice, history: () => renderHistory(false), favorites: () => renderHistory(true), vocab: renderVocab, cards: renderCards, settings: renderSettings };
+const TABS = { practice: renderPractice, reading: renderReading, history: () => renderHistory(false), favorites: () => renderHistory(true), vocab: renderVocab, cards: renderCards, settings: renderSettings };
 
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -49,10 +77,36 @@ function switchTab(tab) {
 // ==================== 练习（生成） ====================
 const PRESETS = ['在餐厅点餐', '便利店购物', '问路', '酒店入住', '在车站买票', '看医生', '打工面试', '和朋友约饭', '快递取件', '道歉与感谢'];
 
+function streakCardHTML() {
+  const st = db.streakInfo();
+  return `
+    <div class="card streak-card">
+      <div>
+        <div class="streak-num"><span class="n">${st.streak}</span><span class="u">天连续学习 🔥</span></div>
+        <div class="streak-label">累计打卡 ${st.total} 天${st.todayDone ? ' · 今天已完成 ✓' : ''}</div>
+      </div>
+      ${st.todayDone ? '' : '<button class="btn soft small" id="checkin-btn">今日签到</button>'}
+      <div class="streak-week">
+        ${st.week.map((w, i) => `
+          <div class="week-dot ${w.done ? 'done' : ''} ${i === 6 ? 'today' : ''}">
+            <div class="d">${w.done ? '✓' : ''}</div>
+            <div class="wd">${i === 6 ? '今天' : w.day}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+function bindCheckinBtn() {
+  view.querySelector('#checkin-btn')?.addEventListener('click', () => {
+    checkIn();
+    switchTab(currentTab);
+  });
+}
+
 function renderPractice() {
   view.innerHTML = `
     <h1 class="page-title">练习</h1>
     <p class="page-sub">输入一个场景，AI 会先生成地道的日语会话，再补充中文翻译（两轮生成，避免中日夹杂的不自然表达）</p>
+    ${streakCardHTML()}
     <div class="card">
       <label class="field-label">场景主题</label>
       <div class="gen-row">
@@ -73,6 +127,7 @@ function renderPractice() {
   view.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { input.value = c.dataset.topic; }));
   view.querySelector('#gen-btn').addEventListener('click', onGenerate);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') onGenerate(); });
+  bindCheckinBtn();
 
   if (lastScenario) {
     renderScenarioDetail(lastScenario, view.querySelector('#gen-result'));
@@ -102,6 +157,7 @@ async function onGenerate() {
     }
     db.saveScenario(scenario);
     lastScenario = scenario;
+    checkIn();
     status.innerHTML = '';
     renderScenarioDetail(scenario, view.querySelector('#gen-result'));
     view.querySelector('#gen-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -134,6 +190,7 @@ function renderScenarioDetail(sc, container, opts = {}) {
         </div>
         <div class="scenario-actions">
           <button class="icon-btn ${sc.favorite ? 'starred' : ''}" id="fav-btn" title="收藏">${ICONS.star}</button>
+          ${furiganaBtnHTML()}
           <button class="btn primary" id="interactive-btn">🎭 互动模式</button>
         </div>
       </div>
@@ -142,7 +199,7 @@ function renderScenarioDetail(sc, container, opts = {}) {
           <div class="line" data-i="${i}" title="点击朗读">
             <span class="badge ${speakerParity(sc, l.speaker, i)}">${esc(l.speaker)}</span>
             <div class="line-body">
-              <p class="line-jp jp">${esc(l.japanese)}</p>
+              <p class="line-jp jp">${jpHTML(l.japanese, l.furigana)}</p>
               <p class="line-cn">${esc(l.chinese)}</p>
             </div>
             <span class="line-speak">${ICONS.speaker}</span>
@@ -166,11 +223,17 @@ function renderScenarioDetail(sc, container, opts = {}) {
 
   container.querySelectorAll('.line').forEach(el => {
     el.addEventListener('click', () => {
-      const line = sc.lines[+el.dataset.i];
+      const i = +el.dataset.i;
+      const line = sc.lines[i];
       container.querySelectorAll('.line').forEach(x => x.classList.remove('playing'));
       el.classList.add('playing');
-      speak(line.japanese, () => el.classList.remove('playing'));
+      speak(line.japanese, () => el.classList.remove('playing'), voiceFor(i));
     });
+  });
+
+  container.querySelector('#furigana-btn')?.addEventListener('click', () => {
+    toggleFurigana();
+    renderScenarioDetail(sc, container, opts);
   });
 
   container.querySelector('#fav-btn').addEventListener('click', (e) => {
@@ -265,10 +328,10 @@ function startInteractive(sc, role, opts = {}) {
     row.innerHTML = `
       <span class="avatar ${speakerParity(sc, line.speaker, i)}">${esc(line.speaker.slice(0, 2))}</span>
       <div class="bubble" title="点击朗读">
-        <div class="line-jp jp" style="font-size:15px">${esc(line.japanese)}</div>
+        <div class="line-jp jp" style="font-size:15px">${mine ? esc(line.japanese) : jpHTML(line.japanese, line.furigana)}</div>
         <div class="line-cn">${esc(line.chinese)}</div>
       </div>`;
-    row.querySelector('.bubble').addEventListener('click', () => speak(line.japanese));
+    row.querySelector('.bubble').addEventListener('click', () => speak(line.japanese, null, voiceFor(i)));
     chat.appendChild(row);
     row.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
@@ -288,7 +351,7 @@ function startInteractive(sc, role, opts = {}) {
     while (session.idx < sc.lines.length && !isUserTurn(role, session.idx)) {
       const i = session.idx;
       appendBubble(sc.lines[i], i, false);
-      speak(sc.lines[i].japanese);
+      speak(sc.lines[i].japanese, null, voiceFor(i));
       session.idx++;
     }
     updateProgress();
@@ -303,7 +366,7 @@ function startInteractive(sc, role, opts = {}) {
     panel.innerHTML = `
       <div class="user-panel">
         <div class="turn-label">🎤 轮到你了！请说出这句台词（扮演 ${esc(line.speaker)}）：</div>
-        <div class="target-line jp">${esc(line.japanese)}</div>
+        <div class="target-line jp">${jpHTML(line.japanese, line.furigana)}</div>
         <div class="target-cn hidden-cn" id="target-cn" title="点击显示中文">${esc(line.chinese)}</div>
         <div class="input-row">
           <button class="mic-btn" id="mic-btn" title="${supported ? '语音输入（日语）' : '当前浏览器不支持语音识别，请使用 Chrome/Edge/Safari'}" ${supported ? '' : 'disabled style="opacity:.4"'}>${ICONS.mic}</button>
@@ -314,7 +377,7 @@ function startInteractive(sc, role, opts = {}) {
       </div>
     `;
     panel.querySelector('#target-cn').addEventListener('click', e => e.currentTarget.classList.remove('hidden-cn'));
-    panel.querySelector('#listen-btn').addEventListener('click', () => speak(line.japanese));
+    panel.querySelector('#listen-btn').addEventListener('click', () => speak(line.japanese, null, voiceFor(i)));
     const input = panel.querySelector('#user-input');
     input.focus();
     input.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
@@ -345,6 +408,7 @@ function startInteractive(sc, role, opts = {}) {
       panel.innerHTML = '';
       appendBubble(Object.assign({}, line, { japanese: text, chinese: '（你的回答）' }), i, true);
       session.userLines++;
+      checkIn();
 
       const fbRow = appendFeedback('正在点评…');
       let fb;
@@ -360,7 +424,7 @@ function startInteractive(sc, role, opts = {}) {
           <button class="btn" id="ref-btn">${ICONS.speaker} 听标准答案</button>
           <button class="btn primary" id="next-btn">下一句 →</button>
         </div>`;
-      panel.querySelector('#ref-btn').addEventListener('click', () => speak(line.japanese));
+      panel.querySelector('#ref-btn').addEventListener('click', () => speak(line.japanese, null, voiceFor(i)));
       panel.querySelector('#next-btn').addEventListener('click', () => {
         session.idx++;
         session.completed++;
@@ -405,6 +469,146 @@ function startInteractive(sc, role, opts = {}) {
   }
 
   step();
+}
+
+// ==================== 阅读 ====================
+const READING_PRESETS = ['介绍我最喜欢的漫画家', '日本的四季与节日', '一个关于猫的暖心小故事', '如何做正宗的日式咖喱', '东京一日游攻略', '日本高中生的一天'];
+
+function renderReading() {
+  const articles = db.getArticles();
+  view.innerHTML = `
+    <h1 class="page-title">阅读</h1>
+    <p class="page-sub">告诉 AI 你想读什么，它会写一篇符合你水平的日语短文（含注音、翻译和生词）</p>
+    <div class="card">
+      <label class="field-label">想读什么？</label>
+      <div class="gen-row">
+        <input type="text" id="article-input" placeholder="例如：介绍我最喜欢的漫画家" maxlength="80">
+        <select id="article-level">
+          ${['N5', 'N4', 'N3', 'N2', 'N1'].map(l => `<option ${l === 'N4' ? 'selected' : ''}>${l}</option>`).join('')}
+        </select>
+        <button class="btn primary" id="article-btn">📖 生成文章</button>
+      </div>
+      <div class="chips">
+        ${READING_PRESETS.map(p => `<button class="chip" data-topic="${esc(p)}">${esc(p)}</button>`).join('')}
+      </div>
+      <div id="article-status"></div>
+    </div>
+    <div class="section-title" style="margin-top:26px">📚 我的文章（${articles.length}）</div>
+    <div class="list" id="article-list">
+      ${articles.length === 0 ? '<div class="empty"><div class="big">📖</div><p>还没有文章，生成第一篇吧</p></div>' : ''}
+    </div>
+  `;
+  const input = view.querySelector('#article-input');
+  view.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { input.value = c.dataset.topic; }));
+  view.querySelector('#article-btn').addEventListener('click', onGenerateArticle);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') onGenerateArticle(); });
+
+  const listEl = view.querySelector('#article-list');
+  for (const a of articles) {
+    const item = document.createElement('div');
+    item.className = 'list-item';
+    item.innerHTML = `
+      <span class="badge b" style="min-width:38px;height:38px;border-radius:11px;font-size:15px">${esc((a.title || '文')[0])}</span>
+      <div class="list-item-body">
+        <div class="list-item-title jp">${esc(a.title)}</div>
+        <div class="list-item-sub">${a.titleChinese ? esc(a.titleChinese) + ' · ' : ''}JLPT ${esc(a.level)} · ${a.paragraphs.length} 段 · ${fmtDate(a.createdAt)}</div>
+      </div>
+      <div class="list-item-actions">
+        <button class="icon-btn" data-act="del" title="删除">${ICONS.trash}</button>
+      </div>`;
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('[data-act=del]')) {
+        if (confirm(`确定删除「${a.title}」吗？`)) { db.deleteArticle(a.id); renderReading(); }
+        return;
+      }
+      renderArticleDetail(a);
+    });
+    listEl.appendChild(item);
+  }
+}
+
+async function onGenerateArticle() {
+  const input = view.querySelector('#article-input');
+  const request = input.value.trim();
+  const level = view.querySelector('#article-level').value;
+  const status = view.querySelector('#article-status');
+  const btn = view.querySelector('#article-btn');
+  if (!request) { toast('先告诉 AI 你想读什么吧'); input.focus(); return; }
+  if (!db.hasAPIKey()) { toast('请先在「设置」中配置 AI 服务（本地 CLI 或 API Key）'); return; }
+
+  btn.disabled = true;
+  try {
+    const article = await generateArticle(`JLPT ${level} 水平：${request}`, level, msg => {
+      status.innerHTML = `<div class="gen-status"><div class="spinner"></div>${esc(msg)}</div>`;
+    });
+    db.saveArticle(article);
+    checkIn();
+    status.innerHTML = '';
+    renderArticleDetail(article);
+  } catch (e) {
+    status.innerHTML = `<div class="gen-status" style="color:#d3455b">生成失败：${esc(e.message)}</div>`;
+    btn.disabled = false;
+  }
+}
+
+function renderArticleDetail(a) {
+  stopSpeaking();
+  const vocabWords = new Set(db.getVocab().map(v => v.word));
+  const showCn = a._showCn ?? false;
+  view.innerHTML = `
+    <div class="back-row"><button class="btn small" id="back-btn">${ICONS.back} 返回阅读</button></div>
+    <div class="card">
+      <div class="scenario-head">
+        <div>
+          <div class="scenario-title jp">${esc(a.title)}</div>
+          ${a.titleChinese ? `<div class="scenario-title-cn">${esc(a.titleChinese)}</div>` : ''}
+          <div class="scenario-meta">
+            <span class="tag level">JLPT ${esc(a.level)}</span>
+            <span class="tag">${fmtDate(a.createdAt)}</span>
+          </div>
+        </div>
+        <div class="scenario-actions detail-toolbar">
+          ${furiganaBtnHTML()}
+          <button class="btn small toggle-btn ${showCn ? 'on' : ''}" id="cn-btn">中 译文</button>
+        </div>
+      </div>
+      <div id="paras">
+        ${a.paragraphs.map((p, i) => `
+          <div class="article-para" data-i="${i}" title="点击朗读本段">
+            <div class="jp-text jp">${jpHTML(p.japanese, p.furigana)}</div>
+            ${showCn && p.chinese ? `<div class="cn-text">${esc(p.chinese)}</div>` : ''}
+          </div>`).join('')}
+      </div>
+      <div class="section-title">📖 生词建议</div>
+      <div class="vocab-grid">
+        ${a.vocabulary.map((v, i) => `
+          <div class="vocab-card">
+            <div class="vocab-word jp">${esc(v.word)}</div>
+            <div class="vocab-reading jp">${esc(v.reading)}</div>
+            <div class="vocab-meaning">${esc(v.meaning)}</div>
+            ${v.example ? `<div class="vocab-example jp">${esc(v.example)}${v.exampleChinese ? `<br><span style="font-family:inherit">${esc(v.exampleChinese)}</span>` : ''}</div>` : ''}
+            <button class="btn small soft add-vocab" data-i="${i}" ${vocabWords.has(v.word) ? 'disabled' : ''}>${vocabWords.has(v.word) ? '已在生词本' : '+ 加入生词本'}</button>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+  view.querySelector('#back-btn').addEventListener('click', () => { stopSpeaking(); switchTab('reading'); });
+  view.querySelector('#furigana-btn').addEventListener('click', () => { toggleFurigana(); renderArticleDetail(a); });
+  view.querySelector('#cn-btn').addEventListener('click', () => { a._showCn = !showCn; renderArticleDetail(a); });
+  view.querySelectorAll('.article-para').forEach(el => {
+    el.addEventListener('click', () => {
+      const p = a.paragraphs[+el.dataset.i];
+      view.querySelectorAll('.article-para').forEach(x => x.classList.remove('playing'));
+      el.classList.add('playing');
+      speak(p.japanese, () => el.classList.remove('playing'), db.getSettings().elevenVoiceA);
+    });
+  });
+  view.querySelectorAll('.add-vocab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = a.vocabulary[+btn.dataset.i];
+      if (db.addVocab(v)) { btn.disabled = true; btn.textContent = '已在生词本'; toast(`「${v.word}」已加入生词本`); }
+    });
+  });
 }
 
 // ==================== 历史 / 收藏 ====================
@@ -568,6 +772,7 @@ function renderCards() {
         btn.addEventListener('click', () => {
           const updated = applySM2(v, +btn.dataset.q);
           db.updateVocab(updated);
+          checkIn();
           reviewed++;
           idx++;
           drawCard();
@@ -647,16 +852,20 @@ function renderSettings() {
       </div>
       <div class="field" style="display:flex;gap:12px">
         <div style="flex:1">
-          <label class="field-label">Voice ID</label>
-          <input type="text" id="eleven-voice" value="${esc(s.elevenVoiceId)}">
+          <label class="field-label">角色 A 音色（默认 Sarah · 女声）</label>
+          <input type="text" id="eleven-voice-a" value="${esc(s.elevenVoiceA)}">
         </div>
         <div style="flex:1">
-          <label class="field-label">模型</label>
-          <input type="text" id="eleven-model" value="${esc(s.elevenModel)}">
+          <label class="field-label">角色 B 音色（默认 George · 男声）</label>
+          <input type="text" id="eleven-voice-b" value="${esc(s.elevenVoiceB)}">
         </div>
       </div>
+      <div class="field">
+        <label class="field-label">模型</label>
+        <input type="text" id="eleven-model" value="${esc(s.elevenModel)}">
+      </div>
       <button class="btn primary" id="save-tts">保存语音设置</button>
-      <p class="hint">在 <a href="https://elevenlabs.io/app/voice-library" target="_blank" rel="noopener">ElevenLabs 音色库</a>中挑选支持日语的音色并复制其 Voice ID。默认模型 eleven_multilingual_v2 支持日语；同一句话的音频会在本页缓存，避免重复计费。ElevenLabs 请求失败时会自动回退到系统语音。</p>
+      <p class="hint">对话中角色 A / B 会分别使用两个音色（按台词奇偶自动分配），文章朗读与闪卡使用音色 A。想换声线可在 <a href="https://elevenlabs.io/app/voice-library" target="_blank" rel="noopener">ElevenLabs 音色库</a>中挑选（搜 Japanese 可找到日语母语者音色）并粘贴其 Voice ID。默认模型 eleven_multilingual_v2 支持日语；同一句话的音频会在本页缓存，避免重复计费；请求失败自动回退系统语音。</p>
     </div>
     <div class="card settings-section">
       <h3>数据管理</h3>
@@ -715,7 +924,8 @@ function renderSettings() {
     db.saveSettings(Object.assign(cur, {
       ttsProvider,
       elevenKey: view.querySelector('#eleven-key').value,
-      elevenVoiceId: view.querySelector('#eleven-voice').value.trim() || '21m00Tcm4TlvDq8ikWAM',
+      elevenVoiceA: view.querySelector('#eleven-voice-a').value.trim() || 'EXAVITQu4vr4xnSDxMaL',
+      elevenVoiceB: view.querySelector('#eleven-voice-b').value.trim() || 'JBFqnCBsd6RMkjVDRZzb',
       elevenModel: view.querySelector('#eleven-model').value.trim() || 'eleven_multilingual_v2',
     }));
     if (ttsProvider === 'elevenlabs' && !view.querySelector('#eleven-key').value.trim()) {

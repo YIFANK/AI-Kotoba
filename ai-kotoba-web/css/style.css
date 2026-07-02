@@ -346,6 +346,46 @@ label.field-label { display: block; font-size: 13px; font-weight: 600; color: va
   font-size: 13px; margin-top: 18px; line-height: 1.6;
 }
 
+/* ===== Furigana ===== */
+ruby > rt {
+  font-size: 10px; color: var(--muted); font-weight: 400;
+  user-select: none;
+}
+.bubble-row.me ruby > rt { color: rgba(255,255,255,.7); }
+.line-jp ruby, .target-line ruby, .article-para .jp-text ruby { ruby-align: center; }
+
+/* ===== 签到 ===== */
+.streak-card {
+  display: flex; align-items: center; gap: 20px;
+  padding: 16px 22px; margin-bottom: 18px;
+}
+.streak-num { display: flex; align-items: baseline; gap: 6px; }
+.streak-num .n { font-size: 30px; font-weight: 800; color: var(--accent); line-height: 1; }
+.streak-num .u { font-size: 13px; color: var(--muted); }
+.streak-label { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.streak-week { display: flex; gap: 8px; margin-left: auto; }
+.week-dot { text-align: center; }
+.week-dot .d {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #eef0f5; color: var(--faint); font-size: 12px;
+}
+.week-dot.done .d { background: var(--accent); color: #fff; }
+.week-dot .wd { font-size: 10px; color: var(--faint); margin-top: 3px; }
+.week-dot.today .wd { color: var(--accent); font-weight: 700; }
+
+/* ===== 阅读文章 ===== */
+.article-para {
+  padding: 4px 0 14px;
+  cursor: pointer; border-radius: 10px;
+}
+.article-para:hover .jp-text { color: var(--accent-hover); }
+.article-para .jp-text { font-size: 16.5px; line-height: 2.1; }
+.article-para .cn-text { font-size: 13.5px; color: var(--muted); margin-top: 6px; padding-left: 12px; border-left: 3px solid var(--accent-border); }
+.article-para.playing .jp-text { color: var(--accent); }
+.detail-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.toggle-btn.on { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+
 /* ===== Toast ===== */
 #toast-wrap { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 100; }
 .toast {
