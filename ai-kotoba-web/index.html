@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Kotoba · 言葉 — AI 日语情景会话学习</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🗣️</text></svg>">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">言</div>
+      <div>
+        <div class="logo-title">AI-Kotoba</div>
+        <div class="logo-sub">日语情景会话学习</div>
+      </div>
+    </div>
+    <nav id="nav">
+      <button class="nav-item" data-tab="practice">
+        <svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/><path d="M19 15l.9 2.4L22 18.5l-2.1.9L19 22l-.9-2.6-2.1-.9 2.1-1.1L19 15z"/></svg>
+        <span>练习</span>
+      </button>
+      <button class="nav-item" data-tab="history">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        <span>历史</span>
+      </button>
+      <button class="nav-item" data-tab="favorites">
+        <svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg>
+        <span>收藏</span>
+      </button>
+      <button class="nav-item" data-tab="vocab">
+        <svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z"/><path d="M5 17a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/></svg>
+        <span>生词本</span>
+      </button>
+      <button class="nav-item" data-tab="cards">
+        <svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/><path d="M7 12h5"/></svg>
+        <span>闪卡复习</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="nav-item" data-tab="settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>
+        <span>设置</span>
+      </button>
+    </div>
+  </aside>
+  <main class="main">
+    <div id="view" class="view"></div>
+  </main>
+</div>
+<div id="toast-wrap"></div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
