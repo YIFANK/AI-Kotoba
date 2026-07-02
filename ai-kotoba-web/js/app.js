@@ -1,5 +1,6 @@
 import * as db from './storage.js';
-import { generateScenario, generateArticle, demoScenario, getFeedback, localFeedback, localCLIStatus } from './services.js';
+import { generateScenario, generateArticle, demoScenario, getFeedback, localFeedback, localCLIStatus, freeTalkInstructions, freeTalkReply, freeTalkFeedback } from './services.js';
+import { startRealtimeSession } from './realtime.js';
 import { speak, stopSpeaking, sttSupported, createRecognizer } from './speech.js';
 import { applySM2, isDue, formatDue } from './srs.js';
 
@@ -60,14 +61,17 @@ const ICONS = {
 };
 
 // ---------- Tab 切换 ----------
-const TABS = { practice: renderPractice, reading: renderReading, history: () => renderHistory(false), favorites: () => renderHistory(true), vocab: renderVocab, cards: renderCards, settings: renderSettings };
+const TABS = { practice: renderPractice, freetalk: renderFreeTalk, reading: renderReading, history: () => renderHistory(false), favorites: () => renderHistory(true), vocab: renderVocab, cards: renderCards, settings: renderSettings };
 
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
+let activeRealtime = null; // 进行中的语音实时会话（切换页面时需要关闭麦克风）
 function switchTab(tab) {
   currentTab = tab;
   stopSpeaking();
+  activeRealtime?.stop();
+  activeRealtime = null;
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   TABS[tab]();
   view.scrollTop = 0;
@@ -487,6 +491,233 @@ function startInteractive(sc, role, opts = {}) {
   }
 
   step();
+}
+
+// ==================== 自由对话 ====================
+const FREETALK_PRESETS = ['在居酒屋和老板闲聊', '和日本同事聊周末计划', '在美容院剪头发', '和房东讨论租房问题', '跟新朋友互相自我介绍', '在旅游咨询处询问景点'];
+
+function renderFreeTalk() {
+  stopSpeaking();
+  const s = db.getSettings();
+  view.innerHTML = `
+    <h1 class="page-title">自由对话</h1>
+    <p class="page-sub">脱稿练习：设定一个场景，和 AI 自由地用日语聊天，结束后获取学习点评</p>
+    <div class="card">
+      <label class="field-label">场景 / 角色设定</label>
+      <div class="gen-row">
+        <input type="text" id="ft-scene" placeholder="例如：在居酒屋和老板闲聊" maxlength="60">
+        <select id="ft-level">
+          ${['N5', 'N4', 'N3', 'N2', 'N1'].map(l => `<option ${l === 'N4' ? 'selected' : ''}>${l}</option>`).join('')}
+        </select>
+      </div>
+      <div class="chips">
+        ${FREETALK_PRESETS.map(p => `<button class="chip" data-topic="${esc(p)}">${esc(p)}</button>`).join('')}
+      </div>
+      <label class="field-label" style="margin-top:6px">对话方式</label>
+      <div class="mode-cards">
+        <button class="role-card" id="ft-voice">
+          <div class="emoji">🎙️</div>
+          <div class="name">语音实时对话</div>
+          <div class="desc">像打电话一样自然交谈（OpenAI Realtime${s.openaiKey ? '' : ' · 需先配置 OpenAI Key'}）</div>
+        </button>
+        <button class="role-card" id="ft-text">
+          <div class="emoji">💬</div>
+          <div class="name">文字对话</div>
+          <div class="desc">打字或语音输入，AI 日语回复并朗读（用当前 AI 服务）</div>
+        </button>
+      </div>
+    </div>
+  `;
+  const sceneInput = view.querySelector('#ft-scene');
+  view.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { sceneInput.value = c.dataset.topic; }));
+  const getSetup = () => {
+    const scene = sceneInput.value.trim();
+    if (!scene) { toast('先设定一个场景吧'); sceneInput.focus(); return null; }
+    return { scene, level: view.querySelector('#ft-level').value };
+  };
+  view.querySelector('#ft-voice').addEventListener('click', () => {
+    const setup = getSetup();
+    if (!setup) return;
+    if (!db.getSettings().openaiKey) { toast('语音实时对话需要 OpenAI API Key，请先到「设置」中填写'); return; }
+    startFreeTalkVoice(setup.scene, setup.level);
+  });
+  view.querySelector('#ft-text').addEventListener('click', () => {
+    const setup = getSetup();
+    if (!setup) return;
+    if (!db.hasAPIKey()) { toast('请先在「设置」中配置 AI 服务（本地 CLI 或 API Key）'); return; }
+    startFreeTalkText(setup.scene, setup.level);
+  });
+}
+
+function freeTalkShell(scene, level, statusHTML) {
+  view.innerHTML = `
+    <div class="back-row"><button class="btn small" id="ft-exit">${ICONS.back} 结束对话</button></div>
+    <h1 class="page-title" style="font-size:19px">自由对话 · ${esc(scene)} <span class="tag level">JLPT ${esc(level)}</span></h1>
+    <div class="freetalk-bar">${statusHTML}<div class="spacer"></div><button class="btn small" id="ft-feedback" style="display:none">📝 获取学习点评</button></div>
+    <div class="chat" id="ft-chat"></div>
+    <div id="ft-panel"></div>
+  `;
+  return {
+    chat: view.querySelector('#ft-chat'),
+    panel: view.querySelector('#ft-panel'),
+    exitBtn: view.querySelector('#ft-exit'),
+    feedbackBtn: view.querySelector('#ft-feedback'),
+  };
+}
+
+function ftBubble(chat, role, text) {
+  const row = document.createElement('div');
+  row.className = `bubble-row ${role === 'me' ? 'me' : ''}`;
+  row.innerHTML = `
+    <span class="avatar ${role === 'me' ? 'a' : 'b'}">${role === 'me' ? '我' : 'AI'}</span>
+    <div class="bubble"><div class="line-jp jp" style="font-size:15px">${esc(text)}</div></div>`;
+  chat.appendChild(row);
+  row.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  return row;
+}
+
+async function showFreeTalkFeedback(scene, history, container) {
+  if (history.filter(h => h.role === 'me').length === 0) { toast('先聊几句再获取点评吧'); return; }
+  const transcript = history.map(h => `${h.role === 'me' ? '我' : '对方'}：${h.text}`).join('\n');
+  const box = document.createElement('div');
+  box.className = 'bubble feedback';
+  box.style.maxWidth = '100%';
+  box.innerHTML = `<div class="feedback-label">📝 学习点评</div>正在生成点评…`;
+  container.appendChild(box);
+  box.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  try {
+    const fb = await freeTalkFeedback(scene, transcript);
+    // 轻量渲染：仅支持加粗，其余按纯文本
+    const html = esc(fb).replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
+    box.innerHTML = `<div class="feedback-label">📝 学习点评</div><div style="white-space:pre-wrap">${html}</div>`;
+  } catch (e) {
+    box.innerHTML = `<div class="feedback-label">📝 学习点评</div>生成失败：${esc(e.message)}`;
+  }
+  box.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+// ---------- 文字模式 ----------
+function startFreeTalkText(scene, level) {
+  const history = [];
+  const ui = freeTalkShell(scene, level, '<span class="rt-status"><span class="rt-dot"></span>文字模式</span>');
+  ui.exitBtn.addEventListener('click', () => { stopSpeaking(); renderFreeTalk(); });
+  ui.feedbackBtn.addEventListener('click', () => showFreeTalkFeedback(scene, history, ui.chat));
+
+  const supported = sttSupported();
+  ui.panel.innerHTML = `
+    <div class="user-panel" style="margin-top:16px">
+      <div class="input-row" style="margin-top:0">
+        <button class="mic-btn" id="ft-mic" ${supported ? '' : 'disabled style="opacity:.4"'} title="${supported ? '语音输入（日语）' : '当前浏览器不支持语音识别'}">${ICONS.mic}</button>
+        <input type="text" id="ft-input" placeholder="用日语说点什么吧…（对方会先等你开口）" autocomplete="off">
+        <button class="btn primary" id="ft-send">发送</button>
+      </div>
+    </div>`;
+  const input = ui.panel.querySelector('#ft-input');
+  const sendBtn = ui.panel.querySelector('#ft-send');
+  input.focus();
+
+  let recognizer = null, recording = false;
+  const micBtn = ui.panel.querySelector('#ft-mic');
+  if (supported) {
+    micBtn.addEventListener('click', () => {
+      if (recording) { recognizer?.stop(); return; }
+      recognizer = createRecognizer({
+        onResult: (text) => { input.value = text; },
+        onEnd: () => { recording = false; micBtn.classList.remove('recording'); },
+        onError: (err) => {
+          recording = false; micBtn.classList.remove('recording');
+          if (err !== 'aborted' && err !== 'no-speech') toast(`语音识别出错：${err}`);
+        },
+      });
+      recognizer.start();
+      recording = true;
+      micBtn.classList.add('recording');
+    });
+  }
+
+  async function send() {
+    const text = input.value.trim();
+    if (!text) return;
+    recognizer?.stop();
+    input.value = '';
+    ftBubble(ui.chat, 'me', text);
+    checkIn();
+    const pending = ftBubble(ui.chat, 'ai', '…');
+    pending.querySelector('.bubble').classList.add('thinking');
+    sendBtn.disabled = true;
+    try {
+      const reply = await freeTalkReply(scene, level, history, text);
+      history.push({ role: 'me', text }, { role: 'ai', text: reply });
+      pending.querySelector('.bubble').classList.remove('thinking');
+      pending.querySelector('.line-jp').textContent = reply;
+      speak(reply, null, db.getSettings().elevenVoiceB);
+      if (history.filter(h => h.role === 'me').length >= 2) ui.feedbackBtn.style.display = '';
+    } catch (e) {
+      pending.querySelector('.line-jp').textContent = `（回复失败：${e.message}）`;
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+}
+
+// ---------- 语音实时模式（OpenAI Realtime） ----------
+async function startFreeTalkVoice(scene, level) {
+  const history = [];
+  const ui = freeTalkShell(scene, level, '<span class="rt-status connecting" id="rt-status"><span class="rt-dot"></span><span id="rt-status-text">正在连接…</span></span>');
+  const statusEl = view.querySelector('#rt-status');
+  const statusText = view.querySelector('#rt-status-text');
+  const STATUS = { idle: ['', '你可以说话了'], listening: ['listening', '正在听你说…'], speaking: ['speaking', 'AI 正在说话'], connecting: ['connecting', '正在连接…'] };
+  const setStatus = (key) => {
+    const [cls, text] = STATUS[key] || STATUS.idle;
+    statusEl.className = `rt-status ${cls}`;
+    statusText.textContent = text;
+  };
+
+  let aiRow = null, aiText = '';
+  let session = null;
+  const cleanup = () => { session?.stop(); session = null; activeRealtime = null; };
+
+  ui.exitBtn.addEventListener('click', () => { cleanup(); renderFreeTalk(); });
+  ui.feedbackBtn.addEventListener('click', () => showFreeTalkFeedback(scene, history, ui.chat));
+  ui.panel.innerHTML = `<p class="hint" style="text-align:center;margin-top:14px">💡 直接开口说日语即可，AI 会用语音回应，可以随时打断。说「中文」可请求提示。</p>`;
+
+  try {
+    session = await startRealtimeSession({
+      apiKey: db.getSettings().openaiKey,
+      instructions: freeTalkInstructions(scene, level),
+      onStatus: setStatus,
+      onUserText: (text) => {
+        ftBubble(ui.chat, 'me', text);
+        history.push({ role: 'me', text });
+        checkIn();
+        if (history.filter(h => h.role === 'me').length >= 2) ui.feedbackBtn.style.display = '';
+      },
+      onAIDelta: (delta) => {
+        if (!aiRow) { aiRow = ftBubble(ui.chat, 'ai', ''); aiText = ''; }
+        aiText += delta;
+        aiRow.querySelector('.line-jp').textContent = aiText;
+      },
+      onAIDone: (full) => {
+        const text = full || aiText;
+        if (aiRow && text) aiRow.querySelector('.line-jp').textContent = text;
+        if (text) history.push({ role: 'ai', text });
+        aiRow = null; aiText = '';
+      },
+      onError: (msg) => toast(`实时对话：${msg}`),
+    });
+    activeRealtime = session;
+    setStatus('idle');
+  } catch (e) {
+    cleanup();
+    ui.panel.innerHTML = `<div class="gen-status" style="color:#d3455b;justify-content:center">${esc(e.message)}</div>
+      <div style="text-align:center;margin-top:14px"><button class="btn" id="rt-back">返回</button></div>`;
+    view.querySelector('#rt-back').addEventListener('click', renderFreeTalk);
+    statusEl.className = 'rt-status';
+    statusText.textContent = '连接失败';
+  }
 }
 
 // ==================== 阅读 ====================

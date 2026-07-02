@@ -386,6 +386,27 @@ ruby > rt {
 .detail-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .toggle-btn.on { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
 
+/* ===== 自由对话 ===== */
+.rt-status {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 13px; font-weight: 600;
+}
+.rt-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
+.rt-status.listening { background: var(--green-soft); color: var(--green); }
+.rt-status.listening .rt-dot { background: var(--green); animation: pulse 1.2s infinite; }
+.rt-status.speaking { background: var(--pink-soft); color: var(--pink); }
+.rt-status.speaking .rt-dot { background: var(--pink); animation: pulse 1.2s infinite; }
+.rt-status.connecting .rt-dot { background: var(--amber); animation: pulse 1.2s infinite; }
+.freetalk-bar {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+.freetalk-bar .spacer { flex: 1; }
+.mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+.bubble.thinking { color: var(--faint); font-style: italic; }
+
 /* ===== Toast ===== */
 #toast-wrap { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 100; }
 .toast {

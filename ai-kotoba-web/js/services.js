@@ -258,6 +258,47 @@ export async function generateArticle(request, level, onStatus) {
   };
 }
 
+// ---------- 自由对话（文字模式：回合制，走当前 AI 服务） ----------
+export function freeTalkInstructions(scene, level) {
+  return `あなたは日本語会話パートナーです。「${scene}」という場面で相手役を演じ、中国語話者の日本語学習者（JLPT ${level} 相当）と自由に会話してください。
+
+ルール：
+- 常に日本語だけで話すこと（${level} レベルのやさしい語彙・文法で）
+- 返事は1〜2文で短くし、質問を返して会話を続けること
+- 学習者が間違えたら、正しい言い方を返事の中でさりげなく示すこと（説教しない）
+- 学習者が「中文」「помощь」「助けて」など助けを求めたら、一度だけ中国語で簡単にヒントを出してよい`;
+}
+
+export async function freeTalkReply(scene, level, history, userMsg) {
+  const lines = history.map(h => `${h.role === 'me' ? '学习者' : '你'}：${h.text}`).join('\n');
+  const prompt = `你是一位日语会话伙伴，正在和一位 JLPT ${level} 水平的中国学习者进行角色扮演自由对话。场景：「${scene}」。
+
+规则：
+- 只用日语回复，语言难度控制在 ${level} 水平
+- 回复要短（1〜2 句），并适当反问，让对话自然继续
+- 学习者说错时，在你的回复中自然示范正确说法，不要说教、不要中文
+- 直接输出日语回复本身，不要任何解释、翻译或前缀
+
+对话记录：
+${lines ? lines + '\n' : ''}学习者：${userMsg}
+你的日语回复：`;
+  return (await callAI(prompt)).trim();
+}
+
+export async function freeTalkFeedback(scene, transcript) {
+  const prompt = `你是一位日语老师。下面是一位中国学习者（记录中的「我」）在场景「${scene}」中进行日语自由对话的记录。请用中文给出学习点评：
+
+1. 总体表现（1-2 句，以鼓励为主）
+2. 指出 2-4 处具体的语法或用词问题，引用原句并给出更自然的说法（如果基本没有错误就明确说明）
+3. 推荐 3-5 个本次对话中出现的、值得记住的日语表达
+
+对话记录：
+${transcript}
+
+直接输出点评内容，不要前缀。`;
+  return callAI(prompt);
+}
+
 // ---------- 互动模式的 AI 反馈 ----------
 export async function getFeedback(targetJapanese, chinese, userText) {
   const prompt = `你是一位耐心的日语老师。学习者在角色扮演练习中，任务是把一个中文意思用日语说出来。请评价学习者的日语。
