@@ -770,7 +770,7 @@ function renderReading() {
       <span class="badge b" style="min-width:38px;height:38px;border-radius:11px;font-size:15px">${esc((a.title || '文')[0])}</span>
       <div class="list-item-body">
         <div class="list-item-title jp">${esc(a.title)}</div>
-        <div class="list-item-sub">${a.titleChinese ? esc(a.titleChinese) + ' · ' : ''}JLPT ${esc(a.level)} · ${a.paragraphs.length} 段 · ${fmtDate(a.createdAt)}</div>
+        <div class="list-item-sub">${a.builtin ? '📌 范文 · ' : ''}${a.titleChinese ? esc(a.titleChinese) + ' · ' : ''}JLPT ${esc(a.level)} · ${a.paragraphs.length} 段${a.builtin ? '' : ' · ' + fmtDate(a.createdAt)}</div>
       </div>
       <div class="list-item-actions">
         <button class="icon-btn" data-act="del" title="删除">${ICONS.trash}</button>
@@ -1036,7 +1036,7 @@ function renderHistory(favoritesOnly) {
       <span class="badge a" style="min-width:38px;height:38px;border-radius:11px;font-size:15px" >${esc((sc.title || '会')[0])}</span>
       <div class="list-item-body">
         <div class="list-item-title jp">${esc(sc.title)}</div>
-        <div class="list-item-sub">${sc.titleChinese ? esc(sc.titleChinese) + ' · ' : ''}JLPT ${esc(sc.level)} · ${sc.lines.length} 句 · ${fmtDate(sc.createdAt)}</div>
+        <div class="list-item-sub">${sc.builtin ? '📌 范文 · ' : ''}${sc.titleChinese ? esc(sc.titleChinese) + ' · ' : ''}JLPT ${esc(sc.level)} · ${sc.lines.length} 句${sc.builtin ? '' : ' · ' + fmtDate(sc.createdAt)}</div>
       </div>
       <div class="list-item-actions">
         <button class="icon-btn ${sc.favorite ? 'starred' : ''}" data-act="fav" title="收藏">${ICONS.star}</button>
@@ -1371,5 +1371,5 @@ function renderSettings() {
 document.addEventListener('tts-fallback', (e) => {
   toast(`ElevenLabs 朗读失败（${e.detail}），已回退到系统语音`);
 });
-// 先与服务器同步数据（跨浏览器共享），失败则纯本地模式
-db.initSync().finally(() => switchTab('practice'));
+// 先与服务器同步数据（跨浏览器共享），失败则纯本地模式；再导入内置范文（仅首次）
+db.initSync().then(() => db.loadSeeds()).finally(() => switchTab('practice'));

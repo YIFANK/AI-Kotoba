@@ -127,10 +127,30 @@ export function deleteScenario(id) {
   save(KEYS.scenarios, getScenarios().filter(x => x.id !== id));
 }
 function enforceLimit(list) {
-  // 收藏不计入 100 条上限，也不会被自动删除
-  const favorites = list.filter(s => s.favorite);
-  const others = list.filter(s => !s.favorite).slice(0, HISTORY_LIMIT);
-  return list.filter(s => s.favorite || others.includes(s));
+  // 收藏与内置范文不计入 100 条上限，也不会被自动删除
+  const others = list.filter(s => !s.favorite && !s.builtin).slice(0, HISTORY_LIMIT);
+  return list.filter(s => s.favorite || s.builtin || others.includes(s));
+}
+
+// ---------- 内置范文（seed.json，首次启动导入一次） ----------
+export async function loadSeeds() {
+  const s = getSettings();
+  if (s.seedsLoaded) return;
+  let seed;
+  try {
+    const res = await fetch('seed.json');
+    if (!res.ok) return;
+    seed = await res.json();
+  } catch {
+    return; // 没有 seed 文件或加载失败，跳过
+  }
+  const scenarios = getScenarios();
+  const scIds = new Set(scenarios.map(x => x.id));
+  save(KEYS.scenarios, [...scenarios, ...(seed.scenarios || []).filter(x => !scIds.has(x.id))]);
+  const articles = getArticles();
+  const artIds = new Set(articles.map(x => x.id));
+  save(KEYS.articles, [...articles, ...(seed.articles || []).filter(x => !artIds.has(x.id))]);
+  saveSettings(Object.assign(getSettings(), { seedsLoaded: true }));
 }
 
 export function getVocab() {
