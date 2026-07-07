@@ -1,5 +1,5 @@
 import * as db from './storage.js';
-import { generateScenario, generateArticle, demoScenario, getFeedback, localFeedback, localCLIStatus, freeTalkInstructions, freeTalkReply, freeTalkFeedback } from './services.js';
+import { generateScenario, generateArticle, demoScenario, getFeedback, localFeedback, localCLIStatus, freeTalkInstructions, freeTalkReply, freeTalkFeedback, askAssistant } from './services.js';
 import { startRealtimeSession } from './realtime.js';
 import { speak, stopSpeaking, sttSupported, createRecognizer } from './speech.js';
 import { applySM2, isDue, formatDue } from './srs.js';
@@ -227,12 +227,22 @@ function renderScenarioDetail(sc, container, opts = {}) {
 
   container.querySelectorAll('.line').forEach(el => {
     el.addEventListener('click', () => {
+      if (window.getSelection()?.toString().trim()) return; // 划词中，不触发朗读
       const i = +el.dataset.i;
       const line = sc.lines[i];
       container.querySelectorAll('.line').forEach(x => x.classList.remove('playing'));
       el.classList.add('playing');
       speak(line.japanese, () => el.classList.remove('playing'), voiceFor(i));
     });
+  });
+
+  mountAssistant({
+    title: sc.title,
+    body: sc.lines.map(l => `${l.speaker}：${l.japanese}`).join('\n'),
+    level: sc.level,
+    contentEl: container.querySelector('#lines'),
+    chat: sc.taChat || (sc.taChat = []),
+    persist: (h) => { sc.taChat = h; db.updateScenario(sc); },
   });
 
   container.querySelector('#furigana-btn')?.addEventListener('click', () => {
@@ -846,6 +856,7 @@ function renderArticleDetail(a) {
   view.querySelector('#cn-btn').addEventListener('click', () => { a._showCn = !showCn; renderArticleDetail(a); });
   view.querySelectorAll('.article-para').forEach(el => {
     el.addEventListener('click', () => {
+      if (window.getSelection()?.toString().trim()) return; // 划词中，不触发朗读
       const p = a.paragraphs[+el.dataset.i];
       view.querySelectorAll('.article-para').forEach(x => x.classList.remove('playing'));
       el.classList.add('playing');
@@ -857,6 +868,149 @@ function renderArticleDetail(a) {
       const v = a.vocabulary[+btn.dataset.i];
       if (db.addVocab(v)) { btn.disabled = true; btn.textContent = '已在生词本'; toast(`「${v.word}」已加入生词本`); }
     });
+  });
+
+  mountAssistant({
+    title: a.title,
+    body: a.paragraphs.map(p => p.japanese).join('\n\n'),
+    level: a.level,
+    contentEl: view.querySelector('#paras'),
+    chat: a.taChat || (a.taChat = []),
+    persist: (h) => { a.taChat = h; db.updateArticle(a); },
+  });
+}
+
+// ==================== AI 助教（课文旁答疑） ====================
+// ctx: { title, body, level, contentEl, chat, persist }
+function mountAssistant(ctx) {
+  view.querySelectorAll('.ta-panel, .ta-fab, .ta-ask-float').forEach(e => e.remove());
+  const hist = ctx.chat || [];
+  let currentQuote = '';
+
+  const fab = document.createElement('button');
+  fab.className = 'ta-fab';
+  fab.textContent = '🎓';
+  fab.title = 'AI 助教：划选课文提问，或直接问';
+
+  const panel = document.createElement('div');
+  panel.className = 'ta-panel';
+  panel.innerHTML = `
+    <div class="ta-head">
+      <span class="ta-title">🎓 AI 助教</span>
+      <span class="ta-sub">关于这篇课文，随便问</span>
+      <button class="icon-btn" id="ta-close" title="收起">✕</button>
+    </div>
+    <div class="ta-chat" id="ta-chat"></div>
+    <div class="ta-foot">
+      <div class="ta-quote" id="ta-quote" style="display:none">
+        <span class="txt jp" id="ta-quote-text"></span>
+        <button class="x" id="ta-quote-clear" title="取消引用">✕</button>
+      </div>
+      <div class="ta-chips" id="ta-chips" style="display:none">
+        <button class="chip" data-q="解释这句的语法结构">解释语法</button>
+        <button class="chip" data-q="这句话还有没有别的说法？给 1-2 种">换个说法</button>
+        <button class="chip" data-q="用这里的关键词再造一个例句">造个例句</button>
+        <button class="chip" data-q="翻译这句并逐词拆解">翻译拆解</button>
+      </div>
+      <div class="input-row" style="margin-top:6px">
+        <input type="text" id="ta-input" placeholder="问点什么…（可先在课文中划选句子）" autocomplete="off">
+        <button class="btn primary small" id="ta-send">发送</button>
+      </div>
+    </div>`;
+
+  const askBtn = document.createElement('button');
+  askBtn.className = 'btn small primary ta-ask-float';
+  askBtn.textContent = '🎓 问助教';
+  askBtn.style.display = 'none';
+
+  view.append(fab, panel, askBtn);
+  const chatEl = panel.querySelector('#ta-chat');
+  const input = panel.querySelector('#ta-input');
+  const quoteBox = panel.querySelector('#ta-quote');
+  const chipsBox = panel.querySelector('#ta-chips');
+
+  function msg(cls, html) {
+    const d = document.createElement('div');
+    d.className = 'ta-msg ' + cls;
+    d.innerHTML = html;
+    chatEl.appendChild(d);
+    chatEl.scrollTop = chatEl.scrollHeight;
+    return d;
+  }
+  function renderEmpty() {
+    if (hist.length === 0 && chatEl.children.length === 0) {
+      chatEl.innerHTML = `<div class="ta-empty">在课文里<b>划选一句话</b>，点「问助教」<br>或直接在下面输入问题</div>`;
+    }
+  }
+  function clearEmpty() {
+    chatEl.querySelector('.ta-empty')?.remove();
+  }
+  function setQuote(text) {
+    currentQuote = text;
+    panel.querySelector('#ta-quote-text').textContent = text;
+    quoteBox.style.display = text ? '' : 'none';
+    chipsBox.style.display = text ? '' : 'none';
+  }
+  panel.querySelector('#ta-quote-clear').addEventListener('click', () => setQuote(''));
+  function openPanel() { panel.classList.add('open'); input.focus(); }
+  fab.addEventListener('click', () => panel.classList.toggle('open'));
+  panel.querySelector('#ta-close').addEventListener('click', () => panel.classList.remove('open'));
+
+  // 历史问答回填
+  for (const h of hist) {
+    msg('q', (h.quote ? `<div class="ta-q-quote jp">「${esc(h.quote)}」</div>` : '') + esc(h.q));
+    msg('a', esc(h.a).replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>'));
+  }
+  renderEmpty();
+
+  async function send(question) {
+    question = (question || '').trim();
+    if (!question) return;
+    if (!db.hasAPIKey()) { toast('请先在「设置」中配置 AI 服务（本地 CLI 或 API Key）'); return; }
+    const quote = currentQuote;
+    clearEmpty();
+    setQuote('');
+    input.value = '';
+    msg('q', (quote ? `<div class="ta-q-quote jp">「${esc(quote)}」</div>` : '') + esc(question));
+    const pending = msg('a thinking', '助教思考中…');
+    try {
+      const ans = await askAssistant({ title: ctx.title, body: ctx.body, level: ctx.level, quote, question, history: hist.slice(-3) });
+      pending.classList.remove('thinking');
+      pending.innerHTML = esc(ans).replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
+      hist.push({ q: question, quote, a: ans });
+      ctx.persist?.(hist);
+      checkIn();
+    } catch (e) {
+      pending.textContent = `回答失败：${e.message}`;
+    }
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+  panel.querySelector('#ta-send').addEventListener('click', () => send(input.value));
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') send(input.value); });
+  chipsBox.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => send(c.dataset.q)));
+
+  // 划词 → 浮出「问助教」
+  let selectedText = '';
+  ctx.contentEl?.addEventListener('mouseup', () => setTimeout(() => {
+    const sel = window.getSelection();
+    if (!sel?.rangeCount) { askBtn.style.display = 'none'; return; }
+    // 克隆选区并剔除注音（rt），得到干净的原文
+    const frag = sel.getRangeAt(0).cloneContents();
+    frag.querySelectorAll('rt').forEach(e => e.remove());
+    const text = (frag.textContent || '').replace(/\s+/g, ' ').trim();
+    if (text.length < 2 || text.length > 300) { askBtn.style.display = 'none'; return; }
+    selectedText = text;
+    const rect = sel.getRangeAt(0).getBoundingClientRect();
+    askBtn.style.display = '';
+    askBtn.style.top = `${Math.min(rect.bottom + 8, window.innerHeight - 48)}px`;
+    askBtn.style.left = `${Math.max(8, Math.min(rect.left + rect.width / 2 - 50, window.innerWidth - 130))}px`;
+  }, 10));
+  ctx.contentEl?.addEventListener('mousedown', () => { askBtn.style.display = 'none'; });
+  askBtn.addEventListener('mousedown', e => e.preventDefault()); // 保住选区
+  askBtn.addEventListener('click', () => {
+    askBtn.style.display = 'none';
+    setQuote(selectedText);
+    openPanel();
   });
 }
 

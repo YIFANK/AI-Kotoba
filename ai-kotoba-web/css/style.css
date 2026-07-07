@@ -407,6 +407,57 @@ ruby > rt {
 .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
 .bubble.thinking { color: var(--faint); font-style: italic; }
 
+/* ===== AI 助教 ===== */
+.ta-fab {
+  position: fixed; right: 24px; bottom: 24px; z-index: 55;
+  width: 52px; height: 52px; border-radius: 50%;
+  border: none; cursor: pointer; font-size: 24px;
+  background: linear-gradient(135deg, #5b76f7, #8a5cf6);
+  box-shadow: 0 6px 18px rgba(91, 118, 247, .4);
+  transition: transform .15s;
+}
+.ta-fab:hover { transform: scale(1.08); }
+.ta-panel {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 56;
+  width: min(360px, 94vw);
+  background: var(--card); border-left: 1px solid var(--border);
+  box-shadow: -8px 0 30px rgba(20, 27, 45, .08);
+  display: flex; flex-direction: column;
+  transform: translateX(105%); transition: transform .25s ease;
+}
+.ta-panel.open { transform: none; }
+.ta-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+}
+.ta-head .ta-title { font-weight: 700; font-size: 15px; }
+.ta-head .ta-sub { font-size: 12px; color: var(--muted); flex: 1; }
+.ta-chat { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.ta-empty { color: var(--faint); font-size: 13px; text-align: center; margin-top: 40px; line-height: 2; }
+.ta-msg { max-width: 92%; padding: 9px 13px; border-radius: 13px; font-size: 13.5px; line-height: 1.65; }
+.ta-msg.q { align-self: flex-end; background: var(--accent); color: #fff; }
+.ta-msg.a { align-self: flex-start; background: #f2f4f8; color: var(--text); white-space: pre-wrap; }
+.ta-msg.a.thinking { color: var(--faint); font-style: italic; }
+.ta-q-quote {
+  font-size: 12px; opacity: .85; border-left: 2px solid rgba(255,255,255,.6);
+  padding-left: 8px; margin-bottom: 5px;
+}
+.ta-foot { border-top: 1px solid var(--border); padding: 10px 14px 14px; }
+.ta-quote {
+  display: flex; align-items: flex-start; gap: 6px;
+  background: var(--accent-soft); border: 1px solid var(--accent-border);
+  border-radius: 10px; padding: 7px 10px; margin-bottom: 8px;
+  font-size: 12.5px; color: var(--accent);
+}
+.ta-quote .txt { flex: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.ta-quote .x { cursor: pointer; border: none; background: none; color: var(--accent); font-size: 14px; padding: 0 2px; }
+.ta-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+.ta-chips .chip { font-size: 12px; padding: 4px 11px; }
+.ta-ask-float {
+  position: fixed; z-index: 57;
+  box-shadow: 0 4px 14px rgba(20, 27, 45, .2);
+}
+
 /* ===== Toast ===== */
 #toast-wrap { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 100; }
 .toast {

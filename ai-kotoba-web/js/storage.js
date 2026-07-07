@@ -173,6 +173,12 @@ export function saveArticle(a) {
 export function deleteArticle(id) {
   save(KEYS.articles, getArticles().filter(x => x.id !== id));
 }
+export function updateArticle(a) {
+  const list = getArticles();
+  const i = list.findIndex(x => x.id === a.id);
+  if (i >= 0) list[i] = a;
+  save(KEYS.articles, list);
+}
 
 // ---------- 每日签到 ----------
 function localDateStr(d = new Date()) {

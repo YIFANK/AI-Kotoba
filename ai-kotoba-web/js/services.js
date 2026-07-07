@@ -76,12 +76,14 @@ async function callOpenAI(prompt, settings) {
 }
 
 // 本地 CLI 桥接（server.py 提供 /api/ai，调用本机已登录的 claude / codex，免 API Key）
-async function callLocal(prompt, settings) {
+async function callLocal(prompt, settings, opts = {}) {
   let res;
   const engine = settings.localEngine || 'claude';
-  const model = engine === 'codex'
+  let model = engine === 'codex'
     ? (settings.openaiModel || '')
     : (settings.claudeModel || '');
+  // fast：轻量任务（如助教答疑）用小模型提速；仅 claude 引擎支持别名
+  if (opts.fast && engine === 'claude') model = 'haiku';
   try {
     res = await fetch('/api/ai', {
       method: 'POST',
@@ -106,10 +108,29 @@ export async function localCLIStatus() {
   }
 }
 
-async function callAI(prompt) {
+async function callAI(prompt, opts = {}) {
   const settings = getSettings();
-  if (settings.provider === 'local') return callLocal(prompt, settings);
+  if (settings.provider === 'local') return callLocal(prompt, settings, opts);
   return settings.provider === 'openai' ? callOpenAI(prompt, settings) : callClaude(prompt, settings);
+}
+
+// ---------- AI 助教（课文旁答疑） ----------
+export async function askAssistant({ title, body, level, quote, question, history = [] }) {
+  const hist = history.map(h => `问：${h.q}\n答：${h.a}`).join('\n\n');
+  const prompt = `你是一位耐心的日语助教。学习者（中文母语，JLPT ${level} 水平）正在学习下面这篇课文，并向你提问。
+
+【课文】${title}
+${body}
+${quote ? `\n【学习者在课文中划选的内容】「${quote}」` : ''}${hist ? `\n\n【此前的问答（供参考）】\n${hist}` : ''}
+
+【学习者的问题】${question}
+
+要求：
+- 用中文回答，简洁明了（3-6 句），第一句就直接回答问题
+- 涉及语法或用词时，给 1 个简短的日语例句帮助理解
+- 只围绕问题本身，不要复述课文、不要写长篇讲解
+直接输出回答内容，不要任何前缀。`;
+  return callAI(prompt, { fast: true });
 }
 
 // ---------- 提示词（对应 Constants.scenarioPromptJapanese / scenarioPromptTranslation） ----------
