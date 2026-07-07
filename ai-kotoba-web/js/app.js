@@ -128,7 +128,7 @@ function renderPractice() {
     <div id="gen-result" style="margin-top:20px"></div>
   `;
   const input = view.querySelector('#topic-input');
-  view.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { input.value = c.dataset.topic; }));
+  view.querySelectorAll('.chips .chip[data-topic]').forEach(c => c.addEventListener('click', () => { input.value = c.dataset.topic; }));
   view.querySelector('#gen-btn').addEventListener('click', onGenerate);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') onGenerate(); });
   bindCheckinBtn();
@@ -539,7 +539,7 @@ function renderFreeTalk() {
     </div>
   `;
   const sceneInput = view.querySelector('#ft-scene');
-  view.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { sceneInput.value = c.dataset.topic; }));
+  view.querySelectorAll('.chips .chip[data-topic]').forEach(c => c.addEventListener('click', () => { sceneInput.value = c.dataset.topic; }));
   const getSetup = () => {
     const scene = sceneInput.value.trim();
     if (!scene) { toast('先设定一个场景吧'); sceneInput.focus(); return null; }
@@ -774,7 +774,9 @@ async function startFreeTalkVoice(scene, level) {
 const READING_PRESETS = ['介绍我最喜欢的漫画家', '日本的四季与节日', '一个关于猫的暖心小故事', '如何做正宗的日式咖喱', '东京一日游攻略', '日本高中生的一天'];
 
 function renderReading() {
-  const articles = db.getArticles();
+  let articles = db.getArticles();
+  if (readingLevelFilter !== 'all') articles = articles.filter(a => a.level === readingLevelFilter);
+  articles = [...articles].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); // 按生成时间倒序
   view.innerHTML = `
     <h1 class="page-title">阅读</h1>
     <p class="page-sub">告诉 AI 你想读什么，它会写一篇符合你水平的日语短文（含注音、翻译和生词）</p>
@@ -793,12 +795,14 @@ function renderReading() {
       <div id="article-status"></div>
     </div>
     <div class="section-title" style="margin-top:26px">📚 我的文章（${articles.length}）</div>
+    ${levelFilterHTML(readingLevelFilter)}
     <div class="list" id="article-list">
-      ${articles.length === 0 ? '<div class="empty"><div class="big">📖</div><p>还没有文章，生成第一篇吧</p></div>' : ''}
+      ${articles.length === 0 ? `<div class="empty"><div class="big">📖</div><p>${readingLevelFilter !== 'all' ? `没有 ${readingLevelFilter} 等级的文章` : '还没有文章，生成第一篇吧'}</p></div>` : ''}
     </div>
   `;
+  bindLevelFilter(l => { readingLevelFilter = l; renderReading(); });
   const input = view.querySelector('#article-input');
-  view.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { input.value = c.dataset.topic; }));
+  view.querySelectorAll('.chips .chip[data-topic]').forEach(c => c.addEventListener('click', () => { input.value = c.dataset.topic; }));
   view.querySelector('#article-btn').addEventListener('click', onGenerateArticle);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') onGenerateArticle(); });
 
@@ -1055,18 +1059,38 @@ function mountAssistant(ctx) {
 }
 
 // ==================== 历史 / 收藏 ====================
+const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
+let historyLevelFilter = 'all';
+let readingLevelFilter = 'all';
+
+function levelFilterHTML(current) {
+  return `
+    <div class="filter-row">
+      <span class="lbl">等级</span>
+      <button class="chip level-chip ${current === 'all' ? 'active' : ''}" data-level="all">全部</button>
+      ${LEVELS.map(l => `<button class="chip level-chip ${current === l ? 'active' : ''}" data-level="${l}">${l}</button>`).join('')}
+    </div>`;
+}
+function bindLevelFilter(onChange) {
+  view.querySelectorAll('.level-chip').forEach(c => c.addEventListener('click', () => onChange(c.dataset.level)));
+}
+
 function renderHistory(favoritesOnly) {
   const all = db.getScenarios();
-  const list = favoritesOnly ? all.filter(s => s.favorite) : all;
+  let list = favoritesOnly ? all.filter(s => s.favorite) : all;
+  if (historyLevelFilter !== 'all') list = list.filter(s => s.level === historyLevelFilter);
+  list = [...list].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); // 按生成时间倒序
   const title = favoritesOnly ? '收藏' : '历史';
   view.innerHTML = `
     <h1 class="page-title">${title}</h1>
-    <p class="page-sub">${favoritesOnly ? '收藏的会话不计入 100 条历史上限，不会被自动清理' : `共 ${list.length} 条会话（非收藏最多保留 100 条）`}</p>
+    <p class="page-sub">${favoritesOnly ? '收藏的会话不计入 100 条历史上限，不会被自动清理' : `共 ${list.length} 条会话（非收藏最多保留 100 条，范文常驻）`}</p>
+    ${levelFilterHTML(historyLevelFilter)}
     <div class="list" id="list"></div>
   `;
+  bindLevelFilter(l => { historyLevelFilter = l; renderHistory(favoritesOnly); });
   const listEl = view.querySelector('#list');
   if (list.length === 0) {
-    listEl.innerHTML = `<div class="empty"><div class="big">${favoritesOnly ? '⭐' : '🗂️'}</div><p>${favoritesOnly ? '还没有收藏的会话，点击会话中的星星即可收藏' : '还没有会话记录，去「练习」生成第一个吧'}</p></div>`;
+    listEl.innerHTML = `<div class="empty"><div class="big">${favoritesOnly ? '⭐' : '🗂️'}</div><p>${historyLevelFilter !== 'all' ? `没有 ${historyLevelFilter} 等级的会话` : favoritesOnly ? '还没有收藏的会话，点击会话中的星星即可收藏' : '还没有会话记录，去「练习」生成第一个吧'}</p></div>`;
     return;
   }
   for (const sc of list) {

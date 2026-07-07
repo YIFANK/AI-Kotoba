@@ -119,6 +119,9 @@ label.field-label { display: block; font-size: 13px; font-weight: 600; color: va
   transition: all .15s;
 }
 .chip:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-border); }
+.chip.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.filter-row { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+.filter-row .lbl { font-size: 13px; color: var(--muted); }
 .gen-row { display: flex; gap: 10px; }
 .gen-row input { flex: 1; }
 .gen-row select { width: 100px; flex-shrink: 0; }
