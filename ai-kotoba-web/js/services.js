@@ -310,18 +310,29 @@ ${lines ? lines + '\n' : ''}学习者：${userMsg}
   return (await callAI(prompt)).trim();
 }
 
-export async function freeTalkFeedback(scene, transcript) {
-  const prompt = `你是一位日语老师。下面是一位中国学习者（记录中的「我」）在场景「${scene}」中进行日语自由对话的记录。请用中文给出学习点评：
-
-1. 总体表现（1-2 句，以鼓励为主）
-2. 指出 2-4 处具体的语法或用词问题，引用原句并给出更自然的说法（如果基本没有错误就明确说明）
-3. 推荐 3-5 个本次对话中出现的、值得记住的日语表达
+// 结束对话时的结构化学习总结（优缺点 + 可收藏的生词）
+export async function freeTalkSummary(scene, level, transcript) {
+  const prompt = `你是一位日语老师。下面是一位中国学习者（记录中的「我」）在场景「${scene}」中进行日语自由对话的记录，学习者目标水平 JLPT ${level}。请生成学习总结。
 
 对话记录：
 ${transcript}
 
-直接输出点评内容，不要前缀。`;
-  return callAI(prompt);
+只输出以下 JSON 格式，不要任何其他文字：
+{
+  "overall": "总体评价，2-3 句中文，以鼓励为主但要具体",
+  "pros": ["做得好的地方，2-3 条，引用对话中的实例"],
+  "cons": [
+    {"original": "学习者的原句", "better": "更自然/正确的日语说法", "note": "一句话说明问题所在"}
+  ],
+  "vocabulary": [
+    {"word": "值得记住的单词或表达", "reading": "よみかた", "meaning": "中文意思", "example": "日语例句", "exampleChinese": "例句中文翻译"}
+  ]
+}
+
+要求：
+- cons 给 2-4 条；如果学习者基本没有错误，就给"更进一步"的表达升级建议
+- vocabulary 给 4-6 个，优先选对话中对方用过、学习者值得吸收的地道表达`;
+  return extractJSON(await callAI(prompt));
 }
 
 // ---------- 互动模式的 AI 反馈 ----------

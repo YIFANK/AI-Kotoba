@@ -1,5 +1,5 @@
 import * as db from './storage.js';
-import { generateScenario, generateArticle, demoScenario, getFeedback, localFeedback, localCLIStatus, freeTalkInstructions, freeTalkReply, freeTalkFeedback, askAssistant } from './services.js';
+import { generateScenario, generateArticle, demoScenario, getFeedback, localFeedback, localCLIStatus, freeTalkInstructions, freeTalkReply, freeTalkSummary, askAssistant } from './services.js';
 import { startRealtimeSession } from './realtime.js';
 import { speak, stopSpeaking, sttSupported, createRecognizer } from './speech.js';
 import { applySM2, isDue, formatDue } from './srs.js';
@@ -561,9 +561,9 @@ function renderFreeTalk() {
 
 function freeTalkShell(scene, level, statusHTML) {
   view.innerHTML = `
-    <div class="back-row"><button class="btn small" id="ft-exit">${ICONS.back} 结束对话</button></div>
+    <div class="back-row"><button class="btn small" id="ft-exit">${ICONS.back} 结束并总结</button></div>
     <h1 class="page-title" style="font-size:19px">自由对话 · ${esc(scene)} <span class="tag level">JLPT ${esc(level)}</span></h1>
-    <div class="freetalk-bar">${statusHTML}<div class="spacer"></div><button class="btn small" id="ft-feedback" style="display:none">📝 获取学习点评</button></div>
+    <div class="freetalk-bar">${statusHTML}</div>
     <div class="chat" id="ft-chat"></div>
     <div id="ft-panel"></div>
   `;
@@ -571,8 +571,72 @@ function freeTalkShell(scene, level, statusHTML) {
     chat: view.querySelector('#ft-chat'),
     panel: view.querySelector('#ft-panel'),
     exitBtn: view.querySelector('#ft-exit'),
-    feedbackBtn: view.querySelector('#ft-feedback'),
   };
+}
+
+// 结束对话 → 结构化学习总结（优缺点 + 生词收藏）
+async function renderFreeTalkSummary(scene, level, history) {
+  const userTurns = history.filter(h => h.role === 'me').length;
+  if (userTurns === 0) { renderFreeTalk(); return; } // 没聊就退出，不出总结
+  const transcript = history.map(h => `${h.role === 'me' ? '我' : '对方'}：${h.text}`).join('\n');
+  view.innerHTML = `
+    <h1 class="page-title">对话总结</h1>
+    <p class="page-sub">场景「${esc(scene)}」 · JLPT ${esc(level)} · 你说了 ${userTurns} 句</p>
+    <div class="card" id="summary-card">
+      <div class="gen-status"><div class="spinner"></div>AI 老师正在复盘这次对话…</div>
+    </div>
+    <div style="text-align:center;margin-top:18px">
+      <button class="btn" id="sum-back">返回自由对话</button>
+    </div>
+  `;
+  view.querySelector('#sum-back').addEventListener('click', () => renderFreeTalk());
+  const card = view.querySelector('#summary-card');
+  let sum;
+  try {
+    sum = await freeTalkSummary(scene, level, transcript);
+  } catch (e) {
+    card.innerHTML = `<div class="gen-status" style="color:#d3455b">总结生成失败：${esc(e.message)}</div>`;
+    return;
+  }
+  const vocabWords = new Set(db.getVocab().map(v => v.word));
+  const vocab = (sum.vocabulary || []).filter(v => v.word);
+  card.innerHTML = `
+    <div class="section-title" style="margin-top:0">🌟 总体评价</div>
+    <p>${esc(sum.overall || '')}</p>
+    ${(sum.pros || []).length ? `
+      <div class="section-title">👍 做得好的地方</div>
+      <ul style="padding-left:20px;display:flex;flex-direction:column;gap:6px">
+        ${sum.pros.map(p => `<li>${esc(p)}</li>`).join('')}
+      </ul>` : ''}
+    ${(sum.cons || []).length ? `
+      <div class="section-title">✏️ 可以更好</div>
+      <div class="lines">
+        ${sum.cons.map(c => `
+          <div class="line" style="cursor:default;flex-direction:column;align-items:stretch;gap:4px">
+            <div class="line-cn" style="text-decoration:line-through">${esc(c.original || '')}</div>
+            <div class="line-jp jp" style="font-size:15px;color:var(--green)">→ ${esc(c.better || '')}</div>
+            <div class="line-cn">${esc(c.note || '')}</div>
+          </div>`).join('')}
+      </div>` : ''}
+    ${vocab.length ? `
+      <div class="section-title">📖 本次学到的表达</div>
+      <div class="vocab-grid">
+        ${vocab.map((v, i) => `
+          <div class="vocab-card">
+            <div class="vocab-word jp">${esc(v.word)}</div>
+            <div class="vocab-reading jp">${esc(v.reading || '')}</div>
+            <div class="vocab-meaning">${esc(v.meaning || '')}</div>
+            ${v.example ? `<div class="vocab-example jp">${esc(v.example)}${v.exampleChinese ? `<br><span style="font-family:inherit">${esc(v.exampleChinese)}</span>` : ''}</div>` : ''}
+            <button class="btn small soft add-vocab" data-i="${i}" ${vocabWords.has(v.word) ? 'disabled' : ''}>${vocabWords.has(v.word) ? '已在生词本' : '+ 加入生词本'}</button>
+          </div>`).join('')}
+      </div>` : ''}
+  `;
+  card.querySelectorAll('.add-vocab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = vocab[+btn.dataset.i];
+      if (db.addVocab(v)) { btn.disabled = true; btn.textContent = '已在生词本'; toast(`「${v.word}」已加入生词本`); }
+    });
+  });
 }
 
 function ftBubble(chat, role, text) {
@@ -586,32 +650,11 @@ function ftBubble(chat, role, text) {
   return row;
 }
 
-async function showFreeTalkFeedback(scene, history, container) {
-  if (history.filter(h => h.role === 'me').length === 0) { toast('先聊几句再获取点评吧'); return; }
-  const transcript = history.map(h => `${h.role === 'me' ? '我' : '对方'}：${h.text}`).join('\n');
-  const box = document.createElement('div');
-  box.className = 'bubble feedback';
-  box.style.maxWidth = '100%';
-  box.innerHTML = `<div class="feedback-label">📝 学习点评</div>正在生成点评…`;
-  container.appendChild(box);
-  box.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  try {
-    const fb = await freeTalkFeedback(scene, transcript);
-    // 轻量渲染：仅支持加粗，其余按纯文本
-    const html = esc(fb).replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
-    box.innerHTML = `<div class="feedback-label">📝 学习点评</div><div style="white-space:pre-wrap">${html}</div>`;
-  } catch (e) {
-    box.innerHTML = `<div class="feedback-label">📝 学习点评</div>生成失败：${esc(e.message)}`;
-  }
-  box.scrollIntoView({ behavior: 'smooth', block: 'end' });
-}
-
 // ---------- 文字模式 ----------
 function startFreeTalkText(scene, level) {
   const history = [];
   const ui = freeTalkShell(scene, level, '<span class="rt-status"><span class="rt-dot"></span>文字模式</span>');
-  ui.exitBtn.addEventListener('click', () => { stopSpeaking(); renderFreeTalk(); });
-  ui.feedbackBtn.addEventListener('click', () => showFreeTalkFeedback(scene, history, ui.chat));
+  ui.exitBtn.addEventListener('click', () => { stopSpeaking(); renderFreeTalkSummary(scene, level, history); });
 
   const supported = sttSupported();
   ui.panel.innerHTML = `
@@ -661,7 +704,6 @@ function startFreeTalkText(scene, level) {
       pending.querySelector('.bubble').classList.remove('thinking');
       pending.querySelector('.line-jp').textContent = reply;
       speak(reply, null, db.getSettings().elevenVoiceB);
-      if (history.filter(h => h.role === 'me').length >= 2) ui.feedbackBtn.style.display = '';
     } catch (e) {
       pending.querySelector('.line-jp').textContent = `（回复失败：${e.message}）`;
     } finally {
@@ -690,9 +732,8 @@ async function startFreeTalkVoice(scene, level) {
   let session = null;
   const cleanup = () => { session?.stop(); session = null; activeRealtime = null; };
 
-  ui.exitBtn.addEventListener('click', () => { cleanup(); renderFreeTalk(); });
-  ui.feedbackBtn.addEventListener('click', () => showFreeTalkFeedback(scene, history, ui.chat));
-  ui.panel.innerHTML = `<p class="hint" style="text-align:center;margin-top:14px">💡 直接开口说日语即可，AI 会用语音回应，可以随时打断。说「中文」可请求提示。</p>`;
+  ui.exitBtn.addEventListener('click', () => { cleanup(); renderFreeTalkSummary(scene, level, history); });
+  ui.panel.innerHTML = `<p class="hint" style="text-align:center;margin-top:14px">💡 直接开口说日语即可，AI 会用语音回应，可以随时打断。说「中文」可请求提示。结束时会自动生成学习总结。</p>`;
 
   try {
     session = await startRealtimeSession({
@@ -703,7 +744,6 @@ async function startFreeTalkVoice(scene, level) {
         ftBubble(ui.chat, 'me', text);
         history.push({ role: 'me', text });
         checkIn();
-        if (history.filter(h => h.role === 'me').length >= 2) ui.feedbackBtn.style.display = '';
       },
       onAIDelta: (delta) => {
         if (!aiRow) { aiRow = ftBubble(ui.chat, 'ai', ''); aiText = ''; }
