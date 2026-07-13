@@ -1,8 +1,10 @@
 import * as db from './storage.js';
 import { generateScenario, generateArticle, demoScenario, getFeedback, localFeedback, localCLIStatus, freeTalkInstructions, freeTalkReply, freeTalkSummary, askAssistant } from './services.js';
 import { startRealtimeSession } from './realtime.js';
+import { startWavRecording, analyzePronunciation } from './pronunciation.js';
 import { speak, stopSpeaking, sttSupported, createRecognizer } from './speech.js';
 import { applySM2, isDue, formatDue } from './srs.js';
+import { t, setLanguage, applyStaticTranslations, isEnglish } from './i18n.js';
 
 const view = document.getElementById('view');
 let currentTab = 'practice';
@@ -21,8 +23,12 @@ function toast(msg) {
   setTimeout(() => el.remove(), 2600);
 }
 function fmtDate(ts) {
-  return new Date(ts).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return new Date(ts).toLocaleString(isEnglish() ? 'en' : 'zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
+// 新数据使用通用字段，旧版中文字段继续可读，无需清库或批量迁移。
+function translationOf(item) { return item?.translation ?? item?.chinese ?? ''; }
+function localizedTitleOf(item) { return item?.localizedTitle ?? item?.titleChinese ?? ''; }
+function exampleTranslationOf(item) { return item?.exampleTranslation ?? item?.exampleChinese ?? ''; }
 // 把「漢字[かんじ]」标记渲染为 <ruby> 注音
 function rubyHTML(text) {
   return esc(text).replace(/([㐀-鿿豈-﫿々〆]+)\[([^\[\]]{1,20})\]/g, '<ruby>$1<rt>$2</rt></ruby>');
@@ -61,17 +67,23 @@ const ICONS = {
 };
 
 // ---------- Tab 切换 ----------
-const TABS = { practice: renderPractice, freetalk: renderFreeTalk, reading: renderReading, history: () => renderHistory(false), favorites: () => renderHistory(true), vocab: renderVocab, cards: renderCards, settings: renderSettings };
+const TABS = { practice: renderPractice, freetalk: renderFreeTalk, pronunciation: renderPronunciation, reading: renderReading, history: () => renderHistory(false), favorites: () => renderHistory(true), vocab: renderVocab, cards: renderCards, settings: renderSettings };
 
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
 let activeRealtime = null; // 进行中的语音实时会话（切换页面时需要关闭麦克风）
+let activePronunciationRecorder = null;
+let activePronunciationAudioUrl = null;
 function switchTab(tab) {
   currentTab = tab;
   stopSpeaking();
   activeRealtime?.stop();
   activeRealtime = null;
+  activePronunciationRecorder?.cancel();
+  activePronunciationRecorder = null;
+  if (activePronunciationAudioUrl) URL.revokeObjectURL(activePronunciationAudioUrl);
+  activePronunciationAudioUrl = null;
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   TABS[tab]();
   view.scrollTop = 0;
@@ -79,7 +91,10 @@ function switchTab(tab) {
 }
 
 // ==================== 练习（生成） ====================
-const PRESETS = ['在餐厅点餐', '便利店购物', '问路', '酒店入住', '在车站买票', '看医生', '打工面试', '和朋友约饭', '快递取件', '道歉与感谢'];
+const PRACTICE_PRESETS = {
+  'zh-CN': ['在餐厅点餐', '便利店购物', '问路', '酒店入住', '在车站买票', '看医生', '打工面试', '和朋友约饭', '快递取件', '道歉与感谢'],
+  en: ['Ordering at a restaurant', 'Shopping at a convenience store', 'Asking for directions', 'Checking into a hotel', 'Buying a train ticket', 'Seeing a doctor', 'Job interview', 'Making dinner plans'],
+};
 
 function streakCardHTML() {
   const st = db.streakInfo();
@@ -107,21 +122,22 @@ function bindCheckinBtn() {
 }
 
 function renderPractice() {
+  const presets = PRACTICE_PRESETS[isEnglish() ? 'en' : 'zh-CN'];
   view.innerHTML = `
-    <h1 class="page-title">练习</h1>
-    <p class="page-sub">输入一个场景，AI 会先生成地道的日语会话，再补充中文翻译（两轮生成，避免中日夹杂的不自然表达）</p>
+    <h1 class="page-title">${t('practice.title')}</h1>
+    <p class="page-sub">${t('practice.subtitle')}</p>
     ${streakCardHTML()}
     <div class="card">
-      <label class="field-label">场景主题</label>
+      <label class="field-label">${t('practice.topic')}</label>
       <div class="gen-row">
-        <input type="text" id="topic-input" placeholder="例如：在拉面店点餐" maxlength="60">
+        <input type="text" id="topic-input" placeholder="${t('practice.placeholder')}" maxlength="60">
         <select id="level-select">
           ${['N5', 'N4', 'N3', 'N2', 'N1'].map(l => `<option ${l === 'N4' ? 'selected' : ''}>${l}</option>`).join('')}
         </select>
-        <button class="btn primary" id="gen-btn">✨ 生成会话</button>
+        <button class="btn primary" id="gen-btn">${t('practice.generate')}</button>
       </div>
       <div class="chips">
-        ${PRESETS.map(p => `<button class="chip" data-topic="${esc(p)}">${esc(p)}</button>`).join('')}
+        ${presets.map(p => `<button class="chip" data-topic="${esc(p)}">${esc(p)}</button>`).join('')}
       </div>
       <div id="gen-status"></div>
     </div>
@@ -185,7 +201,7 @@ function renderScenarioDetail(sc, container, opts = {}) {
       <div class="scenario-head">
         <div>
           <div class="scenario-title jp">${esc(sc.title)}</div>
-          ${sc.titleChinese ? `<div class="scenario-title-cn">${esc(sc.titleChinese)}</div>` : ''}
+          ${localizedTitleOf(sc) ? `<div class="scenario-title-cn">${esc(localizedTitleOf(sc))}</div>` : ''}
           <div class="scenario-meta">
             <span class="tag level">JLPT ${esc(sc.level)}</span>
             <span class="tag">${esc(sc.topic)}</span>
@@ -204,7 +220,7 @@ function renderScenarioDetail(sc, container, opts = {}) {
             <span class="badge ${speakerParity(sc, l.speaker, i)}">${esc(l.speaker)}</span>
             <div class="line-body">
               <p class="line-jp jp">${jpHTML(l.japanese, l.furigana)}</p>
-              <p class="line-cn">${esc(l.chinese)}</p>
+              <p class="line-cn">${esc(translationOf(l))}</p>
             </div>
             <span class="line-speak">${ICONS.speaker}</span>
           </div>`).join('')}
@@ -216,7 +232,7 @@ function renderScenarioDetail(sc, container, opts = {}) {
             <div class="vocab-word jp">${esc(v.word)}</div>
             <div class="vocab-reading jp">${esc(v.reading)}</div>
             <div class="vocab-meaning">${esc(v.meaning)}</div>
-            ${v.example ? `<div class="vocab-example jp">${esc(v.example)}${v.exampleChinese ? `<br><span style="font-family:inherit">${esc(v.exampleChinese)}</span>` : ''}</div>` : ''}
+            ${v.example ? `<div class="vocab-example jp">${esc(v.example)}${exampleTranslationOf(v) ? `<br><span style="font-family:inherit">${esc(exampleTranslationOf(v))}</span>` : ''}</div>` : ''}
             <button class="btn small soft add-vocab" data-i="${i}" ${vocabWords.has(v.word) ? 'disabled' : ''}>${vocabWords.has(v.word) ? '已在生词本' : '+ 加入生词本'}</button>
           </div>`).join('')}
       </div>
@@ -343,7 +359,7 @@ function startInteractive(sc, role, opts = {}) {
       <span class="avatar ${speakerParity(sc, line.speaker, i)}">${esc(line.speaker.slice(0, 2))}</span>
       <div class="bubble" title="点击朗读">
         <div class="line-jp jp" style="font-size:15px">${mine ? esc(line.japanese) : jpHTML(line.japanese, line.furigana)}</div>
-        <div class="line-cn">${esc(line.chinese)}</div>
+        <div class="line-cn">${esc(translationOf(line))}</div>
       </div>`;
     row.querySelector('.bubble').addEventListener('click', () => speak(line.japanese, null, voiceFor(i)));
     chat.appendChild(row);
@@ -380,7 +396,7 @@ function startInteractive(sc, role, opts = {}) {
     panel.innerHTML = `
       <div class="user-panel">
         <div class="turn-label">🎤 轮到你了！请用日语表达下面的意思（扮演 ${esc(line.speaker)}）：</div>
-        <div class="target-line">${esc(line.chinese)}</div>
+        <div class="target-line">${esc(translationOf(line))}</div>
         <div class="target-cn">💡 想不起来？<span class="hidden-cn jp" id="jp-hint" title="点击显示日语提示">${jpHTML(line.japanese, line.furigana)}</span></div>
         <div class="input-row">
           <button class="mic-btn" id="mic-btn" title="${supported ? '语音输入（日语）' : '当前浏览器不支持语音识别，请使用 Chrome/Edge/Safari'}" ${supported ? '' : 'disabled style="opacity:.4"'}>${ICONS.mic}</button>
@@ -444,7 +460,7 @@ function startInteractive(sc, role, opts = {}) {
       const fbRow = appendFeedback('正在点评…');
       let fb;
       try {
-        fb = db.hasAPIKey() ? await getFeedback(line.japanese, line.chinese, text) : localFeedback(line.japanese, text);
+        fb = db.hasAPIKey() ? await getFeedback(line.japanese, translationOf(line), text) : localFeedback(line.japanese, text);
       } catch {
         fb = localFeedback(line.japanese, text);
       }
@@ -503,15 +519,29 @@ function startInteractive(sc, role, opts = {}) {
   step();
 }
 
-// ==================== 自由对话 ====================
-const FREETALK_PRESETS = ['在居酒屋和老板闲聊', '和日本同事聊周末计划', '在美容院剪头发', '和房东讨论租房问题', '跟新朋友互相自我介绍', '在旅游咨询处询问景点'];
+// ==================== AI 语音 Tutor ====================
+const TUTOR_CONTENT = {
+  'zh-CN': {
+    presets: ['在居酒屋和老板闲聊', '和日本同事聊周末计划', '在美容院剪头发', '和房东讨论租房问题', '跟新朋友互相自我介绍', '在旅游咨询处询问景点'],
+    styles: [['conversation', '自然会话', '保持聊天流畅，在关键处温和纠错'], ['correction', '即时纠错', '每轮指出一个最值得改进的表达'], ['interview', '口试训练', '像面试或口试一样逐题练习']],
+  },
+  en: {
+    presets: ['Chatting with an izakaya owner', 'Weekend plans with a colleague', 'Getting a haircut', 'Discussing rent with a landlord', 'Meeting a new friend', 'Asking at a tourist office'],
+    styles: [['conversation', 'Natural conversation', 'Keep the conversation flowing and correct key issues gently'], ['correction', 'Active correction', 'Correct one high-value issue each turn'], ['interview', 'Oral exam', 'Practice one interview-style question at a time']],
+  },
+};
 
 function renderFreeTalk() {
   stopSpeaking();
   const s = db.getSettings();
+  const tutorSessions = db.getTutorSessions();
+  const learningNotes = db.getLearningNotes(4);
+  const dueCount = db.getVocab().filter(isDue).length;
+  const tutorContent = TUTOR_CONTENT[isEnglish() ? 'en' : 'zh-CN'];
+  const TUTOR_STYLES = tutorContent.styles;
   view.innerHTML = `
-    <h1 class="page-title">自由对话</h1>
-    <p class="page-sub">脱稿练习：设定一个场景，和 AI 自由地用日语聊天，结束后获取学习点评</p>
+    <h1 class="page-title">${isEnglish() ? 'AI Voice Tutor' : 'AI 语音 Tutor'}</h1>
+    <p class="page-sub">${isEnglish() ? 'Take a low-latency Japanese speaking lesson with GPT, with natural conversation, corrections, and an automatic review.' : '和 GPT 进行低延迟日语口语课：自然对话、按需纠错，结束后自动生成学习复盘'}</p>
     <div class="card">
       <label class="field-label">场景 / 角色设定</label>
       <div class="gen-row">
@@ -521,48 +551,98 @@ function renderFreeTalk() {
         </select>
       </div>
       <div class="chips">
-        ${FREETALK_PRESETS.map(p => `<button class="chip" data-topic="${esc(p)}">${esc(p)}</button>`).join('')}
+        ${tutorContent.presets.map(p => `<button class="chip" data-topic="${esc(p)}">${esc(p)}</button>`).join('')}
       </div>
+      <div class="tutor-options">
+        <div>
+          <label class="field-label">教学方式</label>
+          <select id="ft-style">
+            ${TUTOR_STYLES.map(([value, label]) => `<option value="${value}" ${s.tutorStyle === value ? 'selected' : ''}>${label}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="field-label">GPT 声音</label>
+          <select id="ft-voice-select">
+            <option value="marin" ${s.realtimeVoice !== 'cedar' ? 'selected' : ''}>Marin（推荐）</option>
+            <option value="cedar" ${s.realtimeVoice === 'cedar' ? 'selected' : ''}>Cedar（推荐）</option>
+          </select>
+        </div>
+      </div>
+      <p class="hint" id="ft-style-help"></p>
       <label class="field-label" style="margin-top:6px">对话方式</label>
       <div class="mode-cards">
         <button class="role-card" id="ft-voice">
           <div class="emoji">🎙️</div>
-          <div class="name">语音实时对话</div>
-          <div class="desc">像打电话一样自然交谈（OpenAI Realtime${s.openaiKey ? '' : ' · 需先配置 OpenAI Key'}）</div>
+          <div class="name">GPT 实时语音课</div>
+          <div class="desc" id="ft-voice-desc">GPT-Realtime-2.1 原生语音对话，可自然打断 · 需 OpenAI API 额度</div>
         </button>
         <button class="role-card" id="ft-text">
           <div class="emoji">💬</div>
-          <div class="name">文字对话</div>
-          <div class="desc">打字或语音输入，AI 日语回复并朗读（用当前 AI 服务）</div>
+          <div class="name">文字 Tutor</div>
+          <div class="desc">打字或语音输入，沿用同一套教学方式（用当前 AI 服务）</div>
         </button>
       </div>
     </div>
+    <div class="card tutor-memory-card">
+      <div class="tutor-memory-head">
+        <div>
+          <div class="section-title" style="margin:0">🧠 Tutor 学习档案</div>
+          <p class="hint">Tutor 会在后续课程里自然复现你最近需要巩固的表达。</p>
+        </div>
+        <div class="tutor-stats">
+          <span><b>${tutorSessions.length}</b> 次课程</span>
+          <span><b>${db.getLearningNotes().length}</b> 个重点</span>
+          <span><b>${dueCount}</b> 个待复习</span>
+        </div>
+      </div>
+      ${learningNotes.length ? `<div class="learning-note-list">
+        ${learningNotes.map(item => `<div class="learning-note">
+          <span class="tag">${esc(item.category || '学习重点')}</span>
+          <div><div class="jp">${esc(item.original || '—')} → <b>${esc(item.better || '—')}</b></div><div class="hint">${esc(item.note || '')}</div></div>
+        </div>`).join('')}
+      </div>` : '<div class="empty tutor-memory-empty"><p>完成第一节 Tutor 课程后，这里会开始积累你的个人学习重点。</p></div>'}
+    </div>
   `;
   const sceneInput = view.querySelector('#ft-scene');
+  const styleSelect = view.querySelector('#ft-style');
+  const styleHelp = view.querySelector('#ft-style-help');
+  const updateStyleHelp = () => {
+    styleHelp.textContent = TUTOR_STYLES.find(([value]) => value === styleSelect.value)?.[2] || '';
+  };
+  styleSelect.addEventListener('change', updateStyleHelp);
+  updateStyleHelp();
+  localCLIStatus().then(status => {
+    if (status?.openai_realtime) {
+      const desc = view.querySelector('#ft-voice-desc');
+      if (desc) desc.textContent = 'GPT-Realtime-2.1 原生语音对话，可自然打断 · 服务端 Key 已就绪';
+    }
+  });
   view.querySelectorAll('.chips .chip[data-topic]').forEach(c => c.addEventListener('click', () => { sceneInput.value = c.dataset.topic; }));
   const getSetup = () => {
     const scene = sceneInput.value.trim();
     if (!scene) { toast('先设定一个场景吧'); sceneInput.focus(); return null; }
-    return { scene, level: view.querySelector('#ft-level').value };
+    const style = styleSelect.value;
+    const voice = view.querySelector('#ft-voice-select').value;
+    db.saveSettings(Object.assign(db.getSettings(), { tutorStyle: style, realtimeVoice: voice }));
+    return { scene, level: view.querySelector('#ft-level').value, style, voice, memory: db.getLearningNotes(8) };
   };
   view.querySelector('#ft-voice').addEventListener('click', () => {
     const setup = getSetup();
     if (!setup) return;
-    if (!db.getSettings().openaiKey) { toast('语音实时对话需要 OpenAI API Key，请先到「设置」中填写'); return; }
-    startFreeTalkVoice(setup.scene, setup.level);
+    startFreeTalkVoice(setup.scene, setup.level, setup.style, setup.voice, setup.memory);
   });
   view.querySelector('#ft-text').addEventListener('click', () => {
     const setup = getSetup();
     if (!setup) return;
     if (!db.hasAPIKey()) { toast('请先在「设置」中配置 AI 服务（本地 CLI 或 API Key）'); return; }
-    startFreeTalkText(setup.scene, setup.level);
+    startFreeTalkText(setup.scene, setup.level, setup.style, setup.memory);
   });
 }
 
 function freeTalkShell(scene, level, statusHTML) {
   view.innerHTML = `
     <div class="back-row"><button class="btn small" id="ft-exit">${ICONS.back} 结束并总结</button></div>
-    <h1 class="page-title" style="font-size:19px">自由对话 · ${esc(scene)} <span class="tag level">JLPT ${esc(level)}</span></h1>
+    <h1 class="page-title" style="font-size:19px">AI Tutor · ${esc(scene)} <span class="tag level">JLPT ${esc(level)}</span></h1>
     <div class="freetalk-bar">${statusHTML}</div>
     <div class="chat" id="ft-chat"></div>
     <div id="ft-panel"></div>
@@ -580,13 +660,13 @@ async function renderFreeTalkSummary(scene, level, history) {
   if (userTurns === 0) { renderFreeTalk(); return; } // 没聊就退出，不出总结
   const transcript = history.map(h => `${h.role === 'me' ? '我' : '对方'}：${h.text}`).join('\n');
   view.innerHTML = `
-    <h1 class="page-title">对话总结</h1>
+    <h1 class="page-title">Tutor 复盘</h1>
     <p class="page-sub">场景「${esc(scene)}」 · JLPT ${esc(level)} · 你说了 ${userTurns} 句</p>
     <div class="card" id="summary-card">
       <div class="gen-status"><div class="spinner"></div>AI 老师正在复盘这次对话…</div>
     </div>
     <div style="text-align:center;margin-top:18px">
-      <button class="btn" id="sum-back">返回自由对话</button>
+      <button class="btn" id="sum-back">返回 AI Tutor</button>
     </div>
   `;
   view.querySelector('#sum-back').addEventListener('click', () => renderFreeTalk());
@@ -598,9 +678,22 @@ async function renderFreeTalkSummary(scene, level, history) {
     card.innerHTML = `<div class="gen-status" style="color:#d3455b">总结生成失败：${esc(e.message)}</div>`;
     return;
   }
+  const remembered = (sum.cons || [])
+    .map(item => db.addLearningNote(Object.assign({}, item, { source: 'tutor-summary' })))
+    .filter(result => result.note).length;
+  db.saveTutorSession({
+    id: crypto.randomUUID(),
+    scene,
+    level,
+    createdAt: Date.now(),
+    userTurns,
+    transcript,
+    summary: sum,
+  });
   const vocabWords = new Set(db.getVocab().map(v => v.word));
   const vocab = (sum.vocabulary || []).filter(v => v.word);
   card.innerHTML = `
+    <div class="tutor-memory-saved">🧠 本次复盘已更新 ${remembered} 个长期学习重点</div>
     <div class="section-title" style="margin-top:0">🌟 总体评价</div>
     <p>${esc(sum.overall || '')}</p>
     ${(sum.pros || []).length ? `
@@ -613,20 +706,21 @@ async function renderFreeTalkSummary(scene, level, history) {
       <div class="lines">
         ${sum.cons.map(c => `
           <div class="line" style="cursor:default;flex-direction:column;align-items:stretch;gap:4px">
+            <div><span class="tag">${esc(c.category || '学习重点')}</span></div>
             <div class="line-cn" style="text-decoration:line-through">${esc(c.original || '')}</div>
             <div class="line-jp jp" style="font-size:15px;color:var(--green)">→ ${esc(c.better || '')}</div>
             <div class="line-cn">${esc(c.note || '')}</div>
           </div>`).join('')}
       </div>` : ''}
     ${vocab.length ? `
-      <div class="section-title">📖 本次学到的表达</div>
+      <div class="section-title tutor-vocab-title"><span>📖 本次学到的表达</span><button class="btn small soft" id="add-all-vocab">全部加入复习</button></div>
       <div class="vocab-grid">
         ${vocab.map((v, i) => `
           <div class="vocab-card">
             <div class="vocab-word jp">${esc(v.word)}</div>
             <div class="vocab-reading jp">${esc(v.reading || '')}</div>
             <div class="vocab-meaning">${esc(v.meaning || '')}</div>
-            ${v.example ? `<div class="vocab-example jp">${esc(v.example)}${v.exampleChinese ? `<br><span style="font-family:inherit">${esc(v.exampleChinese)}</span>` : ''}</div>` : ''}
+            ${v.example ? `<div class="vocab-example jp">${esc(v.example)}${exampleTranslationOf(v) ? `<br><span style="font-family:inherit">${esc(exampleTranslationOf(v))}</span>` : ''}</div>` : ''}
             <button class="btn small soft add-vocab" data-i="${i}" ${vocabWords.has(v.word) ? 'disabled' : ''}>${vocabWords.has(v.word) ? '已在生词本' : '+ 加入生词本'}</button>
           </div>`).join('')}
       </div>` : ''}
@@ -634,8 +728,28 @@ async function renderFreeTalkSummary(scene, level, history) {
   card.querySelectorAll('.add-vocab').forEach(btn => {
     btn.addEventListener('click', () => {
       const v = vocab[+btn.dataset.i];
-      if (db.addVocab(v)) { btn.disabled = true; btn.textContent = '已在生词本'; toast(`「${v.word}」已加入生词本`); }
+      if (db.addVocab(v)) {
+        vocabWords.add(v.word);
+        btn.disabled = true;
+        btn.textContent = '已在生词本';
+        checkIn();
+        toast(`「${v.word}」已加入生词本`);
+      }
     });
+  });
+  card.querySelector('#add-all-vocab')?.addEventListener('click', event => {
+    let added = 0;
+    for (const item of vocab) {
+      if (db.addVocab(item)) { vocabWords.add(item.word); added++; }
+    }
+    card.querySelectorAll('.add-vocab').forEach(btn => {
+      const item = vocab[+btn.dataset.i];
+      if (vocabWords.has(item.word)) { btn.disabled = true; btn.textContent = '已在生词本'; }
+    });
+    event.currentTarget.disabled = true;
+    event.currentTarget.textContent = added ? `已加入 ${added} 个` : '均已在生词本';
+    if (added) checkIn();
+    toast(added ? `已把 ${added} 个表达加入间隔复习` : '这些表达已经在生词本里了');
   });
 }
 
@@ -650,8 +764,41 @@ function ftBubble(chat, role, text) {
   return row;
 }
 
+function handleTutorToolCall({ name, args = {} }) {
+  const clean = (value, max) => String(value || '').trim().slice(0, max);
+  if (name === 'save_vocabulary') {
+    const item = {
+      word: clean(args.word, 120),
+      reading: clean(args.reading, 120),
+      meaning: clean(args.meaning, 180),
+      example: clean(args.example, 240),
+      exampleTranslation: clean(args.exampleTranslation || args.exampleChinese, 240),
+      source: 'realtime-tutor',
+    };
+    if (!item.word) throw new Error('没有收到要保存的日语表达');
+    const saved = db.addVocab(item);
+    if (saved) checkIn();
+    toast(saved ? `「${item.word}」已加入间隔复习` : `「${item.word}」已经在生词本里了`);
+    return { saved, word: item.word };
+  }
+  if (name === 'remember_learning_point') {
+    const result = db.addLearningNote({
+      category: clean(args.category, 24),
+      original: clean(args.original, 160),
+      better: clean(args.better, 160),
+      note: clean(args.note, 240),
+      source: 'realtime-tutor',
+    });
+    if (!result.note) throw new Error('没有收到可记录的学习重点');
+    checkIn();
+    toast(`Tutor 已记住：${result.note.category}`);
+    return { saved: true, category: result.note.category, better: result.note.better };
+  }
+  throw new Error(`不支持的 Tutor 工具：${name}`);
+}
+
 // ---------- 文字模式 ----------
-function startFreeTalkText(scene, level) {
+function startFreeTalkText(scene, level, style = 'conversation', learningNotes = []) {
   const history = [];
   const ui = freeTalkShell(scene, level, '<span class="rt-status"><span class="rt-dot"></span>文字模式</span>');
   ui.exitBtn.addEventListener('click', () => { stopSpeaking(); renderFreeTalkSummary(scene, level, history); });
@@ -699,7 +846,7 @@ function startFreeTalkText(scene, level) {
     pending.querySelector('.bubble').classList.add('thinking');
     sendBtn.disabled = true;
     try {
-      const reply = await freeTalkReply(scene, level, history, text);
+      const reply = await freeTalkReply(scene, level, history, text, style, learningNotes);
       history.push({ role: 'me', text }, { role: 'ai', text: reply });
       pending.querySelector('.bubble').classList.remove('thinking');
       pending.querySelector('.line-jp').textContent = reply;
@@ -716,12 +863,12 @@ function startFreeTalkText(scene, level) {
 }
 
 // ---------- 语音实时模式（OpenAI Realtime） ----------
-async function startFreeTalkVoice(scene, level) {
+async function startFreeTalkVoice(scene, level, style = 'conversation', voice = 'marin', learningNotes = []) {
   const history = [];
   const ui = freeTalkShell(scene, level, '<span class="rt-status connecting" id="rt-status"><span class="rt-dot"></span><span id="rt-status-text">正在连接…</span></span>');
   const statusEl = view.querySelector('#rt-status');
   const statusText = view.querySelector('#rt-status-text');
-  const STATUS = { idle: ['', '你可以说话了'], listening: ['listening', '正在听你说…'], speaking: ['speaking', 'AI 正在说话'], connecting: ['connecting', '正在连接…'] };
+  const STATUS = { idle: ['', '轮到你说了'], listening: ['listening', '正在听你说…'], thinking: ['thinking', 'Tutor 正在思考…'], speaking: ['speaking', 'Tutor 正在说话'], connecting: ['connecting', '正在连接…'], disconnected: ['disconnected', '连接已断开'] };
   const setStatus = (key) => {
     const [cls, text] = STATUS[key] || STATUS.idle;
     statusEl.className = `rt-status ${cls}`;
@@ -733,12 +880,25 @@ async function startFreeTalkVoice(scene, level) {
   const cleanup = () => { session?.stop(); session = null; activeRealtime = null; };
 
   ui.exitBtn.addEventListener('click', () => { cleanup(); renderFreeTalkSummary(scene, level, history); });
-  ui.panel.innerHTML = `<p class="hint" style="text-align:center;margin-top:14px">💡 直接开口说日语即可，AI 会用语音回应，可以随时打断。说「中文」可请求提示。结束时会自动生成学习总结。</p>`;
+  ui.panel.innerHTML = `<div class="tutor-live-controls">
+      <button class="btn small" id="rt-mute" disabled>🎙️ 暂停麦克风</button>
+      <span class="hint">直接开口说日语即可；说「中文」可请求提示，结束后会生成学习总结。</span>
+    </div>`;
+  const muteBtn = ui.panel.querySelector('#rt-mute');
+  let muted = false;
+  muteBtn.addEventListener('click', () => {
+    if (!session) return;
+    muted = !muted;
+    session.setMuted(muted);
+    muteBtn.textContent = muted ? '🔇 恢复麦克风' : '🎙️ 暂停麦克风';
+    muteBtn.classList.toggle('soft', muted);
+  });
 
   try {
     session = await startRealtimeSession({
       apiKey: db.getSettings().openaiKey,
-      instructions: freeTalkInstructions(scene, level),
+      instructions: freeTalkInstructions(scene, level, style, learningNotes),
+      voice,
       onStatus: setStatus,
       onUserText: (text) => {
         ftBubble(ui.chat, 'me', text);
@@ -756,9 +916,11 @@ async function startFreeTalkVoice(scene, level) {
         if (text) history.push({ role: 'ai', text });
         aiRow = null; aiText = '';
       },
+      onToolCall: handleTutorToolCall,
       onError: (msg) => toast(`实时对话：${msg}`),
     });
     activeRealtime = session;
+    muteBtn.disabled = false;
     setStatus('idle');
   } catch (e) {
     cleanup();
@@ -770,6 +932,213 @@ async function startFreeTalkVoice(scene, level) {
   }
 }
 
+// ==================== 发音诊断 ====================
+const PRONUNCIATION_PRESETS = [
+  '今日はいい天気ですね。',
+  '切手を貼ってから、ポストに入れてください。',
+  '新幹線で京都へ旅行する予定です。',
+  'ちょっと待ってください。すぐに戻ります。',
+  '新聞を読みながら、コーヒーを飲んでいます。',
+];
+const PRONUNCIATION_DIMENSIONS = {
+  intelligibility: '可理解度', sounds: '音素准确度', rhythm: '拍与节奏', fluency: '流畅度', prosody: '语调听感',
+};
+
+function renderPronunciation() {
+  const attempts = db.getPronunciationAttempts();
+  view.innerHTML = `
+    <h1 class="page-title">${isEnglish() ? 'Pronunciation diagnosis' : '发音诊断'}</h1>
+    <p class="page-sub">${isEnglish() ? 'Read a Japanese sentence aloud. AI listens and gives feedback on timing, sounds, rhythm, and fluency in your explanation language.' : '朗读一句日语，AI 会直接听录音并给出长音、促音、拨音、清浊音、节奏和流畅度反馈'}</p>
+    <div class="card pronunciation-lab">
+      <div class="pronunciation-note">🎧 这是 AI 听感诊断，适合发现练习方向；音高重音反馈不是实验室级声学测量。录音会发送给 OpenAI 分析，但本项目不会保存原始音频。</div>
+      <label class="field-label">目标句</label>
+      <div class="pronunciation-target-row">
+        <input type="text" id="pron-target" maxlength="240" value="${esc(PRONUNCIATION_PRESETS[0])}">
+        <select id="pron-level">
+          ${['N5', 'N4', 'N3', 'N2', 'N1'].map(level => `<option ${level === 'N4' ? 'selected' : ''}>${level}</option>`).join('')}
+        </select>
+        <button class="btn" id="pron-reference">${ICONS.speaker} 听示范</button>
+      </div>
+      <div class="chips pronunciation-presets">
+        ${PRONUNCIATION_PRESETS.map(text => `<button class="chip" data-text="${esc(text)}">${esc(text)}</button>`).join('')}
+      </div>
+      <div class="pronunciation-recorder">
+        <button class="pronunciation-record-btn" id="pron-record"><span class="record-icon"></span><span id="pron-record-label">开始录音</span></button>
+        <div>
+          <div class="pronunciation-timer" id="pron-timer">00:00 / 00:20</div>
+          <div class="hint" id="pron-status">尽量在安静环境中，完整朗读一次目标句</div>
+        </div>
+      </div>
+      <div id="pron-result"></div>
+    </div>
+    <div id="pron-history">${pronunciationHistoryHTML(attempts)}</div>
+  `;
+
+  const targetInput = view.querySelector('#pron-target');
+  const levelSelect = view.querySelector('#pron-level');
+  const recordBtn = view.querySelector('#pron-record');
+  const recordLabel = view.querySelector('#pron-record-label');
+  const timerEl = view.querySelector('#pron-timer');
+  const statusEl = view.querySelector('#pron-status');
+  const resultEl = view.querySelector('#pron-result');
+  let recorder = null;
+  let timer = null;
+  let seconds = 0;
+  let analyzing = false;
+
+  view.querySelector('#pron-reference').addEventListener('click', () => {
+    const text = targetInput.value.trim();
+    if (text) speak(text);
+  });
+  view.querySelectorAll('.pronunciation-presets .chip').forEach(chip => {
+    chip.addEventListener('click', () => { targetInput.value = chip.dataset.text; speak(chip.dataset.text); });
+  });
+
+  const setRecordingUI = active => {
+    recordBtn.classList.toggle('recording', active);
+    recordLabel.textContent = active ? '结束并分析' : '开始录音';
+    targetInput.disabled = active || analyzing;
+    levelSelect.disabled = active || analyzing;
+  };
+  const drawTime = () => {
+    timerEl.textContent = `00:${String(seconds).padStart(2, '0')} / 00:20`;
+  };
+
+  async function beginRecording() {
+    if (analyzing) return;
+    if (!targetInput.value.trim()) { toast('请先填写要朗读的日语句子'); targetInput.focus(); return; }
+    stopSpeaking();
+    try {
+      recorder = await startWavRecording();
+      seconds = 0;
+      drawTime();
+      setRecordingUI(true);
+      statusEl.textContent = '正在录音…请完整朗读目标句';
+      timer = setInterval(() => {
+        seconds++;
+        drawTime();
+        if (seconds >= 20) finishRecording();
+      }, 1000);
+      activePronunciationRecorder = {
+        cancel: async () => {
+          clearInterval(timer);
+          await recorder?.cancel();
+          recorder = null;
+        },
+      };
+    } catch (error) {
+      statusEl.textContent = error.message;
+      toast(error.message);
+    }
+  }
+
+  async function finishRecording() {
+    if (!recorder || analyzing) return;
+    const currentRecorder = recorder;
+    recorder = null;
+    activePronunciationRecorder = null;
+    clearInterval(timer);
+    analyzing = true;
+    setRecordingUI(false);
+    recordBtn.disabled = true;
+    statusEl.innerHTML = '<span class="spinner"></span> AI 正在听录音并生成发音诊断…';
+    try {
+      const audioBlob = await currentRecorder.stop();
+      if (activePronunciationAudioUrl) URL.revokeObjectURL(activePronunciationAudioUrl);
+      activePronunciationAudioUrl = URL.createObjectURL(audioBlob);
+      const target = targetInput.value.trim();
+      const level = levelSelect.value;
+      const learner = db.getSettings();
+      const analysis = await analyzePronunciation({
+        audioBlob, target, level, apiKey: learner.openaiKey,
+        nativeLanguage: learner.nativeLanguage,
+        explanationLanguage: learner.explanationLanguage,
+      });
+      const attempt = { id: crypto.randomUUID(), createdAt: Date.now(), target, level, ...analysis };
+      db.savePronunciationAttempt(attempt);
+      const firstIssue = analysis.issues[0];
+      if (firstIssue) {
+        db.addLearningNote({
+          category: `发音·${firstIssue.type || '听感'}`,
+          original: firstIssue.heard || firstIssue.segment,
+          better: firstIssue.segment,
+          note: firstIssue.advice,
+          source: 'pronunciation-diagnosis',
+        });
+      }
+      checkIn();
+      resultEl.innerHTML = pronunciationResultHTML(attempt, activePronunciationAudioUrl);
+      bindPronunciationResult(resultEl, attempt);
+      view.querySelector('#pron-history').innerHTML = pronunciationHistoryHTML(db.getPronunciationAttempts());
+      statusEl.textContent = '诊断完成；本项目只保存分数与反馈，不保存原始录音。';
+    } catch (error) {
+      statusEl.textContent = `诊断失败：${error.message}`;
+      resultEl.innerHTML = `<div class="pronunciation-error">${esc(error.message)}</div>`;
+    } finally {
+      analyzing = false;
+      recordBtn.disabled = false;
+      setRecordingUI(false);
+    }
+  }
+
+  recordBtn.addEventListener('click', () => recorder ? finishRecording() : beginRecording());
+}
+
+function pronunciationResultHTML(result, audioUrl) {
+  const dimensions = Object.entries(PRONUNCIATION_DIMENSIONS);
+  return `
+    <div class="pronunciation-result-card">
+      <div class="pronunciation-score" style="--score:${result.overallScore}">
+        <div><b>${result.overallScore}</b><span>综合听感</span></div>
+      </div>
+      <div class="pronunciation-result-main">
+        <div class="section-title" style="margin:0 0 6px">本次诊断</div>
+        <p>${esc(result.summary)}</p>
+        <div class="pronunciation-transcript"><span>AI 听到</span><b class="jp">${esc(result.transcript || '—')}</b></div>
+        ${audioUrl ? `<audio controls src="${esc(audioUrl)}"></audio>` : ''}
+      </div>
+    </div>
+    <div class="pronunciation-dimensions">
+      ${dimensions.map(([key, label]) => `<div class="pronunciation-dimension">
+        <div class="dimension-head"><span>${label}</span><b>${result.dimensions[key]?.score || 0}</b></div>
+        <div class="score-track"><span style="width:${result.dimensions[key]?.score || 0}%"></span></div>
+        <p>${esc(result.dimensions[key]?.feedback || '')}</p>
+      </div>`).join('')}
+    </div>
+    ${result.strengths.length ? `<div class="section-title">做得好的地方</div><ul class="pronunciation-list">${result.strengths.map(item => `<li>${esc(item)}</li>`).join('')}</ul>` : ''}
+    ${result.issues.length ? `<div class="section-title">重点修正</div><div class="pronunciation-issues">
+      ${result.issues.map((item, index) => `<div class="pronunciation-issue">
+        <div class="issue-head"><span class="tag">${esc(item.type)}</span><b class="jp">${esc(item.segment)}</b></div>
+        ${item.heard ? `<p>听起来像：<span class="jp">${esc(item.heard)}</span></p>` : ''}
+        <p>${esc(item.advice)}</p>
+        ${item.drill ? `<button class="btn small soft pron-drill" data-i="${index}">${ICONS.speaker} ${esc(item.drill)}</button>` : ''}
+      </div>`).join('')}
+    </div>` : ''}
+    ${result.practicePlan.length ? `<div class="section-title">下一轮练习</div><ol class="pronunciation-list">${result.practicePlan.map(item => `<li>${esc(item)}</li>`).join('')}</ol>` : ''}
+  `;
+}
+
+function bindPronunciationResult(container, result) {
+  container.querySelectorAll('.pron-drill').forEach(button => {
+    button.addEventListener('click', () => speak(result.issues[+button.dataset.i]?.drill || ''));
+  });
+}
+
+function pronunciationHistoryHTML(attempts) {
+  if (!attempts.length) return `<div class="card pronunciation-history"><div class="section-title" style="margin:0">最近诊断</div><div class="empty"><p>还没有记录。完成第一次朗读后，这里会显示发音趋势。</p></div></div>`;
+  const average = Math.round(attempts.reduce((sum, item) => sum + (item.overallScore || 0), 0) / attempts.length);
+  return `<div class="card pronunciation-history">
+    <div class="pronunciation-history-head"><div class="section-title" style="margin:0">最近诊断</div><span>平均 ${average} 分 · 共 ${attempts.length} 次</span></div>
+    <div class="pronunciation-history-list">
+      ${attempts.slice(0, 8).map(item => `<div class="pronunciation-history-item">
+        <div class="pronunciation-history-score">${item.overallScore || 0}</div>
+        <div><b class="jp">${esc(item.target)}</b><p>${esc(item.summary || '')}</p></div>
+        <span>${fmtDate(item.createdAt)}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
 // ==================== 阅读 ====================
 const READING_PRESETS = ['介绍我最喜欢的漫画家', '日本的四季与节日', '一个关于猫的暖心小故事', '如何做正宗的日式咖喱', '东京一日游攻略', '日本高中生的一天'];
 
@@ -778,8 +1147,8 @@ function renderReading() {
   if (readingLevelFilter !== 'all') articles = articles.filter(a => a.level === readingLevelFilter);
   articles = [...articles].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); // 按生成时间倒序
   view.innerHTML = `
-    <h1 class="page-title">阅读</h1>
-    <p class="page-sub">告诉 AI 你想读什么，它会写一篇符合你水平的日语短文（含注音、翻译和生词）</p>
+    <h1 class="page-title">${isEnglish() ? 'Reading' : '阅读'}</h1>
+    <p class="page-sub">${isEnglish() ? 'Tell AI what you want to read. It creates a level-appropriate Japanese article with furigana, translation, and vocabulary.' : '告诉 AI 你想读什么，它会写一篇符合你水平的日语短文（含注音、翻译和生词）'}</p>
     <div class="card">
       <label class="field-label">想读什么？</label>
       <div class="gen-row">
@@ -814,7 +1183,7 @@ function renderReading() {
       <span class="badge b" style="min-width:38px;height:38px;border-radius:11px;font-size:15px">${esc((a.title || '文')[0])}</span>
       <div class="list-item-body">
         <div class="list-item-title jp">${esc(a.title)}</div>
-        <div class="list-item-sub">${a.builtin ? '📌 范文 · ' : ''}${a.titleChinese ? esc(a.titleChinese) + ' · ' : ''}JLPT ${esc(a.level)} · ${a.paragraphs.length} 段${a.builtin ? '' : ' · ' + fmtDate(a.createdAt)}</div>
+        <div class="list-item-sub">${a.builtin ? '📌 范文 · ' : ''}${localizedTitleOf(a) ? esc(localizedTitleOf(a)) + ' · ' : ''}JLPT ${esc(a.level)} · ${a.paragraphs.length} 段${a.builtin ? '' : ' · ' + fmtDate(a.createdAt)}</div>
       </div>
       <div class="list-item-actions">
         <button class="icon-btn" data-act="del" title="删除">${ICONS.trash}</button>
@@ -864,7 +1233,7 @@ function renderArticleDetail(a) {
       <div class="scenario-head">
         <div>
           <div class="scenario-title jp">${esc(a.title)}</div>
-          ${a.titleChinese ? `<div class="scenario-title-cn">${esc(a.titleChinese)}</div>` : ''}
+          ${localizedTitleOf(a) ? `<div class="scenario-title-cn">${esc(localizedTitleOf(a))}</div>` : ''}
           <div class="scenario-meta">
             <span class="tag level">JLPT ${esc(a.level)}</span>
             <span class="tag">${fmtDate(a.createdAt)}</span>
@@ -879,7 +1248,7 @@ function renderArticleDetail(a) {
         ${a.paragraphs.map((p, i) => `
           <div class="article-para" data-i="${i}" title="点击朗读本段">
             <div class="jp-text jp">${jpHTML(p.japanese, p.furigana)}</div>
-            ${showCn && p.chinese ? `<div class="cn-text">${esc(p.chinese)}</div>` : ''}
+            ${showCn && translationOf(p) ? `<div class="cn-text">${esc(translationOf(p))}</div>` : ''}
           </div>`).join('')}
       </div>
       <div class="section-title">📖 生词建议</div>
@@ -889,7 +1258,7 @@ function renderArticleDetail(a) {
             <div class="vocab-word jp">${esc(v.word)}</div>
             <div class="vocab-reading jp">${esc(v.reading)}</div>
             <div class="vocab-meaning">${esc(v.meaning)}</div>
-            ${v.example ? `<div class="vocab-example jp">${esc(v.example)}${v.exampleChinese ? `<br><span style="font-family:inherit">${esc(v.exampleChinese)}</span>` : ''}</div>` : ''}
+            ${v.example ? `<div class="vocab-example jp">${esc(v.example)}${exampleTranslationOf(v) ? `<br><span style="font-family:inherit">${esc(exampleTranslationOf(v))}</span>` : ''}</div>` : ''}
             <button class="btn small soft add-vocab" data-i="${i}" ${vocabWords.has(v.word) ? 'disabled' : ''}>${vocabWords.has(v.word) ? '已在生词本' : '+ 加入生词本'}</button>
           </div>`).join('')}
       </div>
@@ -1080,7 +1449,7 @@ function renderHistory(favoritesOnly) {
   let list = favoritesOnly ? all.filter(s => s.favorite) : all;
   if (historyLevelFilter !== 'all') list = list.filter(s => s.level === historyLevelFilter);
   list = [...list].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); // 按生成时间倒序
-  const title = favoritesOnly ? '收藏' : '历史';
+  const title = isEnglish() ? (favoritesOnly ? 'Favorites' : 'History') : (favoritesOnly ? '收藏' : '历史');
   view.innerHTML = `
     <h1 class="page-title">${title}</h1>
     <p class="page-sub">${favoritesOnly ? '收藏的会话不计入 100 条历史上限，不会被自动清理' : `共 ${list.length} 条会话（非收藏最多保留 100 条，范文常驻）`}</p>
@@ -1100,7 +1469,7 @@ function renderHistory(favoritesOnly) {
       <span class="badge a" style="min-width:38px;height:38px;border-radius:11px;font-size:15px" >${esc((sc.title || '会')[0])}</span>
       <div class="list-item-body">
         <div class="list-item-title jp">${esc(sc.title)}</div>
-        <div class="list-item-sub">${sc.builtin ? '📌 范文 · ' : ''}${sc.titleChinese ? esc(sc.titleChinese) + ' · ' : ''}JLPT ${esc(sc.level)} · ${sc.lines.length} 句${sc.builtin ? '' : ' · ' + fmtDate(sc.createdAt)}</div>
+        <div class="list-item-sub">${sc.builtin ? '📌 范文 · ' : ''}${localizedTitleOf(sc) ? esc(localizedTitleOf(sc)) + ' · ' : ''}JLPT ${esc(sc.level)} · ${sc.lines.length} 句${sc.builtin ? '' : ' · ' + fmtDate(sc.createdAt)}</div>
       </div>
       <div class="list-item-actions">
         <button class="icon-btn ${sc.favorite ? 'starred' : ''}" data-act="fav" title="收藏">${ICONS.star}</button>
@@ -1133,7 +1502,7 @@ function renderVocab() {
   const vocab = db.getVocab();
   const dueCount = vocab.filter(isDue).length;
   view.innerHTML = `
-    <h1 class="page-title">生词本</h1>
+    <h1 class="page-title">${isEnglish() ? 'Vocabulary' : '生词本'}</h1>
     <p class="page-sub">共 ${vocab.length} 个生词${dueCount ? `，<span style="color:var(--green);font-weight:600">${dueCount} 个待复习</span>` : ''}</p>
     <div class="vocab-toolbar">
       <input type="text" id="vocab-search" placeholder="搜索单词、读音或释义…">
@@ -1180,8 +1549,8 @@ function renderCards() {
     const vocab = db.getVocab();
     const next = vocab.map(v => v.nextReview).filter(Boolean).sort((a, b) => a - b)[0];
     view.innerHTML = `
-      <h1 class="page-title">闪卡复习</h1>
-      <p class="page-sub">基于 SM-2 间隔重复算法安排复习</p>
+      <h1 class="page-title">${isEnglish() ? 'Flashcard review' : '闪卡复习'}</h1>
+      <p class="page-sub">${isEnglish() ? 'Reviews are scheduled with SM-2 spaced repetition.' : '基于 SM-2 间隔重复算法安排复习'}</p>
       <div class="card empty">
         <div class="big">✅</div>
         <p>${vocab.length === 0 ? '生词本是空的，先去练习中收集生词吧' : `今天的复习都完成了！${next ? `下次复习：${formatDue(next)}` : ''}`}</p>
@@ -1195,7 +1564,7 @@ function renderCards() {
   function drawCard() {
     if (idx >= queue.length) {
       view.innerHTML = `
-        <h1 class="page-title">闪卡复习</h1>
+        <h1 class="page-title">${isEnglish() ? 'Flashcard review' : '闪卡复习'}</h1>
         <div class="card complete-banner">
           <div class="big">🎉</div>
           <h3>复习完成！</h3>
@@ -1207,7 +1576,7 @@ function renderCards() {
     }
     const v = queue[idx];
     view.innerHTML = `
-      <h1 class="page-title">闪卡复习</h1>
+      <h1 class="page-title">${isEnglish() ? 'Flashcard review' : '闪卡复习'}</h1>
       <div class="flash-wrap">
         <div class="flash-progress">${idx + 1} / ${queue.length}</div>
         <div class="flash-card" id="flash">
@@ -1225,7 +1594,7 @@ function renderCards() {
         <div class="flash-word jp" style="font-size:28px">${esc(v.word)}</div>
         <div class="flash-reading jp">${esc(v.reading)}</div>
         <div class="flash-meaning">${esc(v.meaning)}</div>
-        ${v.example ? `<div class="flash-example jp">${esc(v.example)}${v.exampleChinese ? `<br>${esc(v.exampleChinese)}` : ''}</div>` : ''}
+        ${v.example ? `<div class="flash-example jp">${esc(v.example)}${exampleTranslationOf(v) ? `<br>${esc(exampleTranslationOf(v))}` : ''}</div>` : ''}
         <div class="flash-hint">再次点击可朗读</div>`;
       speak(v.word);
       view.querySelector('#rate-area').innerHTML = `
@@ -1251,11 +1620,76 @@ function renderCards() {
 }
 
 // ==================== 设置 ====================
+const LEARNER_LANGUAGES = [
+  ['Simplified Chinese', '简体中文', 'Simplified Chinese'],
+  ['Traditional Chinese', '繁體中文', 'Traditional Chinese'],
+  ['English', '英语', 'English'],
+  ['Korean', '韩语', 'Korean'],
+  ['Spanish', '西班牙语', 'Spanish'],
+  ['French', '法语', 'French'],
+  ['German', '德语', 'German'],
+  ['Portuguese', '葡萄牙语', 'Portuguese'],
+  ['Italian', '意大利语', 'Italian'],
+  ['Dutch', '荷兰语', 'Dutch'],
+  ['Russian', '俄语', 'Russian'],
+  ['Ukrainian', '乌克兰语', 'Ukrainian'],
+  ['Arabic', '阿拉伯语', 'Arabic'],
+  ['Hindi', '印地语', 'Hindi'],
+  ['Bengali', '孟加拉语', 'Bengali'],
+  ['Vietnamese', '越南语', 'Vietnamese'],
+  ['Thai', '泰语', 'Thai'],
+  ['Indonesian', '印度尼西亚语', 'Indonesian'],
+  ['Malay', '马来语', 'Malay'],
+  ['Tagalog', '他加禄语', 'Tagalog'],
+  ['Turkish', '土耳其语', 'Turkish'],
+  ['Polish', '波兰语', 'Polish'],
+  ['Swedish', '瑞典语', 'Swedish'],
+  ['Hebrew', '希伯来语', 'Hebrew'],
+  ['Persian', '波斯语', 'Persian'],
+];
+
+function languageSelectOptions(currentValue) {
+  const known = LEARNER_LANGUAGES.some(([value]) => value === currentValue);
+  return `${LEARNER_LANGUAGES.map(([value, zh, en]) =>
+    `<option value="${esc(value)}" ${value === currentValue ? 'selected' : ''}>${esc(isEnglish() ? en : zh)}</option>`
+  ).join('')}<option value="__other__" ${known ? '' : 'selected'}>${t('profile.other')}</option>`;
+}
+
 function renderSettings() {
   const s = db.getSettings();
+  const nativeIsCustom = !LEARNER_LANGUAGES.some(([value]) => value === s.nativeLanguage);
+  const explanationIsCustom = !LEARNER_LANGUAGES.some(([value]) => value === s.explanationLanguage);
   view.innerHTML = `
-    <h1 class="page-title">设置</h1>
-    <p class="page-sub">配置 AI 服务与数据管理</p>
+    <h1 class="page-title">${t('settings.title')}</h1>
+    <p class="page-sub">${t('settings.subtitle')}</p>
+    <div class="card settings-section language-profile-card">
+      <h3>${t('profile.title')}</h3>
+      <div class="language-profile-grid">
+        <div class="field">
+          <label class="field-label">${t('profile.ui')}</label>
+          <select id="ui-language">
+            <option value="zh-CN" ${s.uiLanguage !== 'en' ? 'selected' : ''}>简体中文</option>
+            <option value="en" ${s.uiLanguage === 'en' ? 'selected' : ''}>English</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">${t('profile.native')}</label>
+          <select id="native-language">${languageSelectOptions(s.nativeLanguage)}</select>
+          <input class="custom-language-input" id="native-language-custom" value="${nativeIsCustom ? esc(s.nativeLanguage) : ''}" maxlength="80" placeholder="${t('profile.custom')}" ${nativeIsCustom ? '' : 'hidden'}>
+        </div>
+        <div class="field">
+          <label class="field-label">${t('profile.explanation')}</label>
+          <select id="explanation-language">${languageSelectOptions(s.explanationLanguage)}</select>
+          <input class="custom-language-input" id="explanation-language-custom" value="${explanationIsCustom ? esc(s.explanationLanguage) : ''}" maxlength="80" placeholder="${t('profile.custom')}" ${explanationIsCustom ? '' : 'hidden'}>
+        </div>
+        <div class="field">
+          <label class="field-label">${t('profile.target')}</label>
+          <input value="${t('profile.targetFixed')}" disabled>
+        </div>
+      </div>
+      <button class="btn primary" id="save-profile">${t('profile.save')}</button>
+      <p class="hint">${t('profile.hint')}</p>
+    </div>
     <div class="card settings-section">
       <h3>AI 服务</h3>
       <div class="provider-row" style="grid-template-columns:repeat(3,1fr)">
@@ -1299,7 +1733,7 @@ function renderSettings() {
         </div>
       </div>
       <button class="btn primary" id="save-settings">保存设置</button>
-      <p class="hint">「本地 CLI」通过本站自带的 server.py 调用你电脑上已登录的命令行工具，用订阅额度、无需 API Key，但要求用 python3 server.py 启动本站。API 方式的密钥保存在浏览器本地（localStorage），请求直接从浏览器发出，不经过任何服务器。</p>
+      <p class="hint">「本地 CLI」通过本站自带的 server.py 调用你电脑上已登录的命令行工具，用订阅额度、无需 API Key，但要求用 python3 server.py 启动本站。普通文字功能的 API Key 保存在浏览器本地并由浏览器直连；Realtime 语音会优先经 server.py 建立 WebRTC 会话。部署到公网时，请只在服务器配置 OPENAI_API_KEY，不要把标准 Key 暴露给浏览器。</p>
     </div>
     <div class="card settings-section">
       <h3>语音朗读（TTS）</h3>
@@ -1342,10 +1776,45 @@ function renderSettings() {
         <button class="btn danger" id="clear-btn">🗑️ 清空所有数据</button>
         <input type="file" id="import-file" accept=".json" style="display:none">
       </div>
-      <p class="hint">导出包含全部会话历史与生词本，可用于备份或迁移到其他浏览器。</p>
+      <p class="hint">导出包含会话历史、生词本、Tutor 课程、发音诊断与长期学习重点，可用于完整备份或迁移到其他浏览器。录音文件不会保存或导出。</p>
     </div>
     <div class="note">💡 提示：未配置 API Key 时，「练习」中仍可体验内置演示会话，TTS 朗读、互动模式、生词本和闪卡复习都可正常使用。语音识别需要 Chrome、Edge 或 Safari 浏览器并授权麦克风。</div>
   `;
+
+  const bindCustomLanguage = (selectId, inputId) => {
+    const select = view.querySelector(selectId);
+    const input = view.querySelector(inputId);
+    const update = () => {
+      input.hidden = select.value !== '__other__';
+      if (!input.hidden) input.focus();
+    };
+    select.addEventListener('change', update);
+  };
+  bindCustomLanguage('#native-language', '#native-language-custom');
+  bindCustomLanguage('#explanation-language', '#explanation-language-custom');
+
+  view.querySelector('#save-profile').addEventListener('click', () => {
+    const uiLanguage = view.querySelector('#ui-language').value;
+    const selectedLanguage = (selectId, inputId) => {
+      const selected = view.querySelector(selectId).value;
+      return selected === '__other__' ? view.querySelector(inputId).value.trim() : selected;
+    };
+    const nativeLanguage = selectedLanguage('#native-language', '#native-language-custom');
+    const explanationLanguage = selectedLanguage('#explanation-language', '#explanation-language-custom');
+    if (!nativeLanguage || !explanationLanguage) {
+      toast(isEnglish() ? 'Please enter the custom language name.' : '请输入自定义语言名称');
+      return;
+    }
+    db.saveSettings(Object.assign(db.getSettings(), {
+      uiLanguage,
+      nativeLanguage,
+      explanationLanguage,
+    }));
+    setLanguage(uiLanguage);
+    applyStaticTranslations();
+    toast(t('profile.saved'));
+    renderSettings();
+  });
 
   let provider = s.provider;
   view.querySelectorAll('.ai-provider-opt').forEach(btn => {
@@ -1376,7 +1845,7 @@ function renderSettings() {
       return;
     }
     const mark = ok => ok ? '<span style="color:var(--green)">✓ 已安装</span>' : '<span style="color:#d3455b">✗ 未找到</span>';
-    el.innerHTML = `本地检测：Claude Code ${mark(st.claude)}　·　Codex ${mark(st.codex)}`;
+    el.innerHTML = `本地检测：Claude Code ${mark(st.claude)}　·　Codex ${mark(st.codex)}　·　Realtime 服务端 Key ${mark(st.openai_realtime)}`;
   });
 
   let ttsProvider = s.ttsProvider;
@@ -1423,7 +1892,7 @@ function renderSettings() {
     }
   });
   view.querySelector('#clear-btn').addEventListener('click', () => {
-    if (confirm('确定清空所有会话历史和生词本吗？此操作不可恢复（不影响 API Key 设置）。')) {
+    if (confirm('确定清空会话历史、生词本、Tutor 课程、发音诊断与学习重点吗？此操作不可恢复（不影响 API Key 设置）。')) {
       db.clearAll();
       lastScenario = null;
       toast('已清空所有数据');
@@ -1436,4 +1905,8 @@ document.addEventListener('tts-fallback', (e) => {
   toast(`ElevenLabs 朗读失败（${e.detail}），已回退到系统语音`);
 });
 // 先与服务器同步数据（跨浏览器共享），失败则纯本地模式；再导入内置范文（仅首次）
-db.initSync().then(() => db.loadSeeds()).finally(() => switchTab('practice'));
+db.initSync().then(() => db.loadSeeds()).finally(() => {
+  setLanguage(db.getSettings().uiLanguage);
+  applyStaticTranslations();
+  switchTab('practice');
+});

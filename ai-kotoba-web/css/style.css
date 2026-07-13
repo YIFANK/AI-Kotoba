@@ -389,7 +389,7 @@ ruby > rt {
 .detail-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .toggle-btn.on { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
 
-/* ===== 自由对话 ===== */
+/* ===== AI 语音 Tutor ===== */
 .rt-status {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 6px 16px; border-radius: 999px;
@@ -402,13 +402,117 @@ ruby > rt {
 .rt-status.speaking { background: var(--pink-soft); color: var(--pink); }
 .rt-status.speaking .rt-dot { background: var(--pink); animation: pulse 1.2s infinite; }
 .rt-status.connecting .rt-dot { background: var(--amber); animation: pulse 1.2s infinite; }
+.rt-status.thinking { background: var(--amber-soft); color: var(--amber); }
+.rt-status.thinking .rt-dot { background: var(--amber); animation: pulse 1.2s infinite; }
+.rt-status.disconnected { background: #f2f4f8; color: var(--muted); }
 .freetalk-bar {
   display: flex; align-items: center; gap: 12px;
   margin-bottom: 16px; flex-wrap: wrap;
 }
 .freetalk-bar .spacer { flex: 1; }
 .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+.tutor-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 6px; }
+#ft-style-help { margin: 0 0 18px; }
+.tutor-live-controls {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-top: 14px; padding: 10px 14px; border-radius: 12px;
+  background: var(--card); border: 1px solid var(--border);
+}
+.tutor-memory-card { margin-top: 16px; }
+.tutor-memory-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.tutor-stats { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.tutor-stats span {
+  padding: 6px 10px; border-radius: 10px; background: #f6f7fa;
+  color: var(--muted); font-size: 12px; white-space: nowrap;
+}
+.tutor-stats b { color: var(--accent); font-size: 14px; }
+.learning-note-list { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.learning-note {
+  display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start;
+  padding: 10px 12px; border-radius: 11px; background: #fafbfd; border: 1px solid var(--border);
+  font-size: 13px;
+}
+.learning-note .hint { margin-top: 2px; }
+.tutor-memory-empty { padding: 24px 12px 6px; }
+.tutor-memory-saved {
+  margin-bottom: 18px; padding: 9px 12px; border-radius: 10px;
+  background: var(--green-soft); color: var(--green); font-size: 13px; font-weight: 600;
+}
+.tutor-vocab-title { justify-content: space-between; }
 .bubble.thinking { color: var(--faint); font-style: italic; }
+
+/* ===== 发音诊断 ===== */
+.pronunciation-lab { margin-bottom: 16px; }
+.pronunciation-note {
+  padding: 10px 13px; margin-bottom: 18px; border-radius: 10px;
+  background: var(--amber-soft); color: #8a6410; font-size: 12.5px;
+}
+.pronunciation-target-row { display: grid; grid-template-columns: 1fr 92px auto; gap: 10px; }
+.pronunciation-presets .chip { font-family: var(--font-jp); }
+.pronunciation-recorder {
+  display: flex; align-items: center; justify-content: center; gap: 18px;
+  padding: 24px; margin-top: 8px; border-radius: 14px;
+  background: #fafbfd; border: 1px dashed var(--accent-border);
+}
+.pronunciation-record-btn {
+  display: flex; align-items: center; gap: 9px; padding: 11px 20px;
+  border: none; border-radius: 999px; background: var(--accent); color: #fff;
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: transform .15s, background .15s;
+}
+.pronunciation-record-btn:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+.pronunciation-record-btn:disabled { opacity: .5; cursor: not-allowed; }
+.record-icon { width: 11px; height: 11px; border-radius: 50%; background: #fff; }
+.pronunciation-record-btn.recording { background: #d3455b; }
+.pronunciation-record-btn.recording .record-icon { border-radius: 2px; animation: pulse 1.2s infinite; }
+.pronunciation-timer { font: 700 16px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.pronunciation-result-card {
+  display: grid; grid-template-columns: 118px 1fr; gap: 22px; align-items: center;
+  margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--border);
+}
+.pronunciation-score {
+  width: 112px; height: 112px; border-radius: 50%; padding: 9px;
+  background: conic-gradient(var(--accent) calc(var(--score) * 1%), var(--accent-soft) 0);
+}
+.pronunciation-score > div {
+  width: 100%; height: 100%; border-radius: 50%; background: var(--card);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.pronunciation-score b { color: var(--accent); font-size: 31px; line-height: 1.1; }
+.pronunciation-score span { color: var(--muted); font-size: 11px; }
+.pronunciation-result-main audio { width: min(100%, 360px); height: 36px; margin-top: 10px; }
+.pronunciation-transcript {
+  display: flex; align-items: baseline; gap: 10px; margin-top: 10px; padding: 8px 11px;
+  background: #f6f7fa; border-radius: 9px;
+}
+.pronunciation-transcript span { color: var(--muted); font-size: 11px; flex-shrink: 0; }
+.pronunciation-dimensions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+.pronunciation-dimension { padding: 12px 14px; border: 1px solid var(--border); border-radius: 11px; }
+.dimension-head { display: flex; justify-content: space-between; font-size: 13px; }
+.dimension-head b { color: var(--accent); }
+.score-track { height: 5px; margin: 7px 0; overflow: hidden; border-radius: 99px; background: var(--accent-soft); }
+.score-track span { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.pronunciation-dimension p, .pronunciation-issue p { color: var(--muted); font-size: 12px; }
+.pronunciation-list { padding-left: 22px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.pronunciation-issues { display: flex; flex-direction: column; gap: 9px; }
+.pronunciation-issue { padding: 12px 14px; border-radius: 11px; background: #fafbfd; border: 1px solid var(--border); }
+.issue-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.pronunciation-issue .btn { margin-top: 8px; }
+.pronunciation-error { margin-top: 18px; padding: 11px 13px; border-radius: 10px; background: #fdf0f2; color: #d3455b; }
+.pronunciation-history { margin-top: 16px; }
+.pronunciation-history-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pronunciation-history-head > span { color: var(--muted); font-size: 12px; }
+.pronunciation-history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.pronunciation-history-item {
+  display: grid; grid-template-columns: 42px 1fr auto; gap: 11px; align-items: center;
+  padding: 9px 11px; border-radius: 10px; background: #fafbfd; border: 1px solid var(--border);
+}
+.pronunciation-history-score {
+  width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px;
+  background: var(--accent-soft); color: var(--accent); font-weight: 700;
+}
+.pronunciation-history-item p { color: var(--muted); font-size: 11.5px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.pronunciation-history-item > span { color: var(--faint); font-size: 11px; white-space: nowrap; }
 
 /* ===== AI 助教 ===== */
 .ta-fab {
@@ -476,5 +580,26 @@ ruby > rt {
   .logo { justify-content: center; padding-bottom: 16px; }
   .nav-item { justify-content: center; }
   .view { padding: 24px 16px 48px; }
-  .role-cards { grid-template-columns: 1fr; }
+  .role-cards, .mode-cards, .tutor-options { grid-template-columns: 1fr; }
+  .tutor-live-controls { align-items: stretch; flex-direction: column; }
+  .tutor-memory-head { flex-direction: column; }
+  .tutor-stats { justify-content: flex-start; }
+  .tutor-vocab-title { align-items: flex-start; flex-direction: column; }
+  .pronunciation-target-row { grid-template-columns: 1fr 86px; }
+  .pronunciation-target-row .btn { grid-column: 1 / -1; }
+  .pronunciation-recorder { align-items: flex-start; flex-direction: column; }
+  .pronunciation-result-card { grid-template-columns: 1fr; }
+  .pronunciation-dimensions { grid-template-columns: 1fr; }
+  .pronunciation-history-item { grid-template-columns: 42px 1fr; }
+  .pronunciation-history-item > span { grid-column: 2; }
+}
+.language-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+}
+.custom-language-input { margin-top: 8px; }
+
+@media (max-width: 680px) {
+  .language-profile-grid { grid-template-columns: 1fr; }
 }

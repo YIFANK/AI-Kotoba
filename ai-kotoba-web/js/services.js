@@ -1,5 +1,19 @@
-// AI 服务层：两轮生成策略（第一轮纯日语，第二轮中文翻译），与 macOS 版 ClaudeService/OpenAIService 一致
+// AI 服务层：两轮生成策略（第一轮纯日语，第二轮按学习者档案翻译）
 import { getSettings } from './storage.js';
+
+function learnerProfile() {
+  const settings = getSettings();
+  return {
+    nativeLanguage: settings.nativeLanguage || 'Chinese',
+    explanationLanguage: settings.explanationLanguage || 'Simplified Chinese',
+    targetLanguage: 'Japanese',
+    levelFramework: 'JLPT',
+  };
+}
+
+function uiText(zh, en) {
+  return getSettings().uiLanguage === 'en' ? en : zh;
+}
 
 // ---------- JSON 提取（对应 JSONParsingUtility.extractJSON） ----------
 export function extractJSON(text) {
@@ -116,26 +130,24 @@ async function callAI(prompt, opts = {}) {
 
 // ---------- AI 助教（课文旁答疑） ----------
 export async function askAssistant({ title, body, level, quote, question, history = [] }) {
-  const hist = history.map(h => `问：${h.q}\n答：${h.a}`).join('\n\n');
-  const prompt = `你是一位耐心的日语助教。学习者（中文母语，JLPT ${level} 水平）正在学习下面这篇课文，并向你提问。
+  const { nativeLanguage, explanationLanguage } = learnerProfile();
+  const hist = history.map(h => `Question: ${h.q}\nAnswer: ${h.a}`).join('\n\n');
+  const prompt = `You are a patient Japanese-language teaching assistant. The learner's native language is ${nativeLanguage}, their explanation language is ${explanationLanguage}, and their current level is JLPT ${level}.
 
-【课文】${title}
+Article: ${title}
 ${body}
-${quote ? `\n【学习者在课文中划选的内容】「${quote}」` : ''}${hist ? `\n\n【此前的问答（供参考）】\n${hist}` : ''}
+${quote ? `\nSelected text: 「${quote}」` : ''}${hist ? `\n\nPrevious Q&A:\n${hist}` : ''}
 
-【学习者的问题】${question}
+Learner question: ${question}
 
-要求：
-- 用中文回答，简洁明了（3-6 句），第一句就直接回答问题
-- 涉及语法或用词时，给 1 个简短的日语例句帮助理解
-- 只围绕问题本身，不要复述课文、不要写长篇讲解
-直接输出回答内容，不要任何前缀。`;
+Answer in ${explanationLanguage}. Be concise (3-6 sentences) and answer directly in the first sentence. If grammar or word choice is involved, add one short Japanese example. Stay focused on the question. Output only the answer.`;
   return callAI(prompt, { fast: true });
 }
 
 // ---------- 提示词（对应 Constants.scenarioPromptJapanese / scenarioPromptTranslation） ----------
 function promptJapanese(topic, level) {
-  return `あなたは経験豊富な日本語教師です。中国語話者の日本語学習者のために、「${topic}」という場面の自然な日本語会話を作成してください。
+  const { nativeLanguage } = learnerProfile();
+  return `あなたは経験豊富な日本語教師です。母語が「${nativeLanguage}」の日本語学習者のために、「${topic}」という場面の自然な日本語会話を作成してください。
 
 要件：
 - JLPT ${level} レベルに合った語彙と文法を使うこと
@@ -156,14 +168,15 @@ function promptJapanese(topic, level) {
 }
 
 function promptTranslation(japaneseJSON) {
-  return `下面是一段日语会话的 JSON 数据。请为它添加中文翻译，要求：
+  const { explanationLanguage } = learnerProfile();
+  return `Below is Japanese conversation JSON. Add natural translations in ${explanationLanguage}.
 
-1. 给 conversation 数组中每一项添加 "chinese" 字段，内容为该句自然流畅的中文翻译
-2. 给 vocabulary 数组中每一项添加 "meaning" 字段（该词的中文意思）和 "exampleChinese" 字段（例句的中文翻译）
-3. 添加顶层字段 "titleChinese"（标题的中文翻译），"title" 保持日语不变
-4. 不要修改任何日语内容
+1. Add a "translation" field to every conversation item in natural ${explanationLanguage}.
+2. Add "meaning" and "exampleTranslation" to every vocabulary item, both in ${explanationLanguage}.
+3. Add top-level "localizedTitle" in ${explanationLanguage}; keep "title" in Japanese.
+4. Do not modify any Japanese content.
 
-只输出完整的 JSON，不要任何其他文字或解释：
+Return only the complete JSON:
 
 ${JSON.stringify(japaneseJSON, null, 2)}`;
 }
@@ -171,7 +184,7 @@ ${JSON.stringify(japaneseJSON, null, 2)}`;
 // ---------- 两轮场景生成 ----------
 export async function generateScenario(topic, level, onStatus) {
   // 第一轮：纯日语生成（避免中日夹杂导致的不自然表达）
-  onStatus?.('第一轮：正在生成地道的日语会话…');
+  onStatus?.(uiText('第一轮：正在生成地道的日语会话…', 'Step 1: Writing natural Japanese dialogue…'));
   const raw1 = await callAI(promptJapanese(topic, level));
   const japaneseOnly = extractJSON(raw1);
   if (!Array.isArray(japaneseOnly.conversation) || japaneseOnly.conversation.length === 0) {
@@ -179,7 +192,7 @@ export async function generateScenario(topic, level, onStatus) {
   }
 
   // 第二轮：翻译
-  onStatus?.('第二轮：正在添加中文翻译…');
+  onStatus?.(uiText('第二轮：正在添加所选语言的翻译…', 'Step 2: Translating into your explanation language…'));
   const raw2 = await callAI(promptTranslation(japaneseOnly));
   const full = extractJSON(raw2);
 
@@ -192,19 +205,20 @@ function normalizeScenario(data, topic, level) {
     speaker: String(l.speaker || (i % 2 === 0 ? 'A' : 'B')),
     japanese: String(l.japanese || ''),
     furigana: String(l.furigana || ''),
-    chinese: String(l.chinese || ''),
+    translation: String(l.translation || l.chinese || ''),
   })).filter(l => l.japanese);
   const vocabulary = (data.vocabulary || []).map(v => ({
     word: String(v.word || ''),
     reading: String(v.reading || ''),
     meaning: String(v.meaning || ''),
     example: String(v.example || ''),
-    exampleChinese: String(v.exampleChinese || ''),
+    exampleTranslation: String(v.exampleTranslation || v.exampleChinese || ''),
   })).filter(v => v.word);
   return {
     id: crypto.randomUUID(),
     title: String(data.title || topic),
-    titleChinese: String(data.titleChinese || ''),
+    localizedTitle: String(data.localizedTitle || data.titleChinese || ''),
+    translationLanguage: learnerProfile().explanationLanguage,
     topic, level,
     createdAt: Date.now(),
     favorite: false,
@@ -214,7 +228,8 @@ function normalizeScenario(data, topic, level) {
 
 // ---------- 阅读文章生成（同样两轮：日语原文 → 中文翻译） ----------
 function promptArticleJapanese(request, level) {
-  return `あなたは経験豊富な日本語教師です。中国語話者の日本語学習者のために、以下のリクエストに沿った読み物（短い文章）を書いてください。
+  const { nativeLanguage } = learnerProfile();
+  return `あなたは経験豊富な日本語教師です。母語が「${nativeLanguage}」の日本語学習者のために、以下のリクエストに沿った読み物（短い文章）を書いてください。
 
 リクエスト：「${request}」
 
@@ -237,117 +252,142 @@ function promptArticleJapanese(request, level) {
 }
 
 function promptArticleTranslation(japaneseJSON) {
-  return `下面是一篇日语文章的 JSON 数据。请为它添加中文翻译，要求：
+  const { explanationLanguage } = learnerProfile();
+  return `Below is Japanese article JSON. Add natural translations in ${explanationLanguage}.
 
-1. 给 paragraphs 数组中每一项添加 "chinese" 字段，内容为该段自然流畅的中文翻译
-2. 给 vocabulary 数组中每一项添加 "meaning" 字段（该词的中文意思）和 "exampleChinese" 字段（例句的中文翻译）
-3. 添加顶层字段 "titleChinese"（标题的中文翻译），"title" 保持日语不变
-4. 不要修改任何日语内容
+1. Add "translation" to every paragraph in natural ${explanationLanguage}.
+2. Add "meaning" and "exampleTranslation" to every vocabulary item, both in ${explanationLanguage}.
+3. Add top-level "localizedTitle" in ${explanationLanguage}; keep "title" in Japanese.
+4. Do not modify any Japanese content.
 
-只输出完整的 JSON，不要任何其他文字或解释：
+Return only the complete JSON:
 
 ${JSON.stringify(japaneseJSON, null, 2)}`;
 }
 
 export async function generateArticle(request, level, onStatus) {
-  onStatus?.('第一轮：正在撰写日语文章…');
+  onStatus?.(uiText('第一轮：正在撰写日语文章…', 'Step 1: Writing the Japanese article…'));
   const raw1 = await callAI(promptArticleJapanese(request, level));
   const japaneseOnly = extractJSON(raw1);
   if (!Array.isArray(japaneseOnly.paragraphs) || japaneseOnly.paragraphs.length === 0) {
     throw new Error('AI 返回的文章内容为空，请重试');
   }
 
-  onStatus?.('第二轮：正在添加中文翻译…');
+  onStatus?.(uiText('第二轮：正在添加所选语言的翻译…', 'Step 2: Translating into your explanation language…'));
   const raw2 = await callAI(promptArticleTranslation(japaneseOnly));
   const full = extractJSON(raw2);
 
   const paragraphs = (full.paragraphs || []).map(p => ({
     japanese: String(p.japanese || ''),
     furigana: String(p.furigana || ''),
-    chinese: String(p.chinese || ''),
+    translation: String(p.translation || p.chinese || ''),
   })).filter(p => p.japanese);
   const vocabulary = (full.vocabulary || []).map(v => ({
     word: String(v.word || ''),
     reading: String(v.reading || ''),
     meaning: String(v.meaning || ''),
     example: String(v.example || ''),
-    exampleChinese: String(v.exampleChinese || ''),
+    exampleTranslation: String(v.exampleTranslation || v.exampleChinese || ''),
   })).filter(v => v.word);
   return {
     id: crypto.randomUUID(),
     title: String(full.title || request),
-    titleChinese: String(full.titleChinese || ''),
+    localizedTitle: String(full.localizedTitle || full.titleChinese || ''),
+    translationLanguage: learnerProfile().explanationLanguage,
     request, level,
     createdAt: Date.now(),
     paragraphs, vocabulary,
   };
 }
 
-// ---------- 自由对话（文字模式：回合制，走当前 AI 服务） ----------
-export function freeTalkInstructions(scene, level) {
-  return `あなたは日本語会話パートナーです。「${scene}」という場面で相手役を演じ、中国語話者の日本語学習者（JLPT ${level} 相当）と自由に会話してください。
-
-ルール：
-- 常に日本語だけで話すこと（${level} レベルのやさしい語彙・文法で）
-- 返事は1〜2文で短くし、質問を返して会話を続けること
-- 学習者が間違えたら、正しい言い方を返事の中でさりげなく示すこと（説教しない）
-- 学習者が「中文」「помощь」「助けて」など助けを求めたら、一度だけ中国語で簡単にヒントを出してよい`;
+// ---------- AI Tutor（文字模式与 Realtime 共用教学策略） ----------
+function learningMemoryBlock(learningNotes = []) {
+  const notes = learningNotes.slice(0, 8).map(item => {
+    const correction = [item.original, item.better].filter(Boolean).join(' → ');
+    return `- [${item.category || '学习重点'}] ${correction}${item.note ? `（${item.note}）` : ''}`;
+  });
+  return notes.length ? `\n\nこの学習者の最近の重点項目：\n${notes.join('\n')}\n会話の流れを壊さない範囲で、これらを自然に再確認してください。` : '';
 }
 
-export async function freeTalkReply(scene, level, history, userMsg) {
-  const lines = history.map(h => `${h.role === 'me' ? '学习者' : '你'}：${h.text}`).join('\n');
-  const prompt = `你是一位日语会话伙伴，正在和一位 JLPT ${level} 水平的中国学习者进行角色扮演自由对话。场景：「${scene}」。
+export function freeTalkInstructions(scene, level, style = 'conversation', learningNotes = []) {
+  const { nativeLanguage, explanationLanguage } = learnerProfile();
+  const styleRule = {
+    conversation: '会話の流れを最優先し、小さな間違いは止めすぎない。重要な間違いだけ自然な言い換えで示す',
+    correction: '学習者の発話にまず内容で反応し、その後「より自然には〜」の形で重要な誤りを一つだけ短く直す',
+    interview: '日本語の口頭試験官として、一問ずつ質問する。回答を短く評価してから次の質問へ進む',
+  }[style] || '自然な会話を続ける';
+  return `あなたは、母語が「${nativeLanguage}」の学習者のための、親切で会話上手な日本語音声チューターです。「${scene}」というテーマで、JLPT ${level} 相当の学習者とレッスンをしてください。説明が必要な場合は「${explanationLanguage}」を使ってください。
 
-规则：
-- 只用日语回复，语言难度控制在 ${level} 水平
-- 回复要短（1〜2 句），并适当反问，让对话自然继续
-- 学习者说错时，在你的回复中自然示范正确说法，不要说教、不要中文
-- 直接输出日语回复本身，不要任何解释、翻译或前缀
+指導方針：${styleRule}。
 
-对话记录：
-${lines ? lines + '\n' : ''}学习者：${userMsg}
-你的日语回复：`;
+会話ルール：
+- 基本は自然な日本語で話し、語彙・文法・速度を ${level} に合わせる
+- 一度に質問は一つだけ。返答は通常2〜3文以内にし、学習者が話す時間を多く取る
+- 意味が通じたらまず内容に反応し、細かすぎる訂正で会話を止めない
+- 訂正では必ず自然な日本語の完成文を示す。${explanationLanguage} の説明は必要なときだけ一文にする
+- 発音について聞かれたら、かな表記と口の動かし方・アクセントの短いヒントを出す
+- 学習者が助けを求めた場合は ${explanationLanguage} で短く助け、その後日本語へ戻る
+- 教科書の朗読ではなく、現実の会話として話題を少しずつ発展させる
+- 学習者が表現の保存や弱点の記録を明確に頼んだ場合だけ、利用可能な保存ツールを使う${learningMemoryBlock(learningNotes)}`;
+}
+
+export async function freeTalkReply(scene, level, history, userMsg, style = 'conversation', learningNotes = []) {
+  const { nativeLanguage, explanationLanguage } = learnerProfile();
+  const lines = history.map(h => `${h.role === 'me' ? 'Learner' : 'Tutor'}: ${h.text}`).join('\n');
+  const styleRule = {
+    conversation: '优先保持自然对话，只纠正影响理解或很不自然的错误',
+    correction: '先回应内容，再用「より自然には〜」只纠正一个最重要的问题',
+    interview: '像日语口试考官一样，简短评价回答后一次只问一个新问题',
+  }[style] || '保持自然对话';
+  const prompt = `You are a Japanese conversation tutor speaking with a JLPT ${level} learner whose native language is ${nativeLanguage}. Topic: 「${scene}」.
+
+Rules:
+- Reply mainly in Japanese at ${level} level, in 2-3 sentences, with only one question at a time.
+- Teaching style: ${styleRule}
+- Only when the learner asks for help, explain in one sentence of ${explanationLanguage}, then return to Japanese.
+- Output only the tutor reply without a label or translation.
+${learningNotes.length ? `\nRecent learning priorities:\n${learningNotes.slice(0, 8).map(item => `- ${item.original || ''} → ${item.better || ''} (${item.note || item.category || ''})`).join('\n')}\nRevisit relevant points naturally without interrupting the conversation.` : ''}
+
+Conversation:
+${lines ? lines + '\n' : ''}Learner: ${userMsg}
+Tutor reply:`;
   return (await callAI(prompt)).trim();
 }
 
 // 结束对话时的结构化学习总结（优缺点 + 可收藏的生词）
 export async function freeTalkSummary(scene, level, transcript) {
-  const prompt = `你是一位日语老师。下面是一位中国学习者（记录中的「我」）在场景「${scene}」中进行日语自由对话的记录，学习者目标水平 JLPT ${level}。请生成学习总结。
+  const { nativeLanguage, explanationLanguage } = learnerProfile();
+  const prompt = `You are a Japanese teacher. Generate a structured review for a ${nativeLanguage}-speaking learner at JLPT ${level}, based on this conversation about 「${scene}」. All explanations, evaluations, meanings, and translations must be in ${explanationLanguage}. Keep Japanese examples in Japanese.
 
-对话记录：
+Transcript:
 ${transcript}
 
-只输出以下 JSON 格式，不要任何其他文字：
+Return only this JSON:
 {
-  "overall": "总体评价，2-3 句中文，以鼓励为主但要具体",
-  "pros": ["做得好的地方，2-3 条，引用对话中的实例"],
+  "overall": "2-3 specific, encouraging sentences in ${explanationLanguage}",
+  "pros": ["2-3 strengths in ${explanationLanguage}, citing the transcript"],
   "cons": [
-    {"original": "学习者的原句", "better": "更自然/正确的日语说法", "note": "一句话说明问题所在"}
+    {"category": "issue category in ${explanationLanguage}", "original": "learner's Japanese", "better": "more natural Japanese", "note": "one-sentence explanation in ${explanationLanguage}"}
   ],
   "vocabulary": [
-    {"word": "值得记住的单词或表达", "reading": "よみかた", "meaning": "中文意思", "example": "日语例句", "exampleChinese": "例句中文翻译"}
+    {"word": "Japanese word or expression", "reading": "よみかた", "meaning": "meaning in ${explanationLanguage}", "example": "Japanese example", "exampleTranslation": "translation in ${explanationLanguage}"}
   ]
 }
 
-要求：
-- cons 给 2-4 条；如果学习者基本没有错误，就给"更进一步"的表达升级建议
-- vocabulary 给 4-6 个，优先选对话中对方用过、学习者值得吸收的地道表达`;
+Include 2-4 cons with a category; if there are no clear mistakes, suggest more advanced phrasing. Include 4-6 useful vocabulary items from the conversation.`;
   return extractJSON(await callAI(prompt));
 }
 
 // ---------- 互动模式的 AI 反馈 ----------
-export async function getFeedback(targetJapanese, chinese, userText) {
-  const prompt = `你是一位耐心的日语老师。学习者在角色扮演练习中，任务是把一个中文意思用日语说出来。请评价学习者的日语。
+export async function getFeedback(targetJapanese, translation, userText) {
+  const { nativeLanguage, explanationLanguage } = learnerProfile();
+  const prompt = `You are a patient Japanese teacher. A ${nativeLanguage}-speaking learner is role-playing and trying to express a given meaning in Japanese. Evaluate only the learner's Japanese and answer in ${explanationLanguage}.
 
-【任务：要表达的中文意思】${chinese}
-【学习者说出的日语】${userText}
-【场景参考台词（仅供对照）】${targetJapanese}
+Meaning to express: ${translation}
+Learner's Japanese: ${userText}
+Reference line (not the only correct answer): ${targetJapanese}
 
-要求（用中文回答，2-4 句话）：
-- 只评价【学习者说出的日语】：它是否正确、自然地表达了那个中文意思
-- 不必与参考台词逐字一致，意思对、表达地道就应该明确肯定
-- 如有语法、用词或不自然之处，温和指出并给出更自然的说法
-- 语气友好、鼓励为主，直接输出反馈内容，不要任何前缀或标题`;
+Answer in 2-4 friendly sentences. Judge whether it expresses the intended meaning correctly and naturally; do not require an exact match. If needed, gently explain grammar or word choice and provide a more natural Japanese sentence. Output only the feedback.`;
   return callAI(prompt);
 }
 
@@ -355,14 +395,14 @@ export async function getFeedback(targetJapanese, chinese, userText) {
 export function localFeedback(targetJapanese, userText) {
   const norm = s => s.replace(/[\s、。！？!?.,，]/g, '');
   const t = norm(targetJapanese), u = norm(userText);
-  if (!u) return '没有听到内容，再试一次吧！';
-  if (u === t) return '完全正确！发音和内容都很棒，继续保持！🎉';
+  if (!u) return uiText('没有听到内容，再试一次吧！', 'Nothing was captured. Please try again.');
+  if (u === t) return uiText('完全正确！发音和内容都很棒，继续保持！🎉', 'Exactly right! Great pronunciation and content. 🎉');
   let same = 0;
   for (const ch of u) if (t.includes(ch)) same++;
   const ratio = same / Math.max(t.length, 1);
-  if (ratio > 0.7) return '非常接近了！和目标句子基本一致，注意个别词的细节即可。';
-  if (ratio > 0.4) return '有一部分说对了，再对照目标句子多练习几遍吧。';
-  return '和目标句子差别较大，可以先点击句子听发音，再跟读练习。';
+  if (ratio > 0.7) return uiText('非常接近了！和目标句子基本一致，注意个别词的细节即可。', 'Very close! Check just a few word-level details.');
+  if (ratio > 0.4) return uiText('有一部分说对了，再对照目标句子多练习几遍吧。', 'Part of it is right. Compare with the model and try a few more times.');
+  return uiText('和目标句子差别较大，可以先点击句子听发音，再跟读练习。', 'This differs from the target. Listen to the model first, then shadow it.');
 }
 
 // ---------- 演示场景（未配置 API Key 时体验用） ----------
