@@ -41,6 +41,10 @@
   .ratebtn{ transition:transform .12s,box-shadow .12s; }
   .ratebtn:hover{ transform:translateY(-2px); box-shadow:var(--shadow-sm); }
   .segdir{ transition:all .18s; }
+  #account-pill{display:flex;align-items:center;gap:8px;min-height:34px;padding:0 12px;border:1px solid var(--color-divider);border-radius:999px;background:var(--color-surface);font-size:12px;font-weight:650;color:var(--color-text);white-space:nowrap}
+  #account-pill a{color:inherit;text-decoration:none}
+  #account-pill .account-dot{width:8px;height:8px;border-radius:50%;background:var(--color-accent-2)}
+  #account-pill[data-auth="true"] .account-dot{background:var(--color-accent)}
   .reading-token{border:0;background:transparent;color:inherit;border-radius:7px;padding:1px 2px;cursor:pointer;font:inherit;font-size:18px;line-height:1.9}
   .reading-token:hover,.reading-token[data-selected="true"]{background:var(--color-accent-200);color:var(--color-accent-900)}
   .reading-token[data-word="false"]{cursor:default;padding-inline:0}
@@ -121,6 +125,7 @@
     <div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:16px 40px;background:color-mix(in srgb,var(--color-bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--color-divider)">
       <div style="font-family:var(--font-heading);font-size:15px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ crumb }}</div>
       <div style="flex:1"></div>
+      <div id="account-pill" aria-live="polite"><span class="account-dot"></span><span>检查登录状态…</span></div>
       <button onClick="{{ toggleFuri }}" class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
         振り仮名 {{ furiLabel }}

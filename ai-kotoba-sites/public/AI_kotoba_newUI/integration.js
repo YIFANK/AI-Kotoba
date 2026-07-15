@@ -13,6 +13,36 @@ let speechRequestId = 0;
 let elevenLabsUnavailable = false;
 const speechAudioCache = new Map();
 
+async function updateAccountPill() {
+  const pill = document.getElementById('account-pill');
+  if (!pill) return;
+  try {
+    const response = await fetch('/api/account', { cache: 'no-store' });
+    const account = await response.json();
+    pill.replaceChildren();
+    const dot = document.createElement('span');
+    dot.className = 'account-dot';
+    pill.append(dot);
+    pill.dataset.auth = account.authenticated ? 'true' : 'false';
+    if (account.authenticated) {
+      const name = document.createElement('span');
+      name.textContent = `${account.displayName || '已登录'} · 云同步`;
+      const link = document.createElement('a');
+      link.href = account.signoutUrl || '/signout-with-chatgpt';
+      link.textContent = '退出';
+      link.style.opacity = '.58';
+      pill.append(name, link);
+    } else {
+      const link = document.createElement('a');
+      link.href = account.signinUrl || '/signin-with-chatgpt';
+      link.textContent = '用 ChatGPT 登录 · 开启 AI 与云同步';
+      pill.append(link);
+    }
+  } catch {
+    pill.innerHTML = '<span class="account-dot"></span><span>游客演示模式</span>';
+  }
+}
+
 function cleanSpeechText(text) {
   return String(text || '').replace(/\[[^\]\n]+\]/g, '').trim();
 }
@@ -140,6 +170,7 @@ function snapshot() {
 
 async function init() {
   if (!initialized) {
+    await updateAccountPill();
     await db.initSync();
     await db.loadSeeds();
     initialized = true;

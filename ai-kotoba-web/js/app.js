@@ -209,6 +209,14 @@ function renderScenarioDetail(sc, container, opts = {}) {
           </div>
         </div>
         <div class="scenario-actions">
+          <label class="btn" style="display:flex;align-items:center;gap:6px">语速
+            <select id="tts-rate" aria-label="会话朗读语速" style="border:0;background:transparent;font:inherit;color:inherit">
+              <option value="0.6" ${Number(db.getSettings().ttsRate) === 0.6 ? 'selected' : ''}>0.6× 很慢</option>
+              <option value="0.75" ${Number(db.getSettings().ttsRate) === 0.75 ? 'selected' : ''}>0.75× 慢速</option>
+              <option value="0.9" ${Number(db.getSettings().ttsRate) === 0.9 ? 'selected' : ''}>0.9×</option>
+              <option value="1" ${Number(db.getSettings().ttsRate) === 1 ? 'selected' : ''}>1.0× 原速</option>
+            </select>
+          </label>
           <button class="icon-btn ${sc.favorite ? 'starred' : ''}" id="fav-btn" title="收藏">${ICONS.star}</button>
           ${furiganaBtnHTML()}
           <button class="btn primary" id="interactive-btn">🎭 互动模式</button>
@@ -264,6 +272,12 @@ function renderScenarioDetail(sc, container, opts = {}) {
   container.querySelector('#furigana-btn')?.addEventListener('click', () => {
     toggleFurigana();
     renderScenarioDetail(sc, container, opts);
+  });
+
+  container.querySelector('#tts-rate')?.addEventListener('change', (event) => {
+    stopSpeaking();
+    db.saveSettings(Object.assign(db.getSettings(), { ttsRate: Number(event.target.value) || 0.75 }));
+    container.querySelectorAll('.line').forEach(line => line.classList.remove('playing'));
   });
 
   container.querySelector('#fav-btn').addEventListener('click', (e) => {

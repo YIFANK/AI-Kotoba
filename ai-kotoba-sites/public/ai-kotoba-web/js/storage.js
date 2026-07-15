@@ -89,10 +89,11 @@ export async function initSync() {
 export function getSettings() {
   const s = Object.assign(
     {
-      provider: 'claude', claudeKey: '', openaiKey: '',
+      // 公网版的模型密钥只存在服务端；浏览器统一走 /api/ai。
+      provider: 'local', claudeKey: '', openaiKey: '',
       claudeModel: 'claude-sonnet-5', openaiModel: 'gpt-4o',
       openaiFastModel: 'gpt-5.6-luna',
-      localEngine: 'claude',
+      localEngine: 'openai',
       ttsProvider: 'system', elevenKey: '',
       ttsRate: 0.75,
       // 角色 A / B 双音色（默认 Sarah 女声 / George 男声，多语模型下日语自然）
