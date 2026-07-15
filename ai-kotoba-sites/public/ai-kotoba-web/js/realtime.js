@@ -2,6 +2,10 @@
 // 优先通过本地 server.py 的统一接口建立会话；纯静态托管时保留 BYOK 直连兼容。
 const REALTIME_MODEL = 'gpt-realtime-2.1';
 const ALLOWED_VOICES = new Set(['marin', 'cedar']);
+const REALTIME_TRUNCATION = {
+  type: 'retention_ratio',
+  retention_ratio: 0.8,
+};
 const TUTOR_TOOLS = [
   {
     type: 'function',
@@ -67,7 +71,9 @@ export async function startRealtimeSession({
     pc.close();
     throw new Error('无法访问麦克风，请在浏览器中允许麦克风权限');
   }
-  pc.addTrack(stream.getAudioTracks()[0], stream);
+  const audioTrack = stream.getAudioTracks()[0];
+  audioTrack.enabled = false;
+  pc.addTrack(audioTrack, stream);
 
   const sessionConfig = {
     type: 'realtime',
@@ -77,15 +83,21 @@ export async function startRealtimeSession({
     audio: {
       input: {
         transcription,
-        turn_detection: { type: 'semantic_vad' },
+        turn_detection: null,
       },
       output: { voice: selectedVoice },
     },
+    truncation: REALTIME_TRUNCATION,
     tools: TUTOR_TOOLS,
     tool_choice: 'auto',
   };
 
   let lessonStarted = false;
+  let responseActive = false;
+  let talking = false;
+  let talkCycle = 0;
+  let talkStartedAt = 0;
+  let commitTimer = null;
   const dc = pc.createDataChannel('oai-events');
   dc.addEventListener('open', () => {
     dc.send(JSON.stringify({ type: 'session.update', session: sessionConfig }));
@@ -100,9 +112,7 @@ export async function startRealtimeSession({
           lessonStarted = true;
           dc.send(JSON.stringify({
             type: 'response.create',
-            response: {
-              instructions: 'レッスンを始めてください。短く挨拶し、今日のテーマに合う最初の質問を一つだけしてください。',
-            },
+            response: {},
           }));
         }
         break;
@@ -113,10 +123,12 @@ export async function startRealtimeSession({
         onStatus?.('thinking');
         break;
       case 'response.created':
+        responseActive = true;
         onStatus?.('speaking');
         break;
       case 'response.done':
         {
+          responseActive = false;
           const calls = (ev.response?.output || []).filter(item => item.type === 'function_call');
           if (calls.length) {
             onStatus?.('thinking');
@@ -127,6 +139,7 @@ export async function startRealtimeSession({
         }
         break;
       case 'response.cancelled':
+        responseActive = false;
         onStatus?.('idle');
         break;
       case 'conversation.item.input_audio_transcription.completed':
@@ -179,7 +192,7 @@ export async function startRealtimeSession({
     if (!stopped && dc.readyState === 'open') {
       dc.send(JSON.stringify({
         type: 'response.create',
-        response: { instructions: 'ツールの実行結果を踏まえ、保存できたかどうかを日本語で一文だけ自然に伝えてから会話を続けてください。' },
+        response: {},
       }));
     }
   }
@@ -205,8 +218,54 @@ export async function startRealtimeSession({
     return muted;
   }
 
+  function sendEvent(payload) {
+    if (stopped || dc.readyState !== 'open') return false;
+    dc.send(JSON.stringify(payload));
+    return true;
+  }
+
+  function startTalking() {
+    if (stopped || dc.readyState !== 'open' || talking) return false;
+    talkCycle += 1;
+    if (commitTimer) clearTimeout(commitTimer);
+    commitTimer = null;
+    talking = true;
+    talkStartedAt = performance.now();
+    sendEvent({ type: 'input_audio_buffer.clear' });
+    if (responseActive) sendEvent({ type: 'response.cancel' });
+    sendEvent({ type: 'output_audio_buffer.clear' });
+    setMuted(false);
+    onStatus?.('listening');
+    return true;
+  }
+
+  function stopTalking() {
+    if (stopped || !talking) return false;
+    talking = false;
+    setMuted(true);
+    const cycle = talkCycle;
+    const duration = performance.now() - talkStartedAt;
+    if (duration < 220) {
+      sendEvent({ type: 'input_audio_buffer.clear' });
+      onStatus?.('idle');
+      return false;
+    }
+    onStatus?.('thinking');
+    commitTimer = setTimeout(() => {
+      commitTimer = null;
+      if (stopped || talking || cycle !== talkCycle) return;
+      sendEvent({ type: 'input_audio_buffer.commit' });
+      sendEvent({ type: 'session.update', session: { instructions } });
+      sendEvent({ type: 'response.create', response: {} });
+    }, 90);
+    return true;
+  }
+
   function stop() {
     stopped = true;
+    if (commitTimer) clearTimeout(commitTimer);
+    commitTimer = null;
+    setMuted(true);
     try { dc.close(); } catch { /* noop */ }
     try { pc.close(); } catch { /* noop */ }
     stream?.getTracks().forEach(track => track.stop());
@@ -215,7 +274,7 @@ export async function startRealtimeSession({
     audioEl.remove();
   }
 
-  return { stop, setMuted };
+  return { stop, setMuted, startTalking, stopTalking, isTalking: () => talking };
 }
 
 async function createRealtimeCall({ sdp, apiKey, instructions, voice, inputLanguage }) {

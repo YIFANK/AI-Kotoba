@@ -677,9 +677,13 @@ Focus on audible intelligibility, long vowels, geminate consonants, moraic nasal
                 "audio": {
                     "input": {
                         "transcription": transcription,
-                        "turn_detection": {"type": "semantic_vad"},
+                        "turn_detection": None,
                     },
                     "output": {"voice": voice},
+                },
+                "truncation": {
+                    "type": "retention_ratio",
+                    "retention_ratio": 0.8,
                 },
             }
 

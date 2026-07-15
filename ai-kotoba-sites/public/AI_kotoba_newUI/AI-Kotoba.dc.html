@@ -63,6 +63,13 @@
   .word-float{position:fixed;z-index:30;width:min(330px,calc(100vw - 24px));padding:16px 17px;gap:11px;border:1px solid var(--color-divider);background:var(--color-surface);animation:pop .16s ease both}
   .word-float-close{width:30px;height:30px;border:0;border-radius:10px;background:transparent;color:color-mix(in srgb,var(--color-text) 55%,transparent);cursor:pointer;font-size:20px;line-height:1}
   .word-float-close:hover{background:var(--color-neutral-200);color:var(--color-text)}
+  .tutor-talk{min-width:168px;padding:14px 24px;border:0;border-radius:999px;background:var(--color-accent);color:var(--color-bg);font:750 15px var(--font-body);cursor:grab;touch-action:none;user-select:none;box-shadow:var(--shadow-sm);transition:transform .12s,box-shadow .12s,background .12s}
+  .tutor-talk:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+  .tutor-talk[data-talking="true"]{transform:scale(.97);background:var(--color-accent-2);cursor:grabbing;box-shadow:0 0 0 7px color-mix(in srgb,var(--color-accent-2) 18%,transparent)}
+  .tutor-history summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;font-weight:700}
+  .tutor-history summary::-webkit-details-marker{display:none}
+  .tutor-history summary::after{content:'⌄';margin-left:auto;color:color-mix(in srgb,var(--color-text) 45%,transparent)}
+  .tutor-history[open] summary::after{transform:rotate(180deg)}
 </style>
 </helmet>
 
@@ -430,7 +437,7 @@
       <sc-if value="{{ nav.tutor }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:760px">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px"><h1 style="font-size:34px;margin:0">AI 语音 Tutor</h1><span class="tag tag-accent-2" style="align-self:center">GPT Realtime</span></div>
-          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 24px">原生语音到语音的日语口语课，实时纠错、口试训练、课后复盘。</p>
+          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 24px">按住说话，松开发送；结束后自动保存完整对话记录。</p>
           <div class="card elev-sm" style="align-items:center;text-align:center;padding:40px 32px;background:var(--color-accent-100)">
             <div style="position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
               <span style="position:absolute;inset:0;border-radius:50%;background:var(--color-accent);opacity:.16;animation:pop 1.6s ease-in-out infinite alternate"></span>
@@ -448,7 +455,12 @@
               </select>
               <span style="max-width:320px;text-align:left;font-size:11.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ tutor.styleHelp }}</span>
             </div>
-            <button class="btn btn-primary" onClick="{{ tutor.onToggle }}" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px">{{ tutor.buttonLabel }}</button>
+            <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-primary" onClick="{{ tutor.onToggle }}" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px">{{ tutor.buttonLabel }}</button>
+              <sc-if value="{{ tutor.active }}" hint-placeholder-val="{{ false }}">
+                <button class="tutor-talk" data-talking="{{ tutor.talking }}" aria-label="按住说话，松开发送" onPointerDown="{{ tutor.onTalkStart }}" onPointerUp="{{ tutor.onTalkEnd }}" onPointerCancel="{{ tutor.onTalkEnd }}" onKeyDown="{{ tutor.onTalkStart }}" onKeyUp="{{ tutor.onTalkEnd }}">{{ tutor.talkLabel }}</button>
+              </sc-if>
+            </div>
             <div style="font-size:12.5px;color:var(--color-accent-800);margin-top:10px">{{ tutor.statusLabel }}</div>
           </div>
           <sc-if value="{{ tutor.hasMessages }}" hint-placeholder-val="{{ false }}">
@@ -458,8 +470,25 @@
               </sc-for>
             </div>
           </sc-if>
+          <sc-if value="{{ tutor.hasHistory }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:22px">
+              <div style="font-family:var(--font-heading);font-size:18px;margin-bottom:10px">最近通话</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ tutor.history }}" as="h" hint-placeholder-count="3">
+                  <details class="card elev-sm tutor-history" style="padding:15px 17px;gap:11px">
+                    <summary><span>{{ h.scene }}</span><span class="tag">{{ h.level }}</span><span style="font-size:11px;font-weight:500;color:color-mix(in srgb,var(--color-text) 48%,transparent)">{{ h.meta }}</span></summary>
+                    <div style="display:flex;flex-direction:column;gap:7px;padding-top:11px;border-top:1px solid var(--color-divider)">
+                      <sc-for list="{{ h.messages }}" as="m" hint-placeholder-count="4">
+                        <div style="font-size:13px;line-height:1.55"><b style="color:var(--color-accent)">{{ m.who }}</b> <span class="jp">{{ m.text }}</span></div>
+                      </sc-for>
+                    </div>
+                  </details>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px">
-            <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">自然会话</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">像和朋友聊天一样练习，Tutor 温和引导话题。</p></div>
+            <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">自然会话</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">更像会话伙伴，不会每轮都纠错、提问或要求复述。</p></div>
             <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">即时纠错</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">说错立刻提示，课后自动沉淀为长期复习重点。</p></div>
           </div>
         </div>
@@ -617,10 +646,13 @@ class Component extends DCLogic {
     this.currentArticle = {title:'',localizedTitle:'',level:'N4',paragraphs:[]};
     this.selectedToken = null;
     this._realtime = null;
+    this._tutorTranscript = [];
+    this._tutorMeta = null;
+    this.tutorSessions = [];
     this._streak = null;
     let savedPalette='blue';
     try{ const saved=window.localStorage.getItem('ai-kotoba-palette'); if(['blue','terra','sage'].includes(saved)) savedPalette=saved; }catch(e){}
-    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorActive:false, tutorStatus:'idle', tutorMessages:[] };
+    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorActive:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[] };
   }
 
   changePalette(dir){
@@ -778,6 +810,7 @@ class Component extends DCLogic {
     }
     if(Array.isArray(data.vocab) && data.vocab.length) this.V=data.vocab;
     this.articles=(data.articles||[]).map(a=>window.AIKotoba.prepareArticle(a));
+    this.tutorSessions=Array.isArray(data.tutorSessions)?data.tutorSessions:[];
     this._streak=data.streak||this._streak;
     if(this.currentArticle?.id){
       this.currentArticle=this.articles.find(a=>a.id===this.currentArticle.id)||this.currentArticle;
@@ -883,27 +916,72 @@ class Component extends DCLogic {
 
   async toggleTutor(){
     if(this._realtime){
-      this._realtime.stop(); this._realtime=null;
-      this.setState({tutorActive:false,tutorStatus:'idle'}); return;
+      this.finishTutor(); return;
     }
-    this.setState({tutorStatus:'connecting'});
+    const topic=this.state.sceneInput||'日常会話';
+    this._tutorTranscript=[];
+    this._tutorMeta={scene:topic,level:this.state.sceneLevel,style:this.state.tutorStyle,createdAt:Date.now()};
+    this.setState({tutorStatus:'connecting',tutorMessages:[],tutorTalking:false});
     try{
       this._realtime=await window.AIKotoba.startTutor({
-        topic:this.state.sceneInput||'日常会話',level:this.state.sceneLevel,style:this.state.tutorStyle,
-        onUserText:text=>this.setState(s=>({tutorMessages:[...s.tutorMessages,{who:'你',text}]})),
+        topic,level:this.state.sceneLevel,style:this.state.tutorStyle,
+        onUserText:text=>this.appendTutorMessage('me',text),
         onAIDelta:()=>{},
-        onAIDone:text=>text&&this.setState(s=>({tutorMessages:[...s.tutorMessages,{who:'Tutor',text}]})),
+        onAIDone:text=>this.appendTutorMessage('tutor',text),
         onStatus:status=>this.setState({tutorStatus:status}),
         onError:message=>{ this.setState({tutorStatus:'disconnected'}); console.error(message); },
       });
       this.setState({tutorActive:true,tutorStatus:'idle'});
-    }catch(e){ this._realtime=null; this.setState({tutorActive:false,tutorStatus:'idle'}); window.alert(e.message||'Tutor 连接失败'); }
+    }catch(e){ this._realtime=null; this._tutorMeta=null; this._tutorTranscript=[]; this.setState({tutorActive:false,tutorTalking:false,tutorStatus:'idle'}); window.alert(e.message||'Tutor 连接失败'); }
+  }
+
+  appendTutorMessage(role,text){
+    const value=String(text||'').trim();
+    if(!value) return;
+    const item={role:role==='me'?'me':'tutor',text:value,at:Date.now()};
+    this._tutorTranscript.push(item);
+    this.setState(s=>({tutorMessages:[...s.tutorMessages,{who:item.role==='me'?'你':'Tutor',text:value}]}));
+  }
+
+  finishTutor(){
+    const realtime=this._realtime;
+    if(!realtime) return;
+    realtime.stopTalking?.();
+    realtime.stop();
+    this._realtime=null;
+    const messages=[...this._tutorTranscript];
+    const meta=this._tutorMeta||{};
+    let status='idle';
+    if(messages.length&&window.AIKotoba?.saveTutorSession){
+      const data=window.AIKotoba.saveTutorSession({...meta,endedAt:Date.now(),messages});
+      this.applyData(data);
+      status='saved';
+    }
+    this._tutorTranscript=[];
+    this._tutorMeta=null;
+    this.setState({tutorActive:false,tutorTalking:false,tutorStatus:status});
+  }
+
+  startTutorTalking(event){
+    if(event?.type==='keydown'&&![' ','Enter'].includes(event.key)) return;
+    if(event?.repeat) return;
+    event?.preventDefault?.();
+    if(event?.pointerId!==undefined) event.currentTarget?.setPointerCapture?.(event.pointerId);
+    if(this._realtime?.startTalking?.()) this.setState({tutorTalking:true});
+  }
+
+  stopTutorTalking(event){
+    if(event?.type==='keyup'&&![' ','Enter'].includes(event.key)) return;
+    event?.preventDefault?.();
+    if(event?.pointerId!==undefined&&event.currentTarget?.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if(this._realtime?.stopTalking?.()) this.setState({tutorTalking:false});
+    else this.setState({tutorTalking:false});
   }
 
   renderVals(){
     const v=this.state.view, dir=this.state.dir;
     const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',pron:v==='pron',reading:v==='reading',article:v==='article',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings'};
-    const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); this.setState({view,playing:-1}); };
+    const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); if(view!=='tutor'&&this._realtime) this.finishTutor(); this.setState({view,playing:-1}); };
     const crumbs={home:'今日',practice:'练习',detail:'练习 › 会话详情',tutor:'AI 语音 Tutor',pron:'发音诊断',reading:'阅读文章',article:'阅读文章 › 三行对译',history:'历史',fav:'收藏',vocab:'生词本',cards:'闪卡复习',settings:'设置'};
     const badge=(role)=>role==='a'?{bg:'var(--color-accent-100)',fg:'var(--color-accent-800)'}:{bg:'var(--color-accent-2-100)',fg:'var(--color-accent-2-800)'};
     const active=this.activeScenario||{title:'はじめまして',localizedTitle:'初次见面 · 自我介绍',titleChinese:'初次见面 · 自我介绍',level:'N5',topic:'初次见面的自我介绍',vocabulary:this.V};
@@ -912,7 +990,13 @@ class Component extends DCLogic {
     const actualRecents=recents.length?recents:this.recents.map(r=>({...r,onOpen:()=>this.openScenario(active)}));
     const dueCount=this.V.filter(x=>(x.nextReview||0)<=Date.now()).length;
     const streak=this._streak||{streak:7,week:['日','一','二','三','四','五','六'].map((day,i)=>({day,done:i<=3,date:''}))};
-    const statusLabels={idle:this.state.tutorActive?'轮到你说了':'准备开始',connecting:'正在连接 GPT Realtime…',listening:'正在听你说…',thinking:'Tutor 正在思考…',speaking:'Tutor 正在说话…',disconnected:'连接已断开'};
+    const statusLabels={idle:this.state.tutorActive?'按住“说话”按钮开始':'准备开始',saved:'通话已保存到最近通话',connecting:'正在连接 GPT Realtime…',listening:'正在听你说，松开发送…',thinking:'Tutor 正在思考…',speaking:'Tutor 正在说话；按住说话可打断',disconnected:'连接已断开，结束通话仍会保存已有记录'};
+    const tutorHistory=(this.tutorSessions||[]).slice(0,12).map(session=>{
+      let messages=Array.isArray(session.messages)?session.messages.map(item=>({who:item.role==='me'?'你':'Tutor',text:String(item.text||'')})).filter(item=>item.text):[];
+      if(!messages.length&&session.transcript) messages=String(session.transcript).split('\n').map(line=>{const mine=/^(Learner|我|你)[:：]/.test(line);return{who:mine?'你':'Tutor',text:line.replace(/^[^:：]+[:：]\s*/,'')}}).filter(item=>item.text);
+      const mins=Math.max(1,Math.round((Number(session.durationMs)||0)/60000));
+      return{scene:session.scene||'日常会話',level:session.level||'N4',meta:`${new Date(session.createdAt||Date.now()).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · ${session.userTurns||messages.filter(item=>item.who==='你').length} 轮 · ${mins} 分钟`,messages};
+    });
     const selected=this.selectedToken;
     const grammarParts=selected?[selected.dictionaryForm&&selected.dictionaryForm!==selected.surface?'词典形 '+selected.dictionaryForm:'',selected.pos,(selected.partOfSpeech||[])[5]].filter(x=>x&&x!=='*'):[];
     const current=this.currentArticle||{title:'',localizedTitle:'',level:'N4',paragraphs:[]};
@@ -939,7 +1023,7 @@ class Component extends DCLogic {
       },
       vocabList:this.V.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?'今天到期':'稍后复习',dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
       flash:(()=>{const cards=this.V.slice(0,Math.max(1,Math.min(20,this.V.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:'暂无词汇',reading:'',meaning:'请先加入生词',example:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
-      tutor:{onToggle:()=>this.toggleTutor(),active:this.state.tutorActive,style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?'日语先行；遇到新词、纠错或卡住时，才用你的解释语言补一句。':this.state.tutorStyle==='conversation'?'尽量保持全日语自然会话，只温和纠正关键问题。':this.state.tutorStyle==='correction'?'每轮回应内容后，只纠正一个最值得改进的表达。':'像日语口试一样逐题练习并简短评价。',buttonLabel:this.state.tutorActive?'结束通话':'开始通话',statusLabel:statusLabels[this.state.tutorStatus]||'',hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages},
+      tutor:{onToggle:()=>this.toggleTutor(),active:this.state.tutorActive,talking:this.state.tutorTalking,onTalkStart:e=>this.startTutorTalking(e),onTalkEnd:e=>this.stopTutorTalking(e),talkLabel:this.state.tutorTalking?'正在说话…松开发送':'按住说话',style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?'默认自然日语；只有你求助、没听懂或用中文回答时，才补一句中文，不强制复述。':this.state.tutorStyle==='conversation'?'尽量保持全日语自然会话，只温和纠正关键问题。':this.state.tutorStyle==='correction'?'回应内容后，每次最多纠正一个最值得改进的表达。':'像日语口试一样逐题练习并简短评价。',buttonLabel:this.state.tutorActive?'结束并保存':'开始通话',statusLabel:statusLabels[this.state.tutorStatus]||'',hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages,hasHistory:tutorHistory.length>0,history:tutorHistory},
       articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))+' 分钟',onOpen:()=>this.openArticle(a)})),
       article:{
         onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?'生成中…':'生成新文章',analysisLabel:this.state.articleAnalyzing?'正在生成逐词语境释义…':(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?'停止':'朗读',onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:event=>this.selectToken(t,event)}))}))},

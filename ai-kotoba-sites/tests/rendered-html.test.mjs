@@ -21,12 +21,13 @@ test("removes a duplicated speaker label from dialogue and furigana", () => {
   assert.equal(stripRepeatedSpeakerPrefix("患者さんは熱がありますか。", "医者"), "患者さんは熱がありますか。");
 });
 
-test("ships the original UI with account and playback-rate controls", async () => {
-  const [html, integration, services, realtime] = await Promise.all([
+test("ships the original UI with account, playback, and push-to-talk controls", async () => {
+  const [html, integration, services, realtime, realtimeRoute] = await Promise.all([
     readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8"),
     readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8"),
     readFile(new URL("../public/ai-kotoba-web/js/services.js", import.meta.url), "utf8"),
     readFile(new URL("../public/ai-kotoba-web/js/realtime.js", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/realtime/session/route.ts", import.meta.url), "utf8"),
   ]);
   assert.match(html, /id="account-pill"/);
   assert.match(html, /会话朗读语速/);
@@ -44,4 +45,20 @@ test("ships the original UI with account and playback-rate controls", async () =
   assert.match(services, /Do not translate every sentence/);
   assert.match(integration, /teachingStyle === 'bilingual' \? 'auto' : 'ja'/);
   assert.match(realtime, /inputLanguage !== 'auto'/);
+  assert.match(html, /aria-label="按住说话，松开发送"/);
+  assert.match(html, /最近通话/);
+  assert.match(html, /结束并保存/);
+  assert.match(integration, /function saveTutorSession/);
+  assert.match(integration, /db\.saveTutorSession/);
+  assert.match(realtime, /turn_detection:\s*null/);
+  assert.match(realtime, /input_audio_buffer\.clear/);
+  assert.match(realtime, /input_audio_buffer\.commit/);
+  assert.match(realtime, /output_audio_buffer\.clear/);
+  assert.match(realtime, /response\.cancel/);
+  assert.match(realtime, /retention_ratio:\s*0\.8/);
+  assert.match(realtime, /session\.update', session: \{ instructions \}/);
+  assert.doesNotMatch(realtime, /response:\s*\{\s*instructions:/);
+  assert.match(realtimeRoute, /turn_detection:\s*null/);
+  assert.match(services, /英語は絶対に使用しない/);
+  assert.doesNotMatch(services, /各ターンは「短い日本語の反応/);
 });

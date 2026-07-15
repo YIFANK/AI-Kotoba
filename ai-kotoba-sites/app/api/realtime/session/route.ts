@@ -38,9 +38,13 @@ export async function POST(request: Request) {
       audio: {
         input: {
           transcription,
-          turn_detection: { type: "semantic_vad" },
+          turn_detection: null,
         },
         output: { voice },
+      },
+      truncation: {
+        type: "retention_ratio",
+        retention_ratio: 0.8,
       },
     };
     const form = new FormData();

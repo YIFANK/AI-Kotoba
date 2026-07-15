@@ -573,6 +573,34 @@ async function createScenario(topic, level, onStatus) {
   return scenario;
 }
 
+function saveTutorSession(input = {}) {
+  const messages = (Array.isArray(input.messages) ? input.messages : [])
+    .map(item => ({
+      role: item.role === 'me' ? 'me' : 'tutor',
+      text: String(item.text || '').trim().slice(0, 4000),
+      at: Number(item.at) || Date.now(),
+    }))
+    .filter(item => item.text)
+    .slice(-200);
+  if (!messages.length) return snapshot();
+  const createdAt = Number(input.createdAt) || messages[0].at || Date.now();
+  const endedAt = Number(input.endedAt) || Date.now();
+  db.saveTutorSession({
+    id: String(input.id || crypto.randomUUID()),
+    scene: String(input.scene || input.topic || '日常会話').trim().slice(0, 80),
+    level: /^N[1-5]$/.test(String(input.level)) ? String(input.level) : 'N4',
+    style: normalizeTutorStyle(input.style),
+    createdAt,
+    endedAt,
+    durationMs: Math.max(0, endedAt - createdAt),
+    userTurns: messages.filter(item => item.role === 'me').length,
+    messages,
+    transcript: messages.map(item => `${item.role === 'me' ? 'Learner' : 'Tutor'}: ${item.text}`).join('\n'),
+  });
+  db.recordActivity();
+  return snapshot();
+}
+
 async function startTutor({ topic = '日常会話', level = 'N4', style, onUserText, onAIDelta, onAIDone, onStatus, onError }) {
   const settings = db.getSettings();
   const teachingStyle = normalizeTutorStyle(style || settings.tutorStyle);
@@ -602,6 +630,7 @@ window.AIKotoba = {
   addVocabulary,
   createArticle,
   createScenario,
+  saveTutorSession,
   startTutor,
   cleanSpeechText,
   speakJapanese,
