@@ -15,10 +15,11 @@ test("keeps anonymous visitors in demo mode", async () => {
 });
 
 test("ships the original UI with account and playback-rate controls", async () => {
-  const [html, integration, services] = await Promise.all([
+  const [html, integration, services, realtime] = await Promise.all([
     readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8"),
     readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8"),
     readFile(new URL("../public/ai-kotoba-web/js/services.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/ai-kotoba-web/js/realtime.js", import.meta.url), "utf8"),
   ]);
   assert.match(html, /id="account-pill"/);
   assert.match(html, /会话朗读语速/);
@@ -28,4 +29,6 @@ test("ships the original UI with account and playback-rate controls", async () =
   assert.match(integration, /setTutorStyle/);
   assert.match(services, /二言語モード/);
   assert.match(services, /Do not translate every sentence/);
+  assert.match(integration, /teachingStyle === 'bilingual' \? 'auto' : 'ja'/);
+  assert.match(realtime, /inputLanguage !== 'auto'/);
 });

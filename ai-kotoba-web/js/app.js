@@ -914,6 +914,7 @@ async function startFreeTalkVoice(scene, level, style = 'conversation', voice = 
       apiKey: db.getSettings().openaiKey,
       instructions: freeTalkInstructions(scene, level, style, learningNotes),
       voice,
+      inputLanguage: style === 'bilingual' ? 'auto' : 'ja',
       onStatus: setStatus,
       onUserText: (text) => {
         ftBubble(ui.chat, 'me', text);

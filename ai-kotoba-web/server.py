@@ -665,6 +665,10 @@ Focus on audible intelligibility, long vowels, geminate consonants, moraic nasal
             if voice not in {"marin", "cedar"}:
                 voice = "marin"
             instructions = str(body.get("instructions") or "")[:12000]
+            input_language = str(body.get("inputLanguage") or "ja").strip().lower()
+            transcription = {"model": "gpt-realtime-whisper", "delay": "low"}
+            if input_language and input_language != "auto":
+                transcription["language"] = input_language
             session = {
                 "type": "realtime",
                 "model": REALTIME_MODEL,
@@ -672,7 +676,7 @@ Focus on audible intelligibility, long vowels, geminate consonants, moraic nasal
                 "instructions": instructions,
                 "audio": {
                     "input": {
-                        "transcription": {"model": "gpt-realtime-whisper", "language": "ja", "delay": "low"},
+                        "transcription": transcription,
                         "turn_detection": {"type": "semantic_vad"},
                     },
                     "output": {"voice": voice},

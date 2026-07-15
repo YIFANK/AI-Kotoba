@@ -40,6 +40,7 @@ export async function startRealtimeSession({
   apiKey,
   instructions,
   voice = 'marin',
+  inputLanguage = 'ja',
   onUserText,
   onAIDelta,
   onAIDone,
@@ -48,6 +49,8 @@ export async function startRealtimeSession({
   onToolCall,
 }) {
   const selectedVoice = ALLOWED_VOICES.has(voice) ? voice : 'marin';
+  const transcription = { model: 'gpt-realtime-whisper', delay: 'low' };
+  if (inputLanguage && inputLanguage !== 'auto') transcription.language = inputLanguage;
   const pc = new RTCPeerConnection();
   const audioEl = document.createElement('audio');
   audioEl.autoplay = true;
@@ -73,7 +76,7 @@ export async function startRealtimeSession({
     instructions,
     audio: {
       input: {
-        transcription: { model: 'gpt-realtime-whisper', language: 'ja', delay: 'low' },
+        transcription,
         turn_detection: { type: 'semantic_vad' },
       },
       output: { voice: selectedVoice },
@@ -189,6 +192,7 @@ export async function startRealtimeSession({
       apiKey: (apiKey || '').trim(),
       instructions,
       voice: selectedVoice,
+      inputLanguage,
     });
     await pc.setRemoteDescription({ type: 'answer', sdp: answerSDP });
   } catch (error) {
@@ -214,14 +218,14 @@ export async function startRealtimeSession({
   return { stop, setMuted };
 }
 
-async function createRealtimeCall({ sdp, apiKey, instructions, voice }) {
+async function createRealtimeCall({ sdp, apiKey, instructions, voice, inputLanguage }) {
   // server.py 会用环境变量 OPENAI_API_KEY；本地个人版也接受浏览器设置中的 Key。
   let local = null;
   try {
     local = await fetch('/api/realtime/session', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ sdp, apiKey, instructions, voice }),
+      body: JSON.stringify({ sdp, apiKey, instructions, voice, inputLanguage }),
     });
   } catch {
     // 普通静态服务器没有桥接端点，继续走下方 BYOK 兼容路径。

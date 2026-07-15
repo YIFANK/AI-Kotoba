@@ -579,6 +579,7 @@ async function startTutor({ topic = '日常会話', level = 'N4', style, onUserT
   return startRealtimeSession({
     apiKey: settings.openaiKey,
     voice: settings.realtimeVoice || 'marin',
+    inputLanguage: teachingStyle === 'bilingual' ? 'auto' : 'ja',
     instructions: freeTalkInstructions(topic, level, teachingStyle, db.getLearningNotes(8)),
     onUserText,
     onAIDelta,

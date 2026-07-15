@@ -19,11 +19,14 @@ export async function POST(request: Request) {
   const apiKey = runtime.OPENAI_API_KEY?.trim();
   if (!apiKey) return json({ error: "服务端尚未配置 OpenAI API Key" }, { status: 503 });
   try {
-    const body = await request.json() as { sdp?: string; voice?: string; instructions?: string };
+    const body = await request.json() as { sdp?: string; voice?: string; instructions?: string; inputLanguage?: string };
     const sdp = String(body.sdp || "");
     if (!sdp.startsWith("v=0")) return json({ error: "无效的 WebRTC SDP" }, { status: 400 });
     const voice = ["marin", "cedar"].includes(String(body.voice)) ? String(body.voice) : "marin";
     const instructions = String(body.instructions || "").slice(0, 12_000);
+    const inputLanguage = String(body.inputLanguage || "ja").trim().toLowerCase();
+    const transcription: Record<string, string> = { model: "gpt-realtime-whisper", delay: "low" };
+    if (inputLanguage && inputLanguage !== "auto") transcription.language = inputLanguage;
     const quota = await consumeDailyQuota(user, "realtime", DAILY_REALTIME_SESSIONS);
     if (!quota.allowed) return quotaExceeded(quota.limit);
     const model = runtime.OPENAI_REALTIME_MODEL || "gpt-realtime-2.1";
@@ -34,7 +37,7 @@ export async function POST(request: Request) {
       instructions,
       audio: {
         input: {
-          transcription: { model: "gpt-realtime-whisper", language: "ja", delay: "low" },
+          transcription,
           turn_detection: { type: "semantic_vad" },
         },
         output: { voice },
