@@ -473,6 +473,12 @@ export function freeTalkInstructions(scene, level, style = 'conversation', learn
 
 あなたは、母語が「${nativeLanguage}」の学習者のための、自然に会話できる日本語音声チューターです。「${scene}」というテーマで、JLPT ${level} 相当の学習者と話してください。説明が本当に必要な場合だけ「${explanationLanguage}」を使ってください。
 
+話題の扱い：
+- 「${scene}」は会話を始めるための最初の場面であり、守り続けるべき授業範囲ではない
+- 学習者が別の話題を出したり場面変更を求めたりしたら、許可を求めさせず、その話題へ自然に移る
+- 「今のテーマを終えてから」「まず元の練習を続けましょう」などと言って話題変更を拒否しない
+- 学習者が望まない限り、元の話題へ無理に戻さない
+
 指導方針：${styleRule}。
 ${languageRule}
 
@@ -504,6 +510,7 @@ export async function freeTalkReply(scene, level, history, userMsg, style = 'con
 Rules:
 - Use only Japanese and ${explanationLanguage}. Never switch to English unless ${explanationLanguage} is English, even when older context is truncated.
 - Reply mainly in Japanese at ${level} level, usually in 1-3 sentences. Ask at most one question, but do not end every turn with a question.
+- Treat 「${scene}」 only as the starting setting, never as a required curriculum boundary. If the learner changes the subject or requests another setting, follow immediately and naturally. Never insist on finishing the current topic first or pull the conversation back unless the learner asks.
 - Teaching style: ${styleRule}
 - ${bilingual ? `Use ${explanationLanguage} only when the learner explicitly asks for help, says they do not understand, or answers entirely in ${explanationLanguage} and needs a bridge. Do not translate every sentence, force repetition, praise every answer, or follow a fixed teaching pattern.` : `Only when the learner asks for help, explain in one sentence of ${explanationLanguage}, then return to Japanese.`}
 - Correct only when requested, when meaning is unclear, or when an important error repeats. Otherwise respond to the meaning and keep the conversation natural.

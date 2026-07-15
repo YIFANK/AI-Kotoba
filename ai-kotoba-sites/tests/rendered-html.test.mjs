@@ -60,5 +60,8 @@ test("ships the original UI with account, playback, and push-to-talk controls", 
   assert.doesNotMatch(realtime, /response:\s*\{\s*instructions:/);
   assert.match(realtimeRoute, /turn_detection:\s*null/);
   assert.match(services, /英語は絶対に使用しない/);
+  assert.match(services, /守り続けるべき授業範囲ではない/);
+  assert.match(services, /話題変更を拒否しない/);
+  assert.match(services, /never as a required curriculum boundary/);
   assert.doesNotMatch(services, /各ターンは「短い日本語の反応/);
 });
