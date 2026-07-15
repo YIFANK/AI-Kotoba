@@ -81,6 +81,7 @@ async function callOpenAI(prompt, settings, opts = {}) {
         ? (settings.openaiFastModel || 'gpt-5.6-luna')
         : (settings.openaiModel || 'gpt-4o'),
       messages: [{ role: 'user', content: prompt }],
+      ...(opts.schema ? { response_format: { type: 'json_object' } } : {}),
     }),
   });
   if (!res.ok) {
@@ -106,7 +107,7 @@ async function callLocal(prompt, settings, opts = {}) {
     res = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ prompt, engine, model }),
+      body: JSON.stringify({ prompt, engine, model, schema: opts.schema || '' }),
     });
   } catch {
     throw new Error('无法连接本地桥接服务，请用 python3 server.py 启动本站（而非普通静态服务器）');
@@ -132,20 +133,20 @@ async function callAI(prompt, opts = {}) {
   return settings.provider === 'openai' ? callOpenAI(prompt, settings, opts) : callClaude(prompt, settings);
 }
 
-async function callFastAI(prompt) {
+async function callFastAI(prompt, opts = {}) {
   const settings = getSettings();
   if (settings.provider === 'openai' && settings.openaiKey) {
-    return callOpenAI(prompt, settings, { fast: true });
+    return callOpenAI(prompt, settings, { ...opts, fast: true });
   }
   try {
     // 优先由本地 server 使用 .env 中的 Key，避免标准 API Key 暴露给浏览器。
-    return await callLocal(prompt, settings, { engine: 'openai', fast: true });
+    return await callLocal(prompt, settings, { ...opts, engine: 'openai', fast: true });
   } catch (serverOpenAIError) {
     try {
-      return await callAI(prompt, { fast: true });
+      return await callAI(prompt, { ...opts, fast: true });
     } catch (configuredProviderError) {
       if (settings.provider !== 'local' || settings.localEngine === 'codex') throw configuredProviderError;
-      return callLocal(prompt, { ...settings, localEngine: 'codex', openaiModel: '' });
+      return callLocal(prompt, { ...settings, localEngine: 'codex', openaiModel: '' }, opts);
     }
   }
 }
@@ -193,10 +194,50 @@ Keep each array to at most 3 items. If there is too little learner Japanese, say
 
 Transcript:
 ${transcript}`;
-  return extractJSON(await callFastAI(prompt));
+  return extractJSON(await callFastAI(prompt, { schema: 'tutor_review' }));
 }
 
 // ---------- 逐语法点课程（开放资料为骨架，按学习者语言生成原创讲解） ----------
+function unwrapGrammarLesson(value) {
+  if (!value || typeof value !== 'object') return {};
+  return value.lesson || value.grammarLesson || value.grammar_lesson || value.data || value;
+}
+
+export function normalizeGrammarLesson(value) {
+  const raw = unwrapGrammarLesson(value);
+  const clean = input => String(input || '').trim();
+  const examples = (Array.isArray(raw.examples) ? raw.examples : [])
+    .map(item => ({
+      japanese: clean(item?.japanese || item?.jp),
+      translation: clean(item?.translation || item?.meaning || item?.chinese),
+      note: clean(item?.note || item?.explanation),
+    }))
+    .filter(item => item.japanese && item.translation)
+    .slice(0, 3);
+  const quiz = raw.quiz && typeof raw.quiz === 'object' ? raw.quiz : {};
+  return {
+    title: clean(raw.title || raw.pattern),
+    meaning: clean(raw.meaning || raw.shortExplanation || raw.short_explanation),
+    explanation: clean(raw.explanation || raw.longExplanation || raw.long_explanation),
+    formation: clean(raw.formation || raw.structure),
+    pitfall: clean(raw.pitfall || raw.commonMistake || raw.common_mistake),
+    examples,
+    quiz: {
+      prompt: clean(quiz.prompt || quiz.question),
+      answer: clean(quiz.answer),
+      explanation: clean(quiz.explanation || quiz.note),
+    },
+  };
+}
+
+export function isCompleteGrammarLesson(lesson) {
+  const value = normalizeGrammarLesson(lesson);
+  return Boolean(
+    value.title && value.meaning && value.explanation && value.formation && value.pitfall &&
+    value.examples.length >= 2 && value.quiz.prompt && value.quiz.answer && value.quiz.explanation
+  );
+}
+
 export async function generateGrammarLesson(point) {
   const { nativeLanguage, explanationLanguage } = learnerProfile();
   const source = {
@@ -224,7 +265,9 @@ Provide 3 examples. Keep the level appropriate for ${point?.level || 'N4'}. Veri
 
 Reference data:
 ${JSON.stringify(source)}`;
-  return extractJSON(await callFastAI(prompt));
+  const lesson = normalizeGrammarLesson(extractJSON(await callFastAI(prompt, { schema: 'grammar_lesson' })));
+  if (!isCompleteGrammarLesson(lesson)) throw new Error('AI 返回的语法课程字段不完整，请重试');
+  return lesson;
 }
 
 // ---------- 提示词（对应 Constants.scenarioPromptJapanese / scenarioPromptTranslation） ----------

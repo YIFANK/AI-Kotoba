@@ -5,6 +5,7 @@ import {
   generateScenario,
   freeTalkInstructions,
   glossJapaneseTokens,
+  isCompleteGrammarLesson,
   reviewTutorConversation,
 } from '../ai-kotoba-web/js/services.js';
 import { startRealtimeSession } from '../ai-kotoba-web/js/realtime.js';
@@ -684,7 +685,7 @@ async function openGrammarLesson(input) {
   if (!point) throw new Error('找不到这个语法点');
   const language = preferredExplanationLanguage();
   const existing = db.getGrammarProgress().find(item => item.id === id);
-  if (existing?.lesson && existing.lessonLanguage === language) {
+  if (existing?.lesson && existing.lessonLanguage === language && isCompleteGrammarLesson(existing.lesson)) {
     if (existing.status === 'unstarted') db.upsertGrammarProgress({ ...existing, status: 'studying' });
     return { point, lesson: existing.lesson, data: snapshot(), cached: true };
   }
@@ -695,18 +696,32 @@ async function openGrammarLesson(input) {
     status: existing?.status === 'mastered' ? 'mastered' : 'studying',
     lessonStatus: 'generating',
   });
-  const lesson = await generateGrammarLesson(point);
-  db.upsertGrammarProgress({
-    id,
-    level: point.level,
-    title: point.title,
-    status: existing?.status === 'mastered' ? 'mastered' : 'studying',
-    lesson,
-    lessonLanguage: language,
-    lessonStatus: 'ready',
-  });
-  db.recordActivity();
-  return { point, lesson, data: snapshot(), cached: false };
+  try {
+    const lesson = await generateGrammarLesson(point);
+    db.upsertGrammarProgress({
+      id,
+      level: point.level,
+      title: point.title,
+      status: existing?.status === 'mastered' ? 'mastered' : 'studying',
+      lesson,
+      lessonLanguage: language,
+      lessonStatus: 'ready',
+      lessonError: '',
+    });
+    db.recordActivity();
+    return { point, lesson, data: snapshot(), cached: false };
+  } catch (error) {
+    db.upsertGrammarProgress({
+      id,
+      level: point.level,
+      title: point.title,
+      status: existing?.status === 'mastered' ? 'mastered' : 'studying',
+      lesson: null,
+      lessonStatus: 'error',
+      lessonError: String(error?.message || '语法课程生成失败').slice(0, 240),
+    });
+    throw error;
+  }
 }
 
 function setGrammarStatus(id, status) {

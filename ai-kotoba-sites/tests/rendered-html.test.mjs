@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { stripRepeatedSpeakerPrefix } from "../public/ai-kotoba-web/js/services.js";
+import {
+  isCompleteGrammarLesson,
+  normalizeGrammarLesson,
+  stripRepeatedSpeakerPrefix,
+} from "../public/ai-kotoba-web/js/services.js";
 
 test("redirects the public root to the existing AI-Kotoba HTML UI", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
@@ -84,4 +88,34 @@ test("includes licensed N5-N3 grammar catalogs", async () => {
     assert.equal(typeof rows[0].title, "string");
     assert.ok(Array.isArray(rows[0].examples));
   }
+});
+
+test("rejects empty grammar lessons and unwraps valid structured output", () => {
+  assert.equal(isCompleteGrammarLesson({ title: "〜たい" }), false);
+  const lesson = normalizeGrammarLesson({ lesson: {
+    title: "〜たい",
+    meaning: "想做某事",
+    explanation: "接在动词ます形去掉ます之后。用于表达说话人自己的愿望。",
+    formation: "动词ます形（去掉ます）＋たい",
+    pitfall: "描述第三人称愿望时通常不能直接使用〜たい。",
+    examples: [
+      { japanese: "日本へ行きたいです。", translation: "我想去日本。", note: "表达自己的愿望。" },
+      { japanese: "寿司を食べたいです。", translation: "我想吃寿司。", note: "宾语常用を。" },
+      { japanese: "今日は早く寝たいです。", translation: "今天想早点睡。", note: "日常表达。" },
+    ],
+    quiz: { prompt: "日本語を（　）たいです。", answer: "勉強し", explanation: "勉強します去掉ます。" },
+  }});
+  assert.equal(lesson.title, "〜たい");
+  assert.equal(lesson.examples.length, 3);
+  assert.equal(isCompleteGrammarLesson(lesson), true);
+});
+
+test("requests strict structured output for grammar lessons", async () => {
+  const route = await readFile(new URL("../app/api/ai/route.ts", import.meta.url), "utf8");
+  const integration = await readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8");
+  assert.match(route, /type: "json_schema"/);
+  assert.match(route, /strict: true/);
+  assert.match(route, /grammar_lesson/);
+  assert.match(integration, /isCompleteGrammarLesson\(existing\.lesson\)/);
+  assert.match(integration, /lesson: null/);
 });

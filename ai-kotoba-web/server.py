@@ -231,8 +231,9 @@ class Handler(SimpleHTTPRequestHandler):
             prompt = body["prompt"]
             engine = body.get("engine", "claude")
             model = (body.get("model") or "").strip()
+            schema = (body.get("schema") or "").strip()
             if engine == "openai":
-                text = self.call_openai_text(prompt, model)
+                text = self.call_openai_text(prompt, model, json_mode=bool(schema))
             else:
                 text = run_codex(prompt, model) if engine == "codex" else run_claude(prompt, model)
             if not text:
@@ -431,7 +432,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(audio)
 
-    def call_openai_text(self, prompt, model=None):
+    def call_openai_text(self, prompt, model=None, json_mode=False):
         """Run short, high-volume text tasks without exposing the server API key."""
         api_key = os.environ.get("OPENAI_API_KEY", "").strip()
         if not api_key:
@@ -442,6 +443,8 @@ class Handler(SimpleHTTPRequestHandler):
             "store": False,
             "messages": [{"role": "user", "content": prompt}],
         }
+        if json_mode:
+            request_body["response_format"] = {"type": "json_object"}
         safety_id = hashlib.sha256(f"ai-kotoba:{self.client_address[0]}".encode()).hexdigest()
         request = urllib.request.Request(
             "https://api.openai.com/v1/chat/completions",
