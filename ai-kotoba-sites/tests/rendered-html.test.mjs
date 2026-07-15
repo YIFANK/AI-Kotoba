@@ -26,6 +26,9 @@ test("ships the original UI with account and playback-rate controls", async () =
   assert.match(html, /data-dir="blue"/);
   assert.match(html, />蓝白<\/button>/);
   assert.match(html, /ai-kotoba-palette/);
+  assert.match(html, /class="word-float card elev-lg"/);
+  assert.match(html, /tokenPopoverPosition/);
+  assert.match(html, /aria-label="关闭生词窗口"/);
   assert.match(integration, /\/api\/account/);
   assert.match(integration, /playbackRate/);
   assert.match(html, /双语入门（推荐 N5–N4）/);

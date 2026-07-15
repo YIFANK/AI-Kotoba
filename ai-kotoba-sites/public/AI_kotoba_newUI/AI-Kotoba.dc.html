@@ -60,6 +60,9 @@
   .gloss-line{display:flex;flex-wrap:wrap;gap:6px 8px;padding-top:2px}
   .gloss-chip{display:inline-flex;align-items:baseline;gap:5px;padding:3px 8px;border-radius:9px;background:var(--color-accent-100);font-size:12px;line-height:1.45}
   .gloss-chip .jp{font-weight:700;color:var(--color-accent-900)}
+  .word-float{position:fixed;z-index:30;width:min(330px,calc(100vw - 24px));padding:16px 17px;gap:11px;border:1px solid var(--color-divider);background:var(--color-surface);animation:pop .16s ease both}
+  .word-float-close{width:30px;height:30px;border:0;border-radius:10px;background:transparent;color:color-mix(in srgb,var(--color-text) 55%,transparent);cursor:pointer;font-size:20px;line-height:1}
+  .word-float-close:hover{background:var(--color-neutral-200);color:var(--color-text)}
 </style>
 </helmet>
 
@@ -516,10 +519,6 @@
           </div>
           <div class="card" style="padding:15px 18px;background:var(--color-accent-100);margin-bottom:14px;flex-direction:row;align-items:center;gap:12px">
             <div style="flex:1"><b>三行对译学习</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">原文注音 · 逐词语境释义 · 自然对译。点击原文中的词可加入生词本。</div><div style="font-size:11px;color:var(--color-accent-800);margin-top:3px">{{ article.analysisLabel }}</div></div>
-            <sc-if value="{{ article.selection.visible }}" hint-placeholder-val="{{ false }}">
-              <div style="text-align:right"><span class="jp" style="font-size:18px;font-weight:700">{{ article.selection.surface }}</span><span class="jp" style="font-size:12px;color:var(--color-accent);margin-left:8px">{{ article.selection.reading }}</span><div style="font-size:12px">{{ article.selection.grammar }}</div><div style="font-size:12px">{{ article.selection.meaning }}</div></div>
-              <button class="btn btn-primary" onClick="{{ article.selection.onAdd }}" disabled="{{ article.selection.disabled }}" style="font-family:var(--font-body);font-weight:700;flex:none">{{ article.selection.addLabel }}</button>
-            </sc-if>
           </div>
           <div style="display:flex;flex-direction:column;gap:13px">
             <sc-for list="{{ article.current.paragraphs }}" as="p" hint-placeholder-count="4">
@@ -536,6 +535,16 @@
               </div>
             </sc-for>
           </div>
+          <sc-if value="{{ article.selection.visible }}" hint-placeholder-val="{{ false }}">
+            <div class="word-float card elev-lg" role="dialog" aria-label="加入生词本" style="left:{{ article.selection.left }};top:{{ article.selection.top }}">
+              <div style="display:flex;align-items:flex-start;gap:10px">
+                <div style="flex:1;min-width:0"><span class="jp" style="font-size:22px;font-weight:750">{{ article.selection.surface }}</span><span class="jp" style="font-size:13px;color:var(--color-accent);margin-left:9px">{{ article.selection.reading }}</span><div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent);margin-top:2px">{{ article.selection.grammar }}</div></div>
+                <button class="word-float-close" onClick="{{ article.selection.onClose }}" aria-label="关闭生词窗口">×</button>
+              </div>
+              <div style="font-size:14px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 78%,transparent)">{{ article.selection.meaning }}</div>
+              <button class="btn btn-primary btn-block" onClick="{{ article.selection.onAdd }}" disabled="{{ article.selection.disabled }}" style="font-family:var(--font-body);font-weight:700;margin-top:1px">{{ article.selection.addLabel }}</button>
+            </div>
+          </sc-if>
         </div>
       </sc-if>
 
@@ -732,12 +741,15 @@ class Component extends DCLogic {
 
   componentDidMount(){
     this._bridgeReady=()=>this.loadRealData();
+    this._escapeSelection=event=>{ if(event.key==='Escape'&&this.selectedToken) this.closeSelectedToken(); };
+    window.addEventListener('keydown',this._escapeSelection);
     if(window.AIKotoba) this.loadRealData();
     else window.addEventListener('ai-kotoba-ready',this._bridgeReady,{once:true});
   }
 
   componentWillUnmount(){
     window.removeEventListener('ai-kotoba-ready',this._bridgeReady);
+    window.removeEventListener('keydown',this._escapeSelection);
     window.AIKotoba?.stopJapaneseSpeech?.();
     this._realtime?.stop();
     this._realtime=null;
@@ -783,11 +795,29 @@ class Component extends DCLogic {
     }catch(e){ this.setState({articleAnalyzing:false}); console.error(e); }
   }
 
-  selectToken(token){
+  tokenPopoverPosition(event){
+    const rect=event?.currentTarget?.getBoundingClientRect?.();
+    const viewportWidth=Math.max(360,window.innerWidth||360);
+    const viewportHeight=Math.max(480,window.innerHeight||480);
+    const width=Math.min(330,viewportWidth-24);
+    const height=184;
+    const left=Math.max(12,Math.min(viewportWidth-width-12,rect?.left??12));
+    const below=(rect?.bottom??80)+10;
+    const top=below+height<=viewportHeight-12?below:Math.max(12,(rect?.top??viewportHeight/2)-height-10);
+    return {left:`${Math.round(left)}px`,top:`${Math.round(top)}px`};
+  }
+
+  selectToken(token,event){
     if(!token?.wordLike) return;
     const existing=this.V.find(v=>[token.surface,token.dictionaryForm,token.normalizedForm].includes(v.word));
     const hasChineseMeaning=existing&&/[\u3400-\u9fff]/.test(String(existing.meaning||''));
+    this._selectionPosition=this.tokenPopoverPosition(event);
     this.selectedToken={...token,added:!!hasChineseMeaning};
+    this.setState({tokenTick:Date.now()});
+  }
+
+  closeSelectedToken(){
+    this.selectedToken=null;
     this.setState({tokenTick:Date.now()});
   }
 
@@ -902,8 +932,8 @@ class Component extends DCLogic {
       tutor:{onToggle:()=>this.toggleTutor(),active:this.state.tutorActive,style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?'日语先行；遇到新词、纠错或卡住时，才用你的解释语言补一句。':this.state.tutorStyle==='conversation'?'尽量保持全日语自然会话，只温和纠正关键问题。':this.state.tutorStyle==='correction'?'每轮回应内容后，只纠正一个最值得改进的表达。':'像日语口试一样逐题练习并简短评价。',buttonLabel:this.state.tutorActive?'结束通话':'开始通话',statusLabel:statusLabels[this.state.tutorStatus]||'',hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages},
       articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))+' 分钟',onOpen:()=>this.openArticle(a)})),
       article:{
-        onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?'生成中…':'生成新文章',analysisLabel:this.state.articleAnalyzing?'正在生成逐词语境释义…':(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?'停止':'朗读',onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:()=>this.selectToken(t)}))}))},
-        selection:{visible:!!selected,surface:selected?.surface||'',reading:selected?.reading||'',grammar:grammarParts.join(' · '),meaning:selected?.gloss||selected?.meaning||'加入时自动生成释义',added:!!selected?.added,disabled:!!selected?.added||!!selected?.adding,addLabel:selected?.adding?'正在生成释义…':(selected?.added?'已加入 ✓':'+ 加入生词本'),onAdd:()=>this.addSelectedToken()},
+        onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?'生成中…':'生成新文章',analysisLabel:this.state.articleAnalyzing?'正在生成逐词语境释义…':(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?'停止':'朗读',onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:event=>this.selectToken(t,event)}))}))},
+        selection:{visible:!!selected,left:this._selectionPosition?.left||'12px',top:this._selectionPosition?.top||'84px',surface:selected?.surface||'',reading:selected?.reading||'',grammar:grammarParts.join(' · '),meaning:selected?.gloss||selected?.meaning||'加入时自动生成释义',added:!!selected?.added,disabled:!!selected?.added||!!selected?.adding,addLabel:selected?.adding?'正在生成释义…':(selected?.added?'已加入 ✓':'+ 加入生词本'),onAdd:()=>this.addSelectedToken(),onClose:()=>this.closeSelectedToken()},
       },
       backHome:()=>this.setState({view:'home'}),
     };
