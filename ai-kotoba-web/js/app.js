@@ -1732,6 +1732,11 @@ function renderSettings() {
           <input type="text" id="openai-model" value="${esc(s.openaiModel)}">
         </div>
       </div>
+      <div class="field">
+        <label class="field-label">OpenAI 轻量任务模型</label>
+        <input type="text" id="openai-fast-model" value="${esc(s.openaiFastModel || 'gpt-5.6-luna')}">
+        <p class="hint">文章逐词释义与缺失生词翻译使用；默认 gpt-5.6-luna。正文生成和 Tutor 不受影响。</p>
+      </div>
       <button class="btn primary" id="save-settings">保存设置</button>
       <p class="hint">「本地 CLI」通过本站自带的 server.py 调用你电脑上已登录的命令行工具，用订阅额度、无需 API Key，但要求用 python3 server.py 启动本站。普通文字功能的 API Key 保存在浏览器本地并由浏览器直连；Realtime 语音会优先经 server.py 建立 WebRTC 会话。部署到公网时，请只在服务器配置 OPENAI_API_KEY，不要把标准 Key 暴露给浏览器。</p>
     </div>
@@ -1832,6 +1837,7 @@ function renderSettings() {
       openaiKey: view.querySelector('#openai-key').value,
       claudeModel: view.querySelector('#claude-model').value.trim() || 'claude-sonnet-5',
       openaiModel: view.querySelector('#openai-model').value.trim() || 'gpt-4o',
+      openaiFastModel: view.querySelector('#openai-fast-model').value.trim() || 'gpt-5.6-luna',
     }));
     toast('设置已保存');
   });

@@ -11,6 +11,11 @@ if ('speechSynthesis' in window) {
   speechSynthesis.onvoiceschanged = loadVoices;
 }
 
+// AI-Kotoba 的注音格式是 漢字[かんじ]；任何 TTS 引擎都只接收正文。
+export function cleanTTSText(text) {
+  return String(text || '').replace(/\[[^\]\n]+\]/g, '').trim();
+}
+
 // ---------- 系统 TTS ----------
 function speakSystem(text, onEnd) {
   if (!('speechSynthesis' in window)) { onEnd?.(); return; }
@@ -86,10 +91,11 @@ async function speakEleven(text, onEnd, voiceId) {
 // voiceId：ElevenLabs 音色（用于 A/B 角色区分）；系统语音下忽略
 export function speak(text, onEnd, voiceId) {
   const s = getSettings();
+  const spokenText = cleanTTSText(text);
   if (s.ttsProvider === 'elevenlabs' && s.elevenKey) {
-    speakEleven(text, onEnd, voiceId);
+    speakEleven(spokenText, onEnd, voiceId);
   } else {
-    speakSystem(text, onEnd);
+    speakSystem(spokenText, onEnd);
   }
 }
 

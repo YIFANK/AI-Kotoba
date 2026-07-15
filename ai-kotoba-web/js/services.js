@@ -69,7 +69,7 @@ async function callClaude(prompt, settings) {
   return (data.content || []).map(b => b.text || '').join('');
 }
 
-async function callOpenAI(prompt, settings) {
+async function callOpenAI(prompt, settings, opts = {}) {
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -77,7 +77,9 @@ async function callOpenAI(prompt, settings) {
       'authorization': `Bearer ${settings.openaiKey}`,
     },
     body: JSON.stringify({
-      model: settings.openaiModel || 'gpt-4o',
+      model: opts.fast
+        ? (settings.openaiFastModel || 'gpt-5.6-luna')
+        : (settings.openaiModel || 'gpt-4o'),
       messages: [{ role: 'user', content: prompt }],
     }),
   });
@@ -92,10 +94,12 @@ async function callOpenAI(prompt, settings) {
 // 本地 CLI 桥接（server.py 提供 /api/ai，调用本机已登录的 claude / codex，免 API Key）
 async function callLocal(prompt, settings, opts = {}) {
   let res;
-  const engine = settings.localEngine || 'claude';
-  let model = engine === 'codex'
-    ? (settings.openaiModel || '')
-    : (settings.claudeModel || '');
+  const engine = opts.engine || settings.localEngine || 'claude';
+  let model = opts.model || (engine === 'openai'
+    ? (settings.openaiFastModel || 'gpt-5.6-luna')
+    : engine === 'codex'
+      ? (settings.openaiModel || '')
+      : (settings.claudeModel || ''));
   // fast：轻量任务（如助教答疑）用小模型提速；仅 claude 引擎支持别名
   if (opts.fast && engine === 'claude') model = 'haiku';
   try {
@@ -125,7 +129,25 @@ export async function localCLIStatus() {
 async function callAI(prompt, opts = {}) {
   const settings = getSettings();
   if (settings.provider === 'local') return callLocal(prompt, settings, opts);
-  return settings.provider === 'openai' ? callOpenAI(prompt, settings) : callClaude(prompt, settings);
+  return settings.provider === 'openai' ? callOpenAI(prompt, settings, opts) : callClaude(prompt, settings);
+}
+
+async function callFastAI(prompt) {
+  const settings = getSettings();
+  if (settings.provider === 'openai' && settings.openaiKey) {
+    return callOpenAI(prompt, settings, { fast: true });
+  }
+  try {
+    // 优先由本地 server 使用 .env 中的 Key，避免标准 API Key 暴露给浏览器。
+    return await callLocal(prompt, settings, { engine: 'openai', fast: true });
+  } catch (serverOpenAIError) {
+    try {
+      return await callAI(prompt, { fast: true });
+    } catch (configuredProviderError) {
+      if (settings.provider !== 'local' || settings.localEngine === 'codex') throw configuredProviderError;
+      return callLocal(prompt, { ...settings, localEngine: 'codex', openaiModel: '' });
+    }
+  }
 }
 
 // ---------- AI 助教（课文旁答疑） ----------
@@ -181,6 +203,33 @@ Return only the complete JSON:
 ${JSON.stringify(japaneseJSON, null, 2)}`;
 }
 
+function stripFuriganaAnnotations(text) {
+  return String(text || '').replace(/\[[^\]\n]+\]/g, '');
+}
+
+function mergeTranslatedRows(japaneseRows = [], translatedRows = []) {
+  return japaneseRows.map((source, index) => {
+    const translated = translatedRows[index] || {};
+    return {
+      ...translated,
+      ...source,
+      translation: String(translated.translation || translated.chinese || ''),
+    };
+  });
+}
+
+function mergeTranslatedVocabulary(japaneseRows = [], translatedRows = []) {
+  return japaneseRows.map((source, index) => {
+    const translated = translatedRows[index] || {};
+    return {
+      ...translated,
+      ...source,
+      meaning: String(translated.meaning || ''),
+      exampleTranslation: String(translated.exampleTranslation || translated.exampleChinese || ''),
+    };
+  });
+}
+
 // ---------- 两轮场景生成 ----------
 export async function generateScenario(topic, level, onStatus) {
   // 第一轮：纯日语生成（避免中日夹杂导致的不自然表达）
@@ -195,18 +244,29 @@ export async function generateScenario(topic, level, onStatus) {
   onStatus?.(uiText('第二轮：正在添加所选语言的翻译…', 'Step 2: Translating into your explanation language…'));
   const raw2 = await callAI(promptTranslation(japaneseOnly));
   const full = extractJSON(raw2);
+  const merged = {
+    ...full,
+    title: japaneseOnly.title || full.title,
+    conversation: mergeTranslatedRows(japaneseOnly.conversation, full.conversation),
+    vocabulary: mergeTranslatedVocabulary(japaneseOnly.vocabulary, full.vocabulary),
+  };
 
-  return normalizeScenario(full, topic, level);
+  return normalizeScenario(merged, topic, level);
 }
 
 function normalizeScenario(data, topic, level) {
-  const lines = (data.conversation || []).map((l, i) => ({
-    orderIndex: i,
-    speaker: String(l.speaker || (i % 2 === 0 ? 'A' : 'B')),
-    japanese: String(l.japanese || ''),
-    furigana: String(l.furigana || ''),
-    translation: String(l.translation || l.chinese || ''),
-  })).filter(l => l.japanese);
+  const lines = (data.conversation || []).map((l, i) => {
+    const rawJapanese = String(l.japanese || '');
+    const annotated = String(l.furigana || '') || (/\[[^\]]+\]/.test(rawJapanese) ? rawJapanese : '');
+    const japanese = stripFuriganaAnnotations(rawJapanese);
+    return {
+      orderIndex: i,
+      speaker: String(l.speaker || (i % 2 === 0 ? 'A' : 'B')),
+      japanese,
+      furigana: annotated || japanese,
+      translation: String(l.translation || l.chinese || ''),
+    };
+  }).filter(l => l.japanese);
   const vocabulary = (data.vocabulary || []).map(v => ({
     word: String(v.word || ''),
     reading: String(v.reading || ''),
@@ -276,13 +336,20 @@ export async function generateArticle(request, level, onStatus) {
   onStatus?.(uiText('第二轮：正在添加所选语言的翻译…', 'Step 2: Translating into your explanation language…'));
   const raw2 = await callAI(promptArticleTranslation(japaneseOnly));
   const full = extractJSON(raw2);
+  const mergedParagraphs = mergeTranslatedRows(japaneseOnly.paragraphs, full.paragraphs);
+  const mergedVocabulary = mergeTranslatedVocabulary(japaneseOnly.vocabulary, full.vocabulary);
 
-  const paragraphs = (full.paragraphs || []).map(p => ({
-    japanese: String(p.japanese || ''),
-    furigana: String(p.furigana || ''),
-    translation: String(p.translation || p.chinese || ''),
-  })).filter(p => p.japanese);
-  const vocabulary = (full.vocabulary || []).map(v => ({
+  const paragraphs = mergedParagraphs.map(p => {
+    const rawJapanese = String(p.japanese || '');
+    const annotated = String(p.furigana || '') || (/\[[^\]]+\]/.test(rawJapanese) ? rawJapanese : '');
+    const japanese = stripFuriganaAnnotations(rawJapanese);
+    return {
+      japanese,
+      furigana: annotated || japanese,
+      translation: String(p.translation || p.chinese || ''),
+    };
+  }).filter(p => p.japanese);
+  const vocabulary = mergedVocabulary.map(v => ({
     word: String(v.word || ''),
     reading: String(v.reading || ''),
     meaning: String(v.meaning || ''),
@@ -291,13 +358,75 @@ export async function generateArticle(request, level, onStatus) {
   })).filter(v => v.word);
   return {
     id: crypto.randomUUID(),
-    title: String(full.title || request),
+    title: String(japaneseOnly.title || full.title || request),
     localizedTitle: String(full.localizedTitle || full.titleChinese || ''),
     translationLanguage: learnerProfile().explanationLanguage,
     request, level,
     createdAt: Date.now(),
     paragraphs, vocabulary,
   };
+}
+
+// ---------- 文章逐词释义（Sudachi 负责边界，AI 只补当前语境下的短释义） ----------
+export async function glossJapaneseTokens({ title, level, paragraphs, outputLanguage }) {
+  const explanationLanguage = String(outputLanguage || learnerProfile().explanationLanguage || 'Simplified Chinese');
+  const tokenRows = (paragraphs || []).map((paragraph, paragraphIndex) => ({
+    paragraph: paragraphIndex,
+    sentence: paragraph.japanese,
+    tokens: (paragraph.tokens || []).map((token, tokenIndex) => ({
+      token: tokenIndex,
+      surface: token.surface,
+      dictionaryForm: token.dictionaryForm,
+      partOfSpeech: token.partOfSpeech,
+      selectable: token.wordLike,
+      glossable: token.glossable,
+    })),
+  }));
+  const prompt = `You are preparing contextual interlinear glosses for a JLPT ${level} Japanese article titled "${title}".
+
+For every token where glossable=true, provide one very short contextual gloss in ${explanationLanguage}. Also provide one natural sentence translation for every paragraph row. Each paragraph row contains exactly one Japanese sentence.
+
+Rules:
+- Preserve paragraph and token indexes exactly.
+- Translate the meaning or grammatical function in this sentence, not every dictionary sense.
+- Tokens where glossable=false must not receive a gloss.
+- Keep each gloss compact, normally 1-6 words.
+- Glosses must not contain kana, romaji, examples, or full-sentence translations; sentence translations belong only in the translations array.
+- Every gloss and every sentence translation must be written in ${explanationLanguage}. Do not switch to English unless ${explanationLanguage} is English.
+- Return JSON only in this shape: {"glosses":[{"paragraph":0,"token":0,"gloss":"..."}],"translations":[{"paragraph":0,"translation":"..."}]}.
+
+Input:
+${JSON.stringify(tokenRows)}`;
+  const requestGlosses = requestPrompt => callFastAI(requestPrompt);
+  let parsed = extractJSON(await requestGlosses(prompt));
+  const requiresChinese = /chinese|中文|简体/i.test(explanationLanguage);
+  const returnedValues = () => [
+    ...(parsed.glosses || []).map(item => String(item.gloss || '')),
+    ...(parsed.translations || []).map(item => String(item.translation || '')),
+  ].filter(Boolean);
+  const containsEnglishOnly = value => /[A-Za-z]/.test(value) && !/[\u3400-\u9fff]/.test(value);
+  if (requiresChinese && returnedValues().some(containsEnglishOnly)) {
+    const retryPrompt = `${prompt}\n\nYour previous response used the wrong language. Regenerate the complete JSON now. All glosses and translations must be in Simplified Chinese (简体中文), with no English explanations.`;
+    parsed = extractJSON(await requestGlosses(retryPrompt));
+  }
+  const rows = Array.from({ length: tokenRows.length }, (_, paragraphIndex) =>
+    Array.from({ length: tokenRows[paragraphIndex].tokens.length }, () => '')
+  );
+  for (const item of parsed.glosses || []) {
+    const p = Number(item.paragraph);
+    const t = Number(item.token);
+    if (Number.isInteger(p) && Number.isInteger(t) && rows[p] && t >= 0 && t < rows[p].length) {
+      rows[p][t] = String(item.gloss || '').trim().slice(0, 80);
+    }
+  }
+  const translations = Array.from({ length: tokenRows.length }, () => '');
+  for (const item of parsed.translations || []) {
+    const p = Number(item.paragraph);
+    if (Number.isInteger(p) && p >= 0 && p < translations.length) {
+      translations[p] = String(item.translation || '').trim();
+    }
+  }
+  return { glosses: rows, translations };
 }
 
 // ---------- AI Tutor（文字模式与 Realtime 共用教学策略） ----------

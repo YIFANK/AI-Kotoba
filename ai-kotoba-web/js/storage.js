@@ -91,6 +91,7 @@ export function getSettings() {
     {
       provider: 'claude', claudeKey: '', openaiKey: '',
       claudeModel: 'claude-sonnet-5', openaiModel: 'gpt-4o',
+      openaiFastModel: 'gpt-5.6-luna',
       localEngine: 'claude',
       ttsProvider: 'system', elevenKey: '',
       // 角色 A / B 双音色（默认 Sarah 女声 / George 男声，多语模型下日语自然）
@@ -161,7 +162,7 @@ export async function loadSeeds() {
   if (s.seedsLoaded) return;
   let seed;
   try {
-    const res = await fetch('seed.json');
+    const res = await fetch('/ai-kotoba-web/seed.json');
     if (!res.ok) return;
     seed = await res.json();
   } catch {
