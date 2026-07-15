@@ -23,6 +23,9 @@ test("ships the original UI with account and playback-rate controls", async () =
   ]);
   assert.match(html, /id="account-pill"/);
   assert.match(html, /会话朗读语速/);
+  assert.match(html, /data-dir="blue"/);
+  assert.match(html, />蓝白<\/button>/);
+  assert.match(html, /ai-kotoba-palette/);
   assert.match(integration, /\/api\/account/);
   assert.match(integration, /playbackRate/);
   assert.match(html, /双语入门（推荐 N5–N4）/);

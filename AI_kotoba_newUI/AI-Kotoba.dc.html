@@ -21,6 +21,13 @@
     --color-accent-100:#f0fae1; --color-accent-200:#e1eecc; --color-accent-300:#ccdbb2; --color-accent-400:#aebf92;
     --color-accent-2:#c67139; --color-accent-2-100:#fff2eb; --color-accent-2-200:#ffe1d0; --color-accent-2-300:#ffc6a5; --color-accent-2-400:#f6a06b; --color-accent-2-500:#d67f48; --color-accent-2-600:#b2622d; --color-accent-2-700:#8c491a; --color-accent-2-800:#643312; --color-accent-2-900:#402310;
   }
+  [data-dir="blue"]{
+    --color-bg:#f6f7f9; --color-surface:#ffffff; --color-text:#1d2433; --color-divider:#e8eaf0;
+    --color-neutral-100:#fafbfd; --color-neutral-200:#f2f4f8; --color-neutral-300:#e4e7ee; --color-neutral-400:#cfd4df; --color-neutral-500:#a5adbd; --color-neutral-600:#7b8494; --color-neutral-700:#596274; --color-neutral-800:#3c4557; --color-neutral-900:#262c3a;
+    --color-accent:#4f6bf5; --color-accent-100:#eef1fe; --color-accent-200:#dfe5fd; --color-accent-300:#c4cefc; --color-accent-400:#91a3fa; --color-accent-500:#667ef7; --color-accent-600:#3d59e8; --color-accent-700:#3048c8; --color-accent-800:#293da1; --color-accent-900:#24357f;
+    --color-accent-2:#8a5cf6; --color-accent-2-100:#f4efff; --color-accent-2-200:#e9ddff; --color-accent-2-300:#d8c2ff; --color-accent-2-400:#b893fc; --color-accent-2-500:#9668f5; --color-accent-2-600:#7848dc; --color-accent-2-700:#6037b5; --color-accent-2-800:#4e3090; --color-accent-2-900:#402873;
+    --shadow-sm:0 1px 3px color-mix(in srgb,#26345f 10%,transparent); --shadow-md:0 5px 16px color-mix(in srgb,#26345f 12%,transparent); --shadow-lg:0 14px 36px color-mix(in srgb,#26345f 16%,transparent);
+  }
   ::-webkit-scrollbar{ width:11px;height:11px } ::-webkit-scrollbar-thumb{ background:var(--color-neutral-300);border-radius:99px;border:3px solid var(--color-bg) } ::-webkit-scrollbar-thumb:hover{ background:var(--color-neutral-400) }
   @keyframes fadeUp{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
   @keyframes pop{ from{opacity:0;transform:scale(.97)} to{opacity:1;transform:none} }
@@ -52,7 +59,7 @@
 </style>
 </helmet>
 
-<div style="display:flex;height:100vh;overflow:hidden;font-family:var(--font-body);color:var(--color-text)" data-dir="{{ dirAttr }}" data-furi="{{ furiAttr }}">
+<div style="display:flex;height:100vh;overflow:hidden;font-family:var(--font-body);color:var(--color-text);background:var(--color-bg)" data-dir="{{ dirAttr }}" data-furi="{{ furiAttr }}">
 
   <!-- ===================== SIDEBAR ===================== -->
   <aside style="width:256px;flex:none;background:var(--color-surface);display:flex;flex-direction:column;padding:22px 16px;border-right:1px solid var(--color-divider)">
@@ -126,6 +133,7 @@
         振り仮名 {{ furiLabel }}
       </button>
       <div style="display:flex;align-items:center;gap:0;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:999px;padding:3px">
+        <button class="segdir" onClick="{{ dir.blue }}" data-on="{{ dirIsBlue }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ blueBg }};color:{{ blueFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#4f6bf5"></span>蓝白</button>
         <button class="segdir" onClick="{{ dir.terra }}" data-on="{{ dirIsTerra }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ terraBg }};color:{{ terraFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#c67139"></span>陶土</button>
         <button class="segdir" onClick="{{ dir.sage }}" data-on="{{ dirIsSage }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ sageBg }};color:{{ sageFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#7a8a5e"></span>苔绿</button>
       </div>
@@ -596,7 +604,15 @@ class Component extends DCLogic {
     this.selectedToken = null;
     this._realtime = null;
     this._streak = null;
-    this.state = { view:'home', dir:'terra', furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorActive:false, tutorStatus:'idle', tutorMessages:[] };
+    let savedPalette='blue';
+    try{ const saved=window.localStorage.getItem('ai-kotoba-palette'); if(['blue','terra','sage'].includes(saved)) savedPalette=saved; }catch(e){}
+    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorActive:false, tutorStatus:'idle', tutorMessages:[] };
+  }
+
+  changePalette(dir){
+    if(!['blue','terra','sage'].includes(dir)) return;
+    try{ window.localStorage.setItem('ai-kotoba-palette',dir); }catch(e){}
+    this.setState({dir});
   }
 
   reveal(){ this.setState({flashRevealed:true}); }
@@ -679,8 +695,9 @@ class Component extends DCLogic {
       furiLabel:this.state.furi?'开':'关', toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
       go:{home:set('home'),practice:set('practice'),tutor:set('tutor'),pron:set('pron'),reading:set('reading'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings')},
       openDetail:set('detail'),
-      dir:{terra:()=>this.setState({dir:'terra'}),sage:()=>this.setState({dir:'sage'})},
-      dirIsTerra:dir==='terra', dirIsSage:dir==='sage',
+      dir:{blue:()=>this.changePalette('blue'),terra:()=>this.changePalette('terra'),sage:()=>this.changePalette('sage')},
+      dirIsBlue:dir==='blue', dirIsTerra:dir==='terra', dirIsSage:dir==='sage',
+      blueBg:dir==='blue'?'var(--color-bg)':'transparent', blueFg:dir==='blue'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
       terraBg:dir==='terra'?'var(--color-bg)':'transparent', terraFg:dir==='terra'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
       sageBg:dir==='sage'?'var(--color-bg)':'transparent', sageFg:dir==='sage'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
       todayDate:'2 月 21 日 · 星期六', streak:7, dueCount:12,
@@ -860,7 +877,8 @@ class Component extends DCLogic {
       furiLabel:this.state.furi?'开':'关',toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
       go:{home:set('home'),practice:set('practice'),tutor:set('tutor'),pron:set('pron'),reading:set('reading'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings')},
       openDetail:()=>this.openScenario(active),
-      dir:{terra:()=>this.setState({dir:'terra'}),sage:()=>this.setState({dir:'sage'})},dirIsTerra:dir==='terra',dirIsSage:dir==='sage',
+      dir:{blue:()=>this.changePalette('blue'),terra:()=>this.changePalette('terra'),sage:()=>this.changePalette('sage')},dirIsBlue:dir==='blue',dirIsTerra:dir==='terra',dirIsSage:dir==='sage',
+      blueBg:dir==='blue'?'var(--color-bg)':'transparent',blueFg:dir==='blue'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
       terraBg:dir==='terra'?'var(--color-bg)':'transparent',terraFg:dir==='terra'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
       sageBg:dir==='sage'?'var(--color-bg)':'transparent',sageFg:dir==='sage'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
       todayDate:new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'}),streak:streak.streak,dueCount,
