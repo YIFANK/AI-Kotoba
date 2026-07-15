@@ -1,9 +1,11 @@
 import * as db from '../ai-kotoba-web/js/storage.js';
 import {
   generateArticle,
+  generateGrammarLesson,
   generateScenario,
   freeTalkInstructions,
   glossJapaneseTokens,
+  reviewTutorConversation,
 } from '../ai-kotoba-web/js/services.js';
 import { startRealtimeSession } from '../ai-kotoba-web/js/realtime.js';
 
@@ -12,6 +14,37 @@ let activeSpeech = null;
 let speechRequestId = 0;
 let elevenLabsUnavailable = false;
 const speechAudioCache = new Map();
+let grammarCatalogPromise = null;
+
+async function updateAccountPill() {
+  const pill = document.getElementById('account-pill');
+  if (!pill) return;
+  try {
+    const response = await fetch('/api/account', { cache: 'no-store' });
+    const account = await response.json();
+    pill.replaceChildren();
+    const dot = document.createElement('span');
+    dot.className = 'account-dot';
+    pill.append(dot);
+    pill.dataset.auth = account.authenticated ? 'true' : 'false';
+    if (account.authenticated) {
+      const name = document.createElement('span');
+      name.textContent = `${account.displayName || '已登录'} · 云同步`;
+      const link = document.createElement('a');
+      link.href = account.signoutUrl || '/signout-with-chatgpt';
+      link.textContent = '退出';
+      link.style.opacity = '.58';
+      pill.append(name, link);
+    } else {
+      const link = document.createElement('a');
+      link.href = account.signinUrl || '/signin-with-chatgpt';
+      link.textContent = '用 ChatGPT 登录 · 开启 AI 与云同步';
+      pill.append(link);
+    }
+  } catch {
+    pill.innerHTML = '<span class="account-dot"></span><span>游客演示模式</span>';
+  }
+}
 
 function cleanSpeechText(text) {
   return String(text || '').replace(/\[[^\]\n]+\]/g, '').trim();
@@ -150,12 +183,14 @@ function snapshot() {
     vocab: db.getVocab(),
     tutorSessions: db.getTutorSessions(),
     learningNotes: db.getLearningNotes(),
+    grammarProgress: db.getGrammarProgress(),
     streak: db.streakInfo(),
   };
 }
 
 async function init() {
   if (!initialized) {
+    await updateAccountPill();
     await db.initSync();
     await db.loadSeeds();
     initialized = true;
@@ -554,7 +589,7 @@ function saveTutorSession(input = {}) {
   if (!messages.length) return snapshot();
   const createdAt = Number(input.createdAt) || messages[0].at || Date.now();
   const endedAt = Number(input.endedAt) || Date.now();
-  db.saveTutorSession({
+  const session = {
     id: String(input.id || crypto.randomUUID()),
     scene: String(input.scene || input.topic || '日常会話').trim().slice(0, 80),
     level: /^N[1-5]$/.test(String(input.level)) ? String(input.level) : 'N4',
@@ -565,8 +600,121 @@ function saveTutorSession(input = {}) {
     userTurns: messages.filter(item => item.role === 'me').length,
     messages,
     transcript: messages.map(item => `${item.role === 'me' ? 'Learner' : 'Tutor'}: ${item.text}`).join('\n'),
+    reviewStatus: 'pending',
+  };
+  db.saveTutorSession(session);
+  db.recordActivity();
+  return { ...snapshot(), savedTutorSessionId: session.id };
+}
+
+async function reviewTutorSession(sessionId) {
+  const session = db.getTutorSessions().find(item => item.id === sessionId);
+  if (!session) throw new Error('找不到这次通话');
+  if (session.review) return snapshot();
+  db.updateTutorSession(sessionId, { reviewStatus: 'generating', reviewError: '' });
+  try {
+    const raw = await reviewTutorConversation(session);
+    const cleanList = (value, limit = 3) => (Array.isArray(value) ? value : []).slice(0, limit);
+    const review = {
+      summary: String(raw?.summary || '').trim(),
+      strengths: cleanList(raw?.strengths).map(value => String(value || '').trim()).filter(Boolean),
+      improvements: cleanList(raw?.improvements).map(item => ({
+        original: String(item?.original || '').trim(),
+        better: String(item?.better || '').trim(),
+        explanation: String(item?.explanation || '').trim(),
+      })).filter(item => item.original || item.better),
+      usefulPhrases: cleanList(raw?.usefulPhrases).map(item => ({
+        japanese: String(item?.japanese || '').trim(),
+        meaning: String(item?.meaning || '').trim(),
+      })).filter(item => item.japanese),
+      grammarEvidence: cleanList(raw?.grammarEvidence).map(item => ({
+        pattern: String(item?.pattern || '').trim(),
+        level: String(item?.level || 'unknown'),
+        result: item?.result === 'used-well' ? 'used-well' : 'needs-work',
+        note: String(item?.note || '').trim(),
+      })).filter(item => item.pattern),
+      nextStep: String(raw?.nextStep || '').trim(),
+      generatedAt: Date.now(),
+    };
+    db.updateTutorSession(sessionId, { review, reviewStatus: 'ready', reviewError: '' });
+    review.grammarEvidence.forEach(item => db.addLearningNote({
+      category: `语法 · ${item.level}`,
+      original: item.result === 'needs-work' ? item.pattern : '',
+      better: item.result === 'used-well' ? item.pattern : '',
+      note: item.note,
+      source: 'tutor-review',
+    }));
+  } catch (error) {
+    db.updateTutorSession(sessionId, {
+      reviewStatus: 'error',
+      reviewError: String(error?.message || '复盘生成失败').slice(0, 240),
+    });
+    throw error;
+  }
+  return snapshot();
+}
+
+function grammarId(level, title) {
+  let hash = 2166136261;
+  for (const char of `${level}|${title}`) {
+    hash ^= char.codePointAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `${level.toLowerCase()}-${(hash >>> 0).toString(36)}`;
+}
+
+async function loadGrammarCatalog() {
+  grammarCatalogPromise ??= Promise.all(['N5', 'N4', 'N3'].map(async level => {
+    const response = await fetch(`/grammar/grammar_ja_${level}_full_alphabetical_0001.json`);
+    if (!response.ok) throw new Error(`无法加载 ${level} 语法资料`);
+    const rows = await response.json();
+    return (Array.isArray(rows) ? rows : []).map((item, index) => ({
+      ...item,
+      id: grammarId(level, item.title || String(index + 1)),
+      level,
+      order: index + 1,
+    }));
+  })).then(groups => groups.flat());
+  return grammarCatalogPromise;
+}
+
+async function openGrammarLesson(input) {
+  const id = String(input?.id || input || '');
+  const point = (await loadGrammarCatalog()).find(item => item.id === id);
+  if (!point) throw new Error('找不到这个语法点');
+  const language = preferredExplanationLanguage();
+  const existing = db.getGrammarProgress().find(item => item.id === id);
+  if (existing?.lesson && existing.lessonLanguage === language) {
+    if (existing.status === 'unstarted') db.upsertGrammarProgress({ ...existing, status: 'studying' });
+    return { point, lesson: existing.lesson, data: snapshot(), cached: true };
+  }
+  db.upsertGrammarProgress({
+    id,
+    level: point.level,
+    title: point.title,
+    status: existing?.status === 'mastered' ? 'mastered' : 'studying',
+    lessonStatus: 'generating',
+  });
+  const lesson = await generateGrammarLesson(point);
+  db.upsertGrammarProgress({
+    id,
+    level: point.level,
+    title: point.title,
+    status: existing?.status === 'mastered' ? 'mastered' : 'studying',
+    lesson,
+    lessonLanguage: language,
+    lessonStatus: 'ready',
   });
   db.recordActivity();
+  return { point, lesson, data: snapshot(), cached: false };
+}
+
+function setGrammarStatus(id, status) {
+  const allowed = ['unstarted', 'studying', 'mastered'];
+  const cleanStatus = allowed.includes(status) ? status : 'studying';
+  const existing = db.getGrammarProgress().find(item => item.id === id) || { id };
+  db.upsertGrammarProgress({ ...existing, status: cleanStatus });
+  if (cleanStatus !== 'unstarted') db.recordActivity();
   return snapshot();
 }
 
@@ -600,7 +748,11 @@ window.AIKotoba = {
   createArticle,
   createScenario,
   saveTutorSession,
+  reviewTutorSession,
   startTutor,
+  loadGrammarCatalog,
+  openGrammarLesson,
+  setGrammarStatus,
   cleanSpeechText,
   speakJapanese,
   stopJapaneseSpeech,

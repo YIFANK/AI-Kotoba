@@ -48,6 +48,10 @@
   .ratebtn{ transition:transform .12s,box-shadow .12s; }
   .ratebtn:hover{ transform:translateY(-2px); box-shadow:var(--shadow-sm); }
   .segdir{ transition:all .18s; }
+  #account-pill{display:flex;align-items:center;gap:8px;min-height:34px;padding:0 12px;border:1px solid var(--color-divider);border-radius:999px;background:var(--color-surface);font-size:12px;font-weight:650;color:var(--color-text);white-space:nowrap}
+  #account-pill a{color:inherit;text-decoration:none}
+  #account-pill .account-dot{width:8px;height:8px;border-radius:50%;background:var(--color-accent-2)}
+  #account-pill[data-auth="true"] .account-dot{background:var(--color-accent)}
   .reading-token{border:0;background:transparent;color:inherit;border-radius:7px;padding:1px 2px;cursor:pointer;font:inherit;font-size:18px;line-height:1.9}
   .reading-token:hover,.reading-token[data-selected="true"]{background:var(--color-accent-200);color:var(--color-accent-900)}
   .reading-token[data-word="false"]{cursor:default;padding-inline:0}
@@ -103,6 +107,10 @@
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-4.5-2-8-2v14c3.5 0 6 .5 8 2 2-1.5 4.5-2 8-2V4c-3.5 0-6 .5-8 2z"/><path d="M12 6v14"/></svg>
         <span style="flex:1">阅读文章</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
+      <button class="navbtn" onClick="{{ go.grammar }}" data-on="{{ nav.grammar }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <span class="jp" aria-hidden="true" style="width:19px;text-align:center;font-weight:800">文</span>
+        <span style="flex:1">语法课程</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+      </button>
     </nav>
 
     <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent);padding:0 10px;margin:16px 0 6px">词汇 · 记录</div>
@@ -138,6 +146,7 @@
     <div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:16px 40px;background:color-mix(in srgb,var(--color-bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--color-divider)">
       <div style="font-family:var(--font-heading);font-size:15px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ crumb }}</div>
       <div style="flex:1"></div>
+      <div id="account-pill" aria-live="polite"><span class="account-dot"></span><span>检查登录状态…</span></div>
       <button onClick="{{ toggleFuri }}" class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
         振り仮名 {{ furiLabel }}
@@ -477,6 +486,27 @@
                         <div style="font-size:13px;line-height:1.55"><b style="color:var(--color-accent)">{{ m.who }}</b> <span class="jp">{{ m.text }}</span></div>
                       </sc-for>
                     </div>
+                    <sc-if value="{{ h.review.generating }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:12px 14px;border-radius:14px;background:var(--color-accent-100);color:var(--color-accent-800);font-size:12.5px">正在生成课后复盘…通话记录已经保存，可以先离开。</div>
+                    </sc-if>
+                    <sc-if value="{{ h.review.error }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:12px 14px;border-radius:14px;background:var(--color-neutral-100);font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">复盘暂时生成失败，通话记录不受影响。</div>
+                    </sc-if>
+                    <sc-if value="{{ h.review.ready }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:15px;border-radius:16px;background:var(--color-accent-100);display:flex;flex-direction:column;gap:12px">
+                        <div><div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--color-accent-800);margin-bottom:4px">课后复盘</div><div style="font-size:13px;line-height:1.65">{{ h.review.summary }}</div></div>
+                        <sc-if value="{{ h.review.hasStrengths }}" hint-placeholder-val="{{ true }}">
+                          <div><b style="font-size:12.5px">做得不错</b><div style="display:flex;flex-direction:column;gap:4px;margin-top:4px"><sc-for list="{{ h.review.strengths }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px;line-height:1.5">✓ {{ x.text }}</div></sc-for></div></div>
+                        </sc-if>
+                        <sc-if value="{{ h.review.hasImprovements }}" hint-placeholder-val="{{ true }}">
+                          <div><b style="font-size:12.5px">可以更自然</b><div style="display:flex;flex-direction:column;gap:7px;margin-top:5px"><sc-for list="{{ h.review.improvements }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px;line-height:1.5"><span class="jp" style="color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ x.original }}</span> → <b class="jp" style="color:var(--color-accent)">{{ x.better }}</b><div style="color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ x.explanation }}</div></div></sc-for></div></div>
+                        </sc-if>
+                        <sc-if value="{{ h.review.hasPhrases }}" hint-placeholder-val="{{ true }}">
+                          <div><b style="font-size:12.5px">带走这些表达</b><div style="display:flex;flex-direction:column;gap:4px;margin-top:4px"><sc-for list="{{ h.review.phrases }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px"><b class="jp">{{ x.japanese }}</b> · {{ x.meaning }}</div></sc-for></div></div>
+                        </sc-if>
+                        <div style="font-size:12.5px;padding-top:9px;border-top:1px solid color-mix(in srgb,var(--color-accent) 20%,transparent)"><b>下一步：</b>{{ h.review.nextStep }}</div>
+                      </div>
+                    </sc-if>
                   </details>
                 </sc-for>
               </div>
@@ -486,6 +516,52 @@
             <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">自然会话</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">更像会话伙伴，不会每轮都纠错、提问或要求复述。</p></div>
             <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">即时纠错</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">说错立刻提示，课后自动沉淀为长期复习重点。</p></div>
           </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ GRAMMAR COURSES ============ -->
+      <sc-if value="{{ nav.grammar }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:960px">
+          <div style="display:flex;align-items:flex-end;gap:18px;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px">
+            <div><h1 style="font-size:34px;margin:0 0 4px">逐语法点学习</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">从 N5 学到 N3，每一条都有中文讲解、例句和小测验。</p></div>
+            <div style="font-size:12.5px;color:var(--color-accent-800);background:var(--color-accent-100);padding:8px 12px;border-radius:999px">已掌握 {{ grammar.mastered }} / {{ grammar.total }}</div>
+          </div>
+          <div class="card elev-sm" style="padding:14px 16px;flex-direction:row;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+            <div style="display:flex;gap:5px;background:var(--color-neutral-100);padding:4px;border-radius:12px">
+              <button class="btn btn-secondary" data-on="{{ grammar.isN5 }}" onClick="{{ grammar.onN5 }}" style="padding:7px 14px">N5</button>
+              <button class="btn btn-secondary" data-on="{{ grammar.isN4 }}" onClick="{{ grammar.onN4 }}" style="padding:7px 14px">N4</button>
+              <button class="btn btn-secondary" data-on="{{ grammar.isN3 }}" onClick="{{ grammar.onN3 }}" style="padding:7px 14px">N3</button>
+            </div>
+            <input class="input" aria-label="搜索语法点" placeholder="搜索语法，例如 〜ながら" value="{{ grammar.query }}" onInput="{{ grammar.onSearch }}" style="flex:1;min-width:220px;padding:9px 13px">
+            <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 52%,transparent)">{{ grammar.count }} 条</span>
+          </div>
+
+          <sc-if value="{{ grammar.loading }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-sm" style="padding:28px;align-items:center;text-align:center;background:var(--color-accent-100)"><b>正在为你生成这条语法的中文微课…</b><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:5px">生成一次后会保存，下次可以直接打开。</span></div>
+          </sc-if>
+          <sc-if value="{{ grammar.hasLesson }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-md" style="padding:24px;margin-bottom:18px;gap:17px;border:1px solid color-mix(in srgb,var(--color-accent) 24%,var(--color-divider))">
+              <div style="display:flex;align-items:flex-start;gap:12px;justify-content:space-between;flex-wrap:wrap"><div><span class="tag tag-accent">{{ grammar.lesson.level }}</span><h2 class="jp" style="font-size:30px;margin:7px 0 3px">{{ grammar.lesson.title }}</h2><div style="font-size:16px;color:var(--color-accent-800)">{{ grammar.lesson.meaning }}</div></div><button class="btn btn-primary" onClick="{{ grammar.lesson.onMaster }}">{{ grammar.lesson.masterLabel }}</button></div>
+              <p style="font-size:14px;line-height:1.75;margin:0">{{ grammar.lesson.explanation }}</p>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+                <div style="padding:14px;border-radius:14px;background:var(--color-neutral-100)"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:5px">接续</div><div class="jp" style="font-size:14px;line-height:1.6">{{ grammar.lesson.formation }}</div></div>
+                <div style="padding:14px;border-radius:14px;background:var(--color-accent-2-100)"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:5px">常见错误</div><div style="font-size:13px;line-height:1.6">{{ grammar.lesson.pitfall }}</div></div>
+              </div>
+              <div><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:8px">例句</div><div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ grammar.lesson.examples }}" as="x" hint-placeholder-count="3"><div style="padding:13px 15px;border-radius:14px;background:var(--color-neutral-100)"><div class="jp" style="font-size:16px;font-weight:650">{{ x.japanese }}</div><div style="font-size:13px;margin-top:3px">{{ x.translation }}</div><div style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 52%,transparent);margin-top:3px">{{ x.note }}</div></div></sc-for></div></div>
+              <details style="padding:14px 15px;border-radius:14px;background:var(--color-accent-100)"><summary style="cursor:pointer;font-weight:750">小测验：{{ grammar.lesson.quizPrompt }}</summary><div class="jp" style="font-size:15px;margin-top:10px"><b>答案：</b>{{ grammar.lesson.quizAnswer }}</div><div style="font-size:12.5px;line-height:1.6;margin-top:4px">{{ grammar.lesson.quizExplanation }}</div></details>
+            </div>
+          </sc-if>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px">
+            <sc-for list="{{ grammar.items }}" as="g" hint-placeholder-count="9">
+              <button class="card elev-sm" onClick="{{ g.onOpen }}" style="border:none;cursor:pointer;color:inherit;text-align:left;padding:16px;gap:7px;font:inherit">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="tag">{{ g.level }}</span><span style="font-size:11px;color:{{ g.statusColor }}">{{ g.statusLabel }}</span></div>
+                <div class="jp" style="font-family:var(--font-heading);font-size:19px;line-height:1.35">{{ g.title }}</div>
+                <div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);line-height:1.5">{{ g.short }}</div>
+              </button>
+            </sc-for>
+          </div>
+          <div style="font-size:11.5px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 48%,transparent);margin-top:18px">语法索引与参考例句来自 <a href="https://hanabira.org/" target="_blank" rel="noreferrer" style="color:var(--color-accent)">Hanabira</a> 的 Creative Commons 开放资料。JLPT 等级为学习参考，并非官方逐条大纲；中文讲解由 AI-Kotoba 按需生成。</div>
         </div>
       </sc-if>
 
@@ -644,10 +720,14 @@ class Component extends DCLogic {
     this._tutorTranscript = [];
     this._tutorMeta = null;
     this.tutorSessions = [];
+    this.grammarCatalog = [];
+    this.grammarProgress = [];
+    this.activeGrammarPoint = null;
+    this.activeGrammarLesson = null;
     this._streak = null;
     let savedPalette='blue';
     try{ const saved=window.localStorage.getItem('ai-kotoba-palette'); if(['blue','terra','sage'].includes(saved)) savedPalette=saved; }catch(e){}
-    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorActive:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[] };
+    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorActive:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], grammarLevel:'N5', grammarQuery:'', grammarLoading:false };
   }
 
   changePalette(dir){
@@ -744,7 +824,7 @@ class Component extends DCLogic {
       nav, crumb:crumbs[v],
       dirAttr:dir, furiAttr:this.state.furi?'on':'off',
       furiLabel:this.state.furi?'开':'关', toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
-      go:{home:set('home'),practice:set('practice'),tutor:set('tutor'),pron:set('pron'),reading:set('reading'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings')},
+      go:{home:set('home'),practice:set('practice'),tutor:set('tutor'),pron:set('pron'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings')},
       openDetail:set('detail'),
       dir:{blue:()=>this.changePalette('blue'),terra:()=>this.changePalette('terra'),sage:()=>this.changePalette('sage')},
       dirIsBlue:dir==='blue', dirIsTerra:dir==='terra', dirIsSage:dir==='sage',
@@ -793,7 +873,11 @@ class Component extends DCLogic {
   }
 
   async loadRealData(){
-    try{ this.applyData(await window.AIKotoba.init()); }
+    try{
+      const [data,catalog]=await Promise.all([window.AIKotoba.init(),window.AIKotoba.loadGrammarCatalog?.()||[]]);
+      this.grammarCatalog=Array.isArray(catalog)?catalog:[];
+      this.applyData(data);
+    }
     catch(e){ console.error(e); }
   }
 
@@ -806,6 +890,7 @@ class Component extends DCLogic {
     if(Array.isArray(data.vocab) && data.vocab.length) this.V=data.vocab;
     this.articles=(data.articles||[]).map(a=>window.AIKotoba.prepareArticle(a));
     this.tutorSessions=Array.isArray(data.tutorSessions)?data.tutorSessions:[];
+    this.grammarProgress=Array.isArray(data.grammarProgress)?data.grammarProgress:[];
     this._streak=data.streak||this._streak;
     if(this.currentArticle?.id){
       this.currentArticle=this.articles.find(a=>a.id===this.currentArticle.id)||this.currentArticle;
@@ -909,6 +994,29 @@ class Component extends DCLogic {
     }catch(e){ this.setState({articleGenerating:false}); window.alert(e.message||'文章生成失败'); }
   }
 
+  grammarTitle(value){
+    return String(value||'').replace(/\s*\([^)]*[A-Za-z][^)]*\)\s*$/,'').trim();
+  }
+
+  async openGrammar(point){
+    if(!point||this.state.grammarLoading) return;
+    this.activeGrammarPoint=point;
+    this.activeGrammarLesson=null;
+    this.setState({grammarLoading:true});
+    try{
+      const result=await window.AIKotoba.openGrammarLesson(point);
+      this.activeGrammarPoint=result.point||point;
+      this.activeGrammarLesson=result.lesson||null;
+      this.applyData(result.data||window.AIKotoba.snapshot());
+      this.setState({grammarLoading:false});
+    }catch(e){ this.setState({grammarLoading:false}); window.alert(e.message||'语法课程生成失败'); }
+  }
+
+  setGrammarProgress(status){
+    if(!this.activeGrammarPoint?.id) return;
+    this.applyData(window.AIKotoba.setGrammarStatus(this.activeGrammarPoint.id,status));
+  }
+
   async toggleTutor(){
     if(this._realtime){
       this.finishTutor(); return;
@@ -950,7 +1058,18 @@ class Component extends DCLogic {
     if(messages.length&&window.AIKotoba?.saveTutorSession){
       const data=window.AIKotoba.saveTutorSession({...meta,endedAt:Date.now(),messages});
       this.applyData(data);
-      status='saved';
+      status='reviewing';
+      const sessionId=data.savedTutorSessionId;
+      if(sessionId&&window.AIKotoba.reviewTutorSession){
+        window.AIKotoba.reviewTutorSession(sessionId).then(next=>{
+          this.applyData(next);
+          if(!this.state.tutorActive) this.setState({tutorStatus:'saved'});
+        }).catch(error=>{
+          this.applyData(window.AIKotoba.snapshot());
+          if(!this.state.tutorActive) this.setState({tutorStatus:'reviewError'});
+          console.error(error);
+        });
+      }else status='saved';
     }
     this._tutorTranscript=[];
     this._tutorMeta=null;
@@ -975,9 +1094,9 @@ class Component extends DCLogic {
 
   renderVals(){
     const v=this.state.view, dir=this.state.dir;
-    const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',pron:v==='pron',reading:v==='reading',article:v==='article',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings'};
+    const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',pron:v==='pron',reading:v==='reading',article:v==='article',grammar:v==='grammar',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings'};
     const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); if(view!=='tutor'&&this._realtime) this.finishTutor(); this.setState({view,playing:-1}); };
-    const crumbs={home:'今日',practice:'练习',detail:'练习 › 会话详情',tutor:'AI 语音 Tutor',pron:'发音诊断',reading:'阅读文章',article:'阅读文章 › 三行对译',history:'历史',fav:'收藏',vocab:'生词本',cards:'闪卡复习',settings:'设置'};
+    const crumbs={home:'今日',practice:'练习',detail:'练习 › 会话详情',tutor:'AI 语音 Tutor',pron:'发音诊断',reading:'阅读文章',article:'阅读文章 › 三行对译',grammar:'语法课程',history:'历史',fav:'收藏',vocab:'生词本',cards:'闪卡复习',settings:'设置'};
     const badge=(role)=>role==='a'?{bg:'var(--color-accent-100)',fg:'var(--color-accent-800)'}:{bg:'var(--color-accent-2-100)',fg:'var(--color-accent-2-800)'};
     const active=this.activeScenario||{title:'はじめまして',localizedTitle:'初次见面 · 自我介绍',titleChinese:'初次见面 · 自我介绍',level:'N5',topic:'初次见面的自我介绍',vocabulary:this.V};
     const scenarios=this.scenarios?.length?this.scenarios:[];
@@ -985,13 +1104,24 @@ class Component extends DCLogic {
     const actualRecents=recents.length?recents:this.recents.map(r=>({...r,onOpen:()=>this.openScenario(active)}));
     const dueCount=this.V.filter(x=>(x.nextReview||0)<=Date.now()).length;
     const streak=this._streak||{streak:7,week:['日','一','二','三','四','五','六'].map((day,i)=>({day,done:i<=3,date:''}))};
-    const statusLabels={idle:this.state.tutorActive?'按住“说话”按钮开始':'准备开始',saved:'通话已保存到最近通话',connecting:'正在连接 GPT Realtime…',listening:'正在听你说，松开发送…',thinking:'Tutor 正在思考…',speaking:'Tutor 正在说话；按住说话可打断',disconnected:'连接已断开，结束通话仍会保存已有记录'};
+    const statusLabels={idle:this.state.tutorActive?'按住“说话”按钮开始':'准备开始',saved:'通话与课后复盘已保存',reviewing:'通话已保存，正在生成课后复盘…',reviewError:'通话已保存；课后复盘暂时生成失败',connecting:'正在连接 GPT Realtime…',listening:'正在听你说，松开发送…',thinking:'Tutor 正在思考…',speaking:'Tutor 正在说话；按住说话可打断',disconnected:'连接已断开，结束通话仍会保存已有记录'};
     const tutorHistory=(this.tutorSessions||[]).slice(0,12).map(session=>{
       let messages=Array.isArray(session.messages)?session.messages.map(item=>({who:item.role==='me'?'你':'Tutor',text:String(item.text||'')})).filter(item=>item.text):[];
       if(!messages.length&&session.transcript) messages=String(session.transcript).split('\n').map(line=>{const mine=/^(Learner|我|你)[:：]/.test(line);return{who:mine?'你':'Tutor',text:line.replace(/^[^:：]+[:：]\s*/,'')}}).filter(item=>item.text);
       const mins=Math.max(1,Math.round((Number(session.durationMs)||0)/60000));
-      return{scene:session.scene||'日常会話',level:session.level||'N4',meta:`${new Date(session.createdAt||Date.now()).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · ${session.userTurns||messages.filter(item=>item.who==='你').length} 轮 · ${mins} 分钟`,messages};
+      const rawReview=session.review||{};
+      const review={ready:session.reviewStatus==='ready'&&!!rawReview.summary,generating:['pending','generating'].includes(session.reviewStatus),error:session.reviewStatus==='error',summary:rawReview.summary||'',strengths:(rawReview.strengths||[]).map(text=>({text})),improvements:rawReview.improvements||[],phrases:rawReview.usefulPhrases||[],hasStrengths:(rawReview.strengths||[]).length>0,hasImprovements:(rawReview.improvements||[]).length>0,hasPhrases:(rawReview.usefulPhrases||[]).length>0,nextStep:rawReview.nextStep||''};
+      return{scene:session.scene||'日常会話',level:session.level||'N4',meta:`${new Date(session.createdAt||Date.now()).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · ${session.userTurns||messages.filter(item=>item.who==='你').length} 轮 · ${mins} 分钟`,messages,review};
     });
+    const progressById=new Map((this.grammarProgress||[]).map(item=>[item.id,item]));
+    const grammarRows=(this.grammarCatalog||[]).filter(item=>item.level===this.state.grammarLevel);
+    const grammarQuery=String(this.state.grammarQuery||'').trim().toLocaleLowerCase();
+    const grammarItems=grammarRows.filter(item=>!grammarQuery||`${item.title} ${item.short_explanation||''} ${item.formation||''}`.toLocaleLowerCase().includes(grammarQuery)).map(item=>{
+      const status=progressById.get(item.id)?.status||'unstarted';
+      return{...item,title:this.grammarTitle(item.title),short:item.short_explanation||item.formation||'打开生成中文讲解',statusLabel:status==='mastered'?'已掌握':status==='studying'?'学习中':'未学习',statusColor:status==='mastered'?'var(--color-accent)':status==='studying'?'var(--color-accent-2)':'color-mix(in srgb,var(--color-text) 42%,transparent)',onOpen:()=>this.openGrammar(item)};
+    });
+    const grammarProgress=this.activeGrammarPoint?progressById.get(this.activeGrammarPoint.id):null;
+    const grammarLesson=this.activeGrammarLesson;
     const selected=this.selectedToken;
     const grammarParts=selected?[selected.dictionaryForm&&selected.dictionaryForm!==selected.surface?'词典形 '+selected.dictionaryForm:'',selected.pos,(selected.partOfSpeech||[])[5]].filter(x=>x&&x!=='*'):[];
     const current=this.currentArticle||{title:'',localizedTitle:'',level:'N4',paragraphs:[]};
@@ -999,7 +1129,7 @@ class Component extends DCLogic {
     return {
       nav,crumb:crumbs[v],dirAttr:dir,furiAttr:this.state.furi?'on':'off',
       furiLabel:this.state.furi?'开':'关',toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
-      go:{home:set('home'),practice:set('practice'),tutor:set('tutor'),pron:set('pron'),reading:set('reading'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings')},
+      go:{home:set('home'),practice:set('practice'),tutor:set('tutor'),pron:set('pron'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings')},
       openDetail:()=>this.openScenario(active),
       dir:{blue:()=>this.changePalette('blue'),terra:()=>this.changePalette('terra'),sage:()=>this.changePalette('sage')},dirIsBlue:dir==='blue',dirIsTerra:dir==='terra',dirIsSage:dir==='sage',
       blueBg:dir==='blue'?'var(--color-bg)':'transparent',blueFg:dir==='blue'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
@@ -1019,6 +1149,7 @@ class Component extends DCLogic {
       vocabList:this.V.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?'今天到期':'稍后复习',dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
       flash:(()=>{const cards=this.V.slice(0,Math.max(1,Math.min(20,this.V.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:'暂无词汇',reading:'',meaning:'请先加入生词',example:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
       tutor:{onToggle:()=>this.toggleTutor(),active:this.state.tutorActive,talking:this.state.tutorTalking,onTalkStart:e=>this.startTutorTalking(e),onTalkEnd:e=>this.stopTutorTalking(e),talkLabel:this.state.tutorTalking?'正在说话…松开发送':'按住说话',style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?'默认自然日语；只有你求助、没听懂或用中文回答时，才补一句中文，不强制复述。':this.state.tutorStyle==='conversation'?'尽量保持全日语自然会话，只温和纠正关键问题。':this.state.tutorStyle==='correction'?'回应内容后，每次最多纠正一个最值得改进的表达。':'像日语口试一样逐题练习并简短评价。',buttonLabel:this.state.tutorActive?'结束并保存':'开始通话',statusLabel:statusLabels[this.state.tutorStatus]||'',hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages,hasHistory:tutorHistory.length>0,history:tutorHistory},
+      grammar:{isN5:this.state.grammarLevel==='N5',isN4:this.state.grammarLevel==='N4',isN3:this.state.grammarLevel==='N3',onN5:()=>this.setState({grammarLevel:'N5'}),onN4:()=>this.setState({grammarLevel:'N4'}),onN3:()=>this.setState({grammarLevel:'N3'}),query:this.state.grammarQuery,onSearch:e=>this.setState({grammarQuery:e.target.value}),items:grammarItems,count:grammarItems.length,total:(this.grammarCatalog||[]).length,mastered:(this.grammarProgress||[]).filter(item=>item.status==='mastered').length,loading:this.state.grammarLoading,hasLesson:!!grammarLesson&&!this.state.grammarLoading,lesson:grammarLesson?{level:this.activeGrammarPoint?.level||'',title:grammarLesson.title||this.grammarTitle(this.activeGrammarPoint?.title),meaning:grammarLesson.meaning||'',explanation:grammarLesson.explanation||'',formation:grammarLesson.formation||this.activeGrammarPoint?.formation||'',pitfall:grammarLesson.pitfall||'',examples:(grammarLesson.examples||[]).map(item=>({japanese:item.japanese||'',translation:item.translation||'',note:item.note||''})),quizPrompt:grammarLesson.quiz?.prompt||'',quizAnswer:grammarLesson.quiz?.answer||'',quizExplanation:grammarLesson.quiz?.explanation||'',masterLabel:grammarProgress?.status==='mastered'?'已掌握 ✓':'标记为已掌握',onMaster:()=>this.setGrammarProgress(grammarProgress?.status==='mastered'?'studying':'mastered')}:{examples:[]}},
       articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))+' 分钟',onOpen:()=>this.openArticle(a)})),
       article:{
         onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?'生成中…':'生成新文章',analysisLabel:this.state.articleAnalyzing?'正在生成逐词语境释义…':(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?'停止':'朗读',onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:event=>this.selectToken(t,event)}))}))},

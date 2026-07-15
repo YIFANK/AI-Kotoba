@@ -166,6 +166,67 @@ Answer in ${explanationLanguage}. Be concise (3-6 sentences) and answer directly
   return callAI(prompt, { fast: true });
 }
 
+// ---------- 语音 Tutor 课后复盘 ----------
+export async function reviewTutorConversation(session) {
+  const { nativeLanguage, explanationLanguage } = learnerProfile();
+  const transcript = String(session?.transcript || '').trim().slice(0, 24_000);
+  if (!transcript) throw new Error('没有可复盘的通话文本');
+  const prompt = `You are reviewing a Japanese-learning voice tutoring session.
+Learner native language: ${nativeLanguage}
+Explanation language: ${explanationLanguage}
+Approximate level: JLPT ${session?.level || 'N4'}
+Conversation topic: ${session?.scene || 'free conversation'}
+
+Analyze only evidence that actually appears in the transcript. Do not invent pronunciation scores because audio is not provided. Focus on the learner's Japanese; ignore small speech-to-text punctuation mistakes. Give encouraging but specific feedback.
+
+Return JSON only in this exact shape:
+{
+  "summary": "2-3 sentence overall review in ${explanationLanguage}",
+  "strengths": ["up to 3 concrete strengths in ${explanationLanguage}"],
+  "improvements": [{"original":"learner wording", "better":"natural Japanese correction", "explanation":"short explanation in ${explanationLanguage}"}],
+  "usefulPhrases": [{"japanese":"useful Japanese sentence", "meaning":"meaning in ${explanationLanguage}"}],
+  "grammarEvidence": [{"pattern":"Japanese grammar pattern", "level":"N5|N4|N3|unknown", "result":"used-well|needs-work", "note":"short evidence in ${explanationLanguage}"}],
+  "nextStep": "one specific next practice task in ${explanationLanguage}"
+}
+
+Keep each array to at most 3 items. If there is too little learner Japanese, say so honestly and return fewer items.
+
+Transcript:
+${transcript}`;
+  return extractJSON(await callFastAI(prompt));
+}
+
+// ---------- 逐语法点课程（开放资料为骨架，按学习者语言生成原创讲解） ----------
+export async function generateGrammarLesson(point) {
+  const { nativeLanguage, explanationLanguage } = learnerProfile();
+  const source = {
+    level: point?.level,
+    title: point?.title,
+    shortExplanation: point?.short_explanation,
+    longExplanation: point?.long_explanation,
+    formation: point?.formation,
+    examples: (Array.isArray(point?.examples) ? point.examples : []).slice(0, 4),
+  };
+  const prompt = `Create a concise, accurate Japanese grammar micro-lesson for a learner whose native language is ${nativeLanguage}. The explanation language must be ${explanationLanguage}. Use the licensed source data below only as reference, and write the explanation freshly rather than translating it word-for-word.
+
+Return JSON only:
+{
+  "title":"clean Japanese grammar pattern without romaji in parentheses",
+  "meaning":"one-line meaning in ${explanationLanguage}",
+  "explanation":"2-4 concise sentences in ${explanationLanguage}, including nuance and register",
+  "formation":"clear formation notation",
+  "pitfall":"one common mistake in ${explanationLanguage}",
+  "examples":[{"japanese":"natural Japanese sentence","translation":"${explanationLanguage}","note":"brief usage note in ${explanationLanguage}"}],
+  "quiz":{"prompt":"one fill-in-the-blank Japanese question","answer":"answer","explanation":"why in ${explanationLanguage}"}
+}
+
+Provide 3 examples. Keep the level appropriate for ${point?.level || 'N4'}. Verify that Japanese examples are natural.
+
+Reference data:
+${JSON.stringify(source)}`;
+  return extractJSON(await callFastAI(prompt));
+}
+
 // ---------- 提示词（对应 Constants.scenarioPromptJapanese / scenarioPromptTranslation） ----------
 function promptJapanese(topic, level) {
   const { nativeLanguage } = learnerProfile();

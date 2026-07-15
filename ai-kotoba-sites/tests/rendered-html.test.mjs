@@ -22,10 +22,11 @@ test("removes a duplicated speaker label from dialogue and furigana", () => {
 });
 
 test("ships the original UI with account, playback, and push-to-talk controls", async () => {
-  const [html, integration, services, realtime, realtimeRoute] = await Promise.all([
+  const [html, integration, services, storage, realtime, realtimeRoute] = await Promise.all([
     readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8"),
     readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8"),
     readFile(new URL("../public/ai-kotoba-web/js/services.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/ai-kotoba-web/js/storage.js", import.meta.url), "utf8"),
     readFile(new URL("../public/ai-kotoba-web/js/realtime.js", import.meta.url), "utf8"),
     readFile(new URL("../app/api/realtime/session/route.ts", import.meta.url), "utf8"),
   ]);
@@ -64,4 +65,23 @@ test("ships the original UI with account, playback, and push-to-talk controls", 
   assert.match(services, /話題変更を拒否しない/);
   assert.match(services, /never as a required curriculum boundary/);
   assert.doesNotMatch(services, /各ターンは「短い日本語の反応/);
+  assert.match(html, /逐语法点学习/);
+  assert.match(html, /Hanabira/);
+  assert.match(html, /正在生成课后复盘/);
+  assert.match(integration, /reviewTutorSession/);
+  assert.match(integration, /loadGrammarCatalog/);
+  assert.match(services, /reviewTutorConversation/);
+  assert.match(services, /generateGrammarLesson/);
+  assert.match(storage, /grammarProgress/);
+});
+
+test("includes licensed N5-N3 grammar catalogs", async () => {
+  const levels = [["N5", 136], ["N4", 124], ["N3", 132]];
+  for (const [level, expected] of levels) {
+    const raw = await readFile(new URL(`../public/grammar/grammar_ja_${level}_full_alphabetical_0001.json`, import.meta.url), "utf8");
+    const rows = JSON.parse(raw);
+    assert.equal(rows.length, expected);
+    assert.equal(typeof rows[0].title, "string");
+    assert.ok(Array.isArray(rows[0].examples));
+  }
 });

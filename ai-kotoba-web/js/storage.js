@@ -8,6 +8,7 @@ const KEYS = {
   tutorSessions: 'kotoba.tutorSessions',
   learningNotes: 'kotoba.learningNotes',
   pronunciationAttempts: 'kotoba.pronunciationAttempts',
+  grammarProgress: 'kotoba.grammarProgress',
 };
 const ARTICLE_LIMIT = 50;
 const TUTOR_SESSION_LIMIT = 100;
@@ -79,6 +80,7 @@ export async function initSync() {
     tutorSessions: mergeById(local.tutorSessions, server.tutorSessions, 'createdAt'),
     learningNotes: mergeById(local.learningNotes, server.learningNotes, 'updatedAt'),
     pronunciationAttempts: mergeById(local.pronunciationAttempts, server.pronunciationAttempts, 'createdAt'),
+    grammarProgress: mergeById(local.grammarProgress, server.grammarProgress, 'updatedAt'),
   };
   for (const [name, key] of Object.entries(KEYS)) {
     localStorage.setItem(key, JSON.stringify(merged[name]));
@@ -89,10 +91,11 @@ export async function initSync() {
 export function getSettings() {
   const s = Object.assign(
     {
-      provider: 'claude', claudeKey: '', openaiKey: '',
+      // 公网版的模型密钥只存在服务端；浏览器统一走 /api/ai。
+      provider: 'local', claudeKey: '', openaiKey: '',
       claudeModel: 'claude-sonnet-5', openaiModel: 'gpt-4o',
       openaiFastModel: 'gpt-5.6-luna',
-      localEngine: 'claude',
+      localEngine: 'openai',
       ttsProvider: 'system', elevenKey: '',
       ttsRate: 0.75,
       // 角色 A / B 双音色（默认 Sarah 女声 / George 男声，多语模型下日语自然）
@@ -215,6 +218,14 @@ export function saveTutorSession(session) {
   list.unshift(session);
   save(KEYS.tutorSessions, list.slice(0, TUTOR_SESSION_LIMIT));
 }
+export function updateTutorSession(id, patch) {
+  const list = getTutorSessions();
+  const index = list.findIndex(item => item.id === id);
+  if (index < 0) return null;
+  list[index] = Object.assign({}, list[index], patch, { updatedAt: Date.now() });
+  save(KEYS.tutorSessions, list);
+  return list[index];
+}
 export function getLearningNotes(limit) {
   const list = load(KEYS.learningNotes, [])
     .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
@@ -269,6 +280,24 @@ export function savePronunciationAttempt(attempt) {
   const list = getPronunciationAttempts().filter(item => item.id !== attempt.id);
   list.unshift(attempt);
   save(KEYS.pronunciationAttempts, list.slice(0, PRONUNCIATION_ATTEMPT_LIMIT));
+}
+
+// ---------- 语法课程进度与按需生成的本地化讲解 ----------
+export function getGrammarProgress() {
+  return load(KEYS.grammarProgress, [])
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+}
+export function upsertGrammarProgress(input) {
+  const id = String(input?.id || '').trim();
+  if (!id) throw new Error('语法点 ID 不能为空');
+  const list = getGrammarProgress();
+  const index = list.findIndex(item => item.id === id);
+  const previous = index >= 0 ? list[index] : { id, status: 'unstarted', createdAt: Date.now() };
+  const updated = Object.assign({}, previous, input, { id, updatedAt: Date.now() });
+  if (index >= 0) list.splice(index, 1);
+  list.unshift(updated);
+  save(KEYS.grammarProgress, list.slice(0, 600));
+  return updated;
 }
 
 // ---------- 阅读文章 ----------
