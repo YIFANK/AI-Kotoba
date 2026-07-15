@@ -175,6 +175,7 @@ function promptJapanese(topic, level) {
 - JLPT ${level} レベルに合った語彙と文法を使うこと
 - 2人の話者による8〜12行の自然でリアルな会話にすること
 - 教科書的な不自然な表現を避け、実際に日本人が使う言い回しにすること
+- speaker は speaker フィールドだけに書き、japanese と furigana の先頭に話者名や「話者名、」を絶対に含めないこと
 - 会話から学習価値の高い単語・表現を6〜10個選ぶこと
 
 以下のJSON形式のみで出力してください。説明文やその他のテキストは一切不要です：
@@ -205,6 +206,16 @@ ${JSON.stringify(japaneseJSON, null, 2)}`;
 
 function stripFuriganaAnnotations(text) {
   return String(text || '').replace(/\[[^\]\n]+\]/g, '');
+}
+
+export function stripRepeatedSpeakerPrefix(text, speaker) {
+  const source = String(text || '').trimStart();
+  const speakerLabel = stripFuriganaAnnotations(speaker).replace(/[\s　]/g, '');
+  if (!source || !speakerLabel) return source;
+  const match = source.match(/^([\s\S]{1,64}?)[、，,:：][\s　]*/u);
+  if (!match) return source;
+  const leadingLabel = stripFuriganaAnnotations(match[1]).replace(/[\s　]/g, '');
+  return leadingLabel === speakerLabel ? source.slice(match[0].length).trimStart() : source;
 }
 
 function mergeTranslatedRows(japaneseRows = [], translatedRows = []) {
@@ -256,12 +267,14 @@ export async function generateScenario(topic, level, onStatus) {
 
 function normalizeScenario(data, topic, level) {
   const lines = (data.conversation || []).map((l, i) => {
+    const speaker = String(l.speaker || (i % 2 === 0 ? 'A' : 'B'));
     const rawJapanese = String(l.japanese || '');
-    const annotated = String(l.furigana || '') || (/\[[^\]]+\]/.test(rawJapanese) ? rawJapanese : '');
-    const japanese = stripFuriganaAnnotations(rawJapanese);
+    const rawAnnotated = String(l.furigana || '') || (/\[[^\]]+\]/.test(rawJapanese) ? rawJapanese : '');
+    const japanese = stripRepeatedSpeakerPrefix(stripFuriganaAnnotations(rawJapanese), speaker);
+    const annotated = stripRepeatedSpeakerPrefix(rawAnnotated, speaker);
     return {
       orderIndex: i,
-      speaker: String(l.speaker || (i % 2 === 0 ? 'A' : 'B')),
+      speaker,
       japanese,
       furigana: annotated || japanese,
       translation: String(l.translation || l.chinese || ''),

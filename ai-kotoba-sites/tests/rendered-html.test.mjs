@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { stripRepeatedSpeakerPrefix } from "../public/ai-kotoba-web/js/services.js";
 
 test("redirects the public root to the existing AI-Kotoba HTML UI", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
@@ -12,6 +13,12 @@ test("keeps anonymous visitors in demo mode", async () => {
   assert.match(accountRoute, /authenticated:\s*false/);
   assert.match(accountRoute, /signin-with-chatgpt/);
   assert.match(accountRoute, /getRequestUser\(request\)/);
+});
+
+test("removes a duplicated speaker label from dialogue and furigana", () => {
+  assert.equal(stripRepeatedSpeakerPrefix("患者[かんじゃ]、3日前[みっかまえ]から熱[ねつ]があります。", "患者"), "3日前[みっかまえ]から熱[ねつ]があります。");
+  assert.equal(stripRepeatedSpeakerPrefix("医者：どうしましたか。", "医者"), "どうしましたか。");
+  assert.equal(stripRepeatedSpeakerPrefix("患者さんは熱がありますか。", "医者"), "患者さんは熱がありますか。");
 });
 
 test("ships the original UI with account and playback-rate controls", async () => {

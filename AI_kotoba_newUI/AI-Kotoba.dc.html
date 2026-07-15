@@ -644,10 +644,20 @@ class Component extends DCLogic {
   }
 
   scenarioLine(l,i=0){
-    const raw=String(l.japanese||l.jp||'');
-    const annotated=String(l.furigana||l.furi||'')||raw;
+    const speaker=l.speaker||l.sp||String.fromCharCode(65+i%2);
+    const raw=this.stripSpeakerPrefix(l.japanese||l.jp||'',speaker);
+    const annotated=this.stripSpeakerPrefix(l.furigana||l.furi||'',speaker)||raw;
     const plain=this.ttsText(raw);
-    return {sp:l.speaker||l.sp||String.fromCharCode(65+i%2),jp:plain,furi:annotated,cn:l.translation||l.chinese||l.cn||''};
+    return {sp:speaker,jp:plain,furi:annotated,cn:l.translation||l.chinese||l.cn||''};
+  }
+
+  stripSpeakerPrefix(text,speaker){
+    const source=String(text||'').trimStart();
+    const plain=value=>String(value||'').replace(/\[[^\]\n]+\]/g,'').replace(/[\s　]/g,'');
+    const label=plain(speaker);
+    if(!source||!label) return source;
+    const match=source.match(/^([\s\S]{1,64}?)[、，,:：][\s　]*/u);
+    return match&&plain(match[1])===label?source.slice(match[0].length).trimStart():source;
   }
 
   ttsText(text){ return String(text||'').replace(/\[[^\]\n]+\]/g,'').trim(); }
