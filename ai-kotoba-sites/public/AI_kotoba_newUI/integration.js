@@ -74,6 +74,22 @@ function setSpeechRate(value) {
   return rate;
 }
 
+function normalizeTutorStyle(value) {
+  return ['bilingual', 'conversation', 'correction', 'interview'].includes(String(value))
+    ? String(value)
+    : 'bilingual';
+}
+
+function getTutorStyle() {
+  return normalizeTutorStyle(db.getSettings().tutorStyle);
+}
+
+function setTutorStyle(value) {
+  const style = normalizeTutorStyle(value);
+  db.saveSettings({ ...db.getSettings(), tutorStyle: style });
+  return style;
+}
+
 function systemJapaneseSpeech(text, onEnd, rate = getSpeechRate()) {
   if (!window.speechSynthesis || typeof SpeechSynthesisUtterance !== 'function') {
     onEnd?.();
@@ -557,12 +573,13 @@ async function createScenario(topic, level, onStatus) {
   return scenario;
 }
 
-async function startTutor({ topic = '日常会話', level = 'N4', style = 'conversation', onUserText, onAIDelta, onAIDone, onStatus, onError }) {
+async function startTutor({ topic = '日常会話', level = 'N4', style, onUserText, onAIDelta, onAIDone, onStatus, onError }) {
   const settings = db.getSettings();
+  const teachingStyle = normalizeTutorStyle(style || settings.tutorStyle);
   return startRealtimeSession({
     apiKey: settings.openaiKey,
     voice: settings.realtimeVoice || 'marin',
-    instructions: freeTalkInstructions(topic, level, style, db.getLearningNotes(8)),
+    instructions: freeTalkInstructions(topic, level, teachingStyle, db.getLearningNotes(8)),
     onUserText,
     onAIDelta,
     onAIDone,
@@ -590,5 +607,7 @@ window.AIKotoba = {
   stopJapaneseSpeech,
   getSpeechRate,
   setSpeechRate,
+  getTutorStyle,
+  setTutorStyle,
 };
 window.dispatchEvent(new Event('ai-kotoba-ready'));

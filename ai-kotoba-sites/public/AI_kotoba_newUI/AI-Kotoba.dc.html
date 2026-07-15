@@ -426,7 +426,17 @@
               <span style="width:72px;height:72px;border-radius:50%;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;justify-content:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 19v3"/></svg></span>
             </div>
             <h3 style="font-size:22px;margin:0">准备好开始对话了吗？</h3>
-            <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:4px 0 18px">选择一种模式，用麦克风直接和 Tutor 说日语。</p>
+            <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:4px 0 14px">选择教学方式，用麦克风直接和 Tutor 练习。</p>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:16px">
+              <label for="tutor-style" style="font-size:12px;font-weight:700;color:var(--color-accent-800)">教学方式</label>
+              <select id="tutor-style" aria-label="Tutor 教学方式" value="{{ tutor.style }}" onChange="{{ tutor.onStyle }}" disabled="{{ tutor.active }}" class="input" style="width:auto;min-width:160px;padding:7px 34px 7px 13px;font-size:13px">
+                <option value="bilingual">双语入门（推荐 N5–N4）</option>
+                <option value="conversation">日语沉浸</option>
+                <option value="correction">即时纠错</option>
+                <option value="interview">口试训练</option>
+              </select>
+              <span style="max-width:320px;text-align:left;font-size:11.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ tutor.styleHelp }}</span>
+            </div>
             <button class="btn btn-primary" onClick="{{ tutor.onToggle }}" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px">{{ tutor.buttonLabel }}</button>
             <div style="font-size:12.5px;color:var(--color-accent-800);margin-top:10px">{{ tutor.statusLabel }}</div>
           </div>
@@ -591,7 +601,7 @@ class Component extends DCLogic {
     this.selectedToken = null;
     this._realtime = null;
     this._streak = null;
-    this.state = { view:'home', dir:'terra', furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorActive:false, tutorStatus:'idle', tutorMessages:[] };
+    this.state = { view:'home', dir:'terra', furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorActive:false, tutorStatus:'idle', tutorMessages:[] };
   }
 
   reveal(){ this.setState({flashRevealed:true}); }
@@ -647,6 +657,11 @@ class Component extends DCLogic {
     const rate=window.AIKotoba?.setSpeechRate?.(value)||Number(value)||.75;
     window.AIKotoba?.stopJapaneseSpeech?.();
     this.setState({speechRate:rate,playing:-1});
+  }
+
+  changeTutorStyle(value){
+    const style=window.AIKotoba?.setTutorStyle?.(value)||String(value||'bilingual');
+    this.setState({tutorStyle:style});
   }
 
   onGenerate(){
@@ -729,7 +744,8 @@ class Component extends DCLogic {
       this.currentArticle=this.articles.find(a=>a.id===this.currentArticle.id)||this.currentArticle;
     }
     const savedRate=Number(data.settings?.ttsRate);
-    this.setState({dataReady:true,speechRate:Number.isFinite(savedRate)?savedRate:.75});
+    const savedTutorStyle=String(data.settings?.tutorStyle||'bilingual');
+    this.setState({dataReady:true,speechRate:Number.isFinite(savedRate)?savedRate:.75,tutorStyle:savedTutorStyle});
   }
 
   openScenario(sc){
@@ -816,7 +832,7 @@ class Component extends DCLogic {
     this.setState({tutorStatus:'connecting'});
     try{
       this._realtime=await window.AIKotoba.startTutor({
-        topic:this.state.sceneInput||'日常会話',level:this.state.sceneLevel,
+        topic:this.state.sceneInput||'日常会話',level:this.state.sceneLevel,style:this.state.tutorStyle,
         onUserText:text=>this.setState(s=>({tutorMessages:[...s.tutorMessages,{who:'你',text}]})),
         onAIDelta:()=>{},
         onAIDone:text=>text&&this.setState(s=>({tutorMessages:[...s.tutorMessages,{who:'Tutor',text}]})),
@@ -865,7 +881,7 @@ class Component extends DCLogic {
       },
       vocabList:this.V.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?'今天到期':'稍后复习',dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
       flash:(()=>{const cards=this.V.slice(0,Math.max(1,Math.min(20,this.V.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:'暂无词汇',reading:'',meaning:'请先加入生词',example:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
-      tutor:{onToggle:()=>this.toggleTutor(),buttonLabel:this.state.tutorActive?'结束通话':'开始通话',statusLabel:statusLabels[this.state.tutorStatus]||'',hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages},
+      tutor:{onToggle:()=>this.toggleTutor(),active:this.state.tutorActive,style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?'日语先行；遇到新词、纠错或卡住时，才用你的解释语言补一句。':this.state.tutorStyle==='conversation'?'尽量保持全日语自然会话，只温和纠正关键问题。':this.state.tutorStyle==='correction'?'每轮回应内容后，只纠正一个最值得改进的表达。':'像日语口试一样逐题练习并简短评价。',buttonLabel:this.state.tutorActive?'结束通话':'开始通话',statusLabel:statusLabels[this.state.tutorStatus]||'',hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages},
       articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))+' 分钟',onOpen:()=>this.openArticle(a)})),
       article:{
         onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?'生成中…':'生成新文章',analysisLabel:this.state.articleAnalyzing?'正在生成逐词语境释义…':(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?'停止':'朗读',onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:()=>this.selectToken(t)}))}))},

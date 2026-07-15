@@ -100,7 +100,7 @@ export function getSettings() {
       elevenVoiceB: 'JBFqnCBsd6RMkjVDRZzb',
       elevenModel: 'eleven_multilingual_v2',
       realtimeVoice: 'marin',
-      tutorStyle: 'conversation',
+      tutorStyle: 'bilingual',
       showFurigana: true,
       // UI 首版中英双语；内容解释语言与母语允许自由填写。
       uiLanguage: 'zh-CN',

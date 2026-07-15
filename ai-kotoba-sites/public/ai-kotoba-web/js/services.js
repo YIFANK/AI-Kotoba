@@ -440,14 +440,27 @@ function learningMemoryBlock(learningNotes = []) {
 
 export function freeTalkInstructions(scene, level, style = 'conversation', learningNotes = []) {
   const { nativeLanguage, explanationLanguage } = learnerProfile();
+  const bilingual = style === 'bilingual';
   const styleRule = {
+    bilingual: `初級者向けの二言語レッスンにする。会話・例文・リピート練習は日本語、文法・語彙・文化の短い説明は ${explanationLanguage} を使う`,
     conversation: '会話の流れを最優先し、小さな間違いは止めすぎない。重要な間違いだけ自然な言い換えで示す',
     correction: '学習者の発話にまず内容で反応し、その後「より自然には〜」の形で重要な誤りを一つだけ短く直す',
     interview: '日本語の口頭試験官として、一問ずつ質問する。回答を短く評価してから次の質問へ進む',
   }[style] || '自然な会話を続ける';
+  const languageRule = bilingual ? `
+二言語モード：
+- 練習の中心は日本語、説明専用の言語は ${explanationLanguage}
+- ${level === 'N5' ? '日本語を約60%、説明を約40%' : '日本語を約75%、説明を約25%'} の目安にし、必ず日本語を先に話す
+- 各ターンは「短い日本語の反応 → 必要なら ${explanationLanguage} の一文ヒント → 易しい日本語の質問」の順にする
+- 毎文を機械的に翻訳しない。新しい表現、重要な訂正、学習者が迷った時だけ短く支える
+- 学習者が ${explanationLanguage} で答えても受け止め、その内容を自然な短い日本語にして復唱を促す
+- 二つの言語は文の途中で混ぜず、文の境界で切り替える
+- 日本語は普段より少しゆっくり、語のまとまりごとに自然な間を置いて話す
+` : '';
   return `あなたは、母語が「${nativeLanguage}」の学習者のための、親切で会話上手な日本語音声チューターです。「${scene}」というテーマで、JLPT ${level} 相当の学習者とレッスンをしてください。説明が必要な場合は「${explanationLanguage}」を使ってください。
 
 指導方針：${styleRule}。
+${languageRule}
 
 会話ルール：
 - 基本は自然な日本語で話し、語彙・文法・速度を ${level} に合わせる
@@ -462,8 +475,10 @@ export function freeTalkInstructions(scene, level, style = 'conversation', learn
 
 export async function freeTalkReply(scene, level, history, userMsg, style = 'conversation', learningNotes = []) {
   const { nativeLanguage, explanationLanguage } = learnerProfile();
+  const bilingual = style === 'bilingual';
   const lines = history.map(h => `${h.role === 'me' ? 'Learner' : 'Tutor'}: ${h.text}`).join('\n');
   const styleRule = {
+    bilingual: `初学者双语教学：练习和例句用日语，语法、词汇或文化说明用 ${explanationLanguage}`,
     conversation: '优先保持自然对话，只纠正影响理解或很不自然的错误',
     correction: '先回应内容，再用「より自然には〜」只纠正一个最重要的问题',
     interview: '像日语口试考官一样，简短评价回答后一次只问一个新问题',
@@ -473,7 +488,7 @@ export async function freeTalkReply(scene, level, history, userMsg, style = 'con
 Rules:
 - Reply mainly in Japanese at ${level} level, in 2-3 sentences, with only one question at a time.
 - Teaching style: ${styleRule}
-- Only when the learner asks for help, explain in one sentence of ${explanationLanguage}, then return to Japanese.
+- ${bilingual ? `Use this turn pattern: short Japanese response first; when a new expression, correction, or hesitation needs support, add at most one short sentence in ${explanationLanguage}; finish with one easy Japanese question. Do not translate every sentence. If the learner answers in ${explanationLanguage}, recast it as one natural Japanese sentence for them to repeat.` : `Only when the learner asks for help, explain in one sentence of ${explanationLanguage}, then return to Japanese.`}
 - Output only the tutor reply without a label or translation.
 ${learningNotes.length ? `\nRecent learning priorities:\n${learningNotes.slice(0, 8).map(item => `- ${item.original || ''} → ${item.better || ''} (${item.note || item.category || ''})`).join('\n')}\nRevisit relevant points naturally without interrupting the conversation.` : ''}
 

@@ -537,11 +537,11 @@ function startInteractive(sc, role, opts = {}) {
 const TUTOR_CONTENT = {
   'zh-CN': {
     presets: ['在居酒屋和老板闲聊', '和日本同事聊周末计划', '在美容院剪头发', '和房东讨论租房问题', '跟新朋友互相自我介绍', '在旅游咨询处询问景点'],
-    styles: [['conversation', '自然会话', '保持聊天流畅，在关键处温和纠错'], ['correction', '即时纠错', '每轮指出一个最值得改进的表达'], ['interview', '口试训练', '像面试或口试一样逐题练习']],
+    styles: [['bilingual', '双语入门', '日语练习为主，遇到新词或卡住时用解释语言给一句提示'], ['conversation', '自然会话', '保持聊天流畅，在关键处温和纠错'], ['correction', '即时纠错', '每轮指出一个最值得改进的表达'], ['interview', '口试训练', '像面试或口试一样逐题练习']],
   },
   en: {
     presets: ['Chatting with an izakaya owner', 'Weekend plans with a colleague', 'Getting a haircut', 'Discussing rent with a landlord', 'Meeting a new friend', 'Asking at a tourist office'],
-    styles: [['conversation', 'Natural conversation', 'Keep the conversation flowing and correct key issues gently'], ['correction', 'Active correction', 'Correct one high-value issue each turn'], ['interview', 'Oral exam', 'Practice one interview-style question at a time']],
+    styles: [['bilingual', 'Bilingual beginner', 'Practice mainly in Japanese with one-line guidance in your explanation language when useful'], ['conversation', 'Natural conversation', 'Keep the conversation flowing and correct key issues gently'], ['correction', 'Active correction', 'Correct one high-value issue each turn'], ['interview', 'Oral exam', 'Practice one interview-style question at a time']],
   },
 };
 
@@ -822,7 +822,7 @@ function startFreeTalkText(scene, level, style = 'conversation', learningNotes =
     <div class="user-panel" style="margin-top:16px">
       <div class="input-row" style="margin-top:0">
         <button class="mic-btn" id="ft-mic" ${supported ? '' : 'disabled style="opacity:.4"'} title="${supported ? '语音输入（日语）' : '当前浏览器不支持语音识别'}">${ICONS.mic}</button>
-        <input type="text" id="ft-input" placeholder="用日语说点什么吧…（对方会先等你开口）" autocomplete="off">
+        <input type="text" id="ft-input" placeholder="${style === 'bilingual' ? '可以先用日语或你的解释语言开口…' : '用日语说点什么吧…（对方会先等你开口）'}" autocomplete="off">
         <button class="btn primary" id="ft-send">发送</button>
       </div>
     </div>`;
@@ -894,9 +894,10 @@ async function startFreeTalkVoice(scene, level, style = 'conversation', voice = 
   const cleanup = () => { session?.stop(); session = null; activeRealtime = null; };
 
   ui.exitBtn.addEventListener('click', () => { cleanup(); renderFreeTalkSummary(scene, level, history); });
+  const explanationLanguage = db.getSettings().explanationLanguage || db.getSettings().nativeLanguage || '中文';
   ui.panel.innerHTML = `<div class="tutor-live-controls">
       <button class="btn small" id="rt-mute" disabled>🎙️ 暂停麦克风</button>
-      <span class="hint">直接开口说日语即可；说「中文」可请求提示，结束后会生成学习总结。</span>
+      <span class="hint">${style === 'bilingual' ? `双语入门：Tutor 先说日语，需要时用 ${esc(explanationLanguage)} 给一句提示；你也可以先用 ${esc(explanationLanguage)} 回答。` : `直接开口说日语即可；说「${esc(explanationLanguage)}」可请求提示，结束后会生成学习总结。`}</span>
     </div>`;
   const muteBtn = ui.panel.querySelector('#rt-mute');
   let muted = false;
