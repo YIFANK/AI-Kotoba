@@ -17,6 +17,7 @@ test("keeps anonymous visitors in demo mode", async () => {
   assert.match(accountRoute, /authenticated:\s*false/);
   assert.match(accountRoute, /signin-with-chatgpt/);
   assert.match(accountRoute, /getRequestUser\(request\)/);
+  assert.match(accountRoute, /isAdminUser\(user\)/);
 });
 
 test("removes a duplicated speaker label from dialogue and furigana", () => {
@@ -62,6 +63,9 @@ test("ships the original UI with account, playback, and push-to-talk controls", 
   assert.match(realtime, /response\.cancel/);
   assert.match(realtime, /retention_ratio:\s*0\.8/);
   assert.match(realtime, /session\.update', session: \{ instructions \}/);
+  assert.match(realtime, /REALTIME_MAX_DURATION_MS = 12 \* 60 \* 1000/);
+  assert.match(realtime, /onTimeLimit/);
+  assert.match(html, /本次最多 12 分钟/);
   assert.doesNotMatch(realtime, /response:\s*\{\s*instructions:/);
   assert.match(realtimeRoute, /turn_detection:\s*null/);
   assert.match(services, /英語は絶対に使用しない/);
@@ -77,6 +81,25 @@ test("ships the original UI with account, playback, and push-to-talk controls", 
   assert.match(services, /reviewTutorConversation/);
   assert.match(services, /generateGrammarLesson/);
   assert.match(storage, /grammarProgress/);
+});
+
+test("enforces global paid API caps and protects the admin usage dashboard", async () => {
+  const [server, adminRoute, html, integration] = await Promise.all([
+    readFile(new URL("../lib/server.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/admin/usage/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8"),
+  ]);
+  assert.match(server, /GLOBAL_USAGE_EMAIL = "__global__"/);
+  assert.match(server, /ai_text: \{ label: "文本 AI"[^\n]+global: 300/);
+  assert.match(server, /realtime: \{ label: "Realtime Tutor"[^\n]+global: 30/);
+  assert.match(server, /WHERE daily_usage\.count < \?/);
+  assert.match(server, /scope: "global"/);
+  assert.match(adminRoute, /if \(!isAdminUser\(user\)\)/);
+  assert.match(adminRoute, /user_email = '__global__'/);
+  assert.match(html, /管理员用量/);
+  assert.match(html, /今天还没有付费 API 用量/);
+  assert.match(integration, /\/api\/admin\/usage/);
 });
 
 test("includes licensed N5-N3 grammar catalogs", async () => {

@@ -10,7 +10,6 @@ import {
 } from "../../../../lib/server";
 
 export const dynamic = "force-dynamic";
-const DAILY_PRONUNCIATION_CHECKS = 15;
 
 function analysisPrompt(target: string, level: string, nativeLanguage: string, explanationLanguage: string) {
   return `Analyze a ${nativeLanguage}-speaking JLPT ${level} learner reading this Japanese sentence:
@@ -59,8 +58,8 @@ export async function POST(request: Request) {
     const explanationLanguage = String(body.explanationLanguage || "Simplified Chinese").trim().slice(0, 80);
     const audio = String(body.audio || "");
     if (!target || !audio) return json({ error: "请先填写目标句并完成录音" }, { status: 400 });
-    const quota = await consumeDailyQuota(user, "pronunciation", DAILY_PRONUNCIATION_CHECKS);
-    if (!quota.allowed) return quotaExceeded(quota.limit);
+    const quota = await consumeDailyQuota(user, "pronunciation");
+    if (!quota.allowed) return quotaExceeded(quota);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {

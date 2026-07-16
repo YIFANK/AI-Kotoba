@@ -1,4 +1,4 @@
-import { getRequestUser, json } from "../../../lib/server";
+import { getRequestUser, isAdminUser, json } from "../../../lib/server";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +13,7 @@ export async function GET(request: Request) {
   return json({
     authenticated: true,
     displayName: user.name,
+    isAdmin: isAdminUser(user),
     signoutUrl: "/signout-with-chatgpt?return_to=%2FAI_kotoba_newUI%2FAI-Kotoba.dc.html",
   });
 }

@@ -16,6 +16,7 @@ let speechRequestId = 0;
 let elevenLabsUnavailable = false;
 const speechAudioCache = new Map();
 let grammarCatalogPromise = null;
+let accountState = { authenticated: false, isAdmin: false };
 
 async function updateAccountPill() {
   const pill = document.getElementById('account-pill');
@@ -23,6 +24,7 @@ async function updateAccountPill() {
   try {
     const response = await fetch('/api/account', { cache: 'no-store' });
     const account = await response.json();
+    accountState = account;
     pill.replaceChildren();
     const dot = document.createElement('span');
     dot.className = 'account-dot';
@@ -43,8 +45,10 @@ async function updateAccountPill() {
       pill.append(link);
     }
   } catch {
+    accountState = { authenticated: false, isAdmin: false };
     pill.innerHTML = '<span class="account-dot"></span><span>游客演示模式</span>';
   }
+  return accountState;
 }
 
 function cleanSpeechText(text) {
@@ -178,6 +182,7 @@ function usableMeaning(value, language) {
 
 function snapshot() {
   return {
+    account: accountState,
     settings: db.getSettings(),
     scenarios: db.getScenarios(),
     articles: db.getArticles(),
@@ -187,6 +192,13 @@ function snapshot() {
     grammarProgress: db.getGrammarProgress(),
     streak: db.streakInfo(),
   };
+}
+
+async function loadAdminUsage() {
+  const response = await fetch('/api/admin/usage', { cache: 'no-store' });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || '读取管理员用量失败');
+  return data;
 }
 
 async function init() {
@@ -733,7 +745,7 @@ function setGrammarStatus(id, status) {
   return snapshot();
 }
 
-async function startTutor({ topic = '日常会話', level = 'N4', style, onUserText, onAIDelta, onAIDone, onStatus, onError }) {
+async function startTutor({ topic = '日常会話', level = 'N4', style, onUserText, onAIDelta, onAIDone, onStatus, onError, onTimeRemaining, onTimeLimit }) {
   const settings = db.getSettings();
   const teachingStyle = normalizeTutorStyle(style || settings.tutorStyle);
   return startRealtimeSession({
@@ -746,6 +758,8 @@ async function startTutor({ topic = '日常会話', level = 'N4', style, onUserT
     onAIDone,
     onStatus,
     onError,
+    onTimeRemaining,
+    onTimeLimit,
     onToolCall: async ({ name, args }) => {
       if (name === 'save_vocabulary') return addVocabulary(args);
       if (name === 'remember_learning_point') return db.addLearningNote({ ...args, source: 'realtime-tutor' });
@@ -768,6 +782,7 @@ window.AIKotoba = {
   loadGrammarCatalog,
   openGrammarLesson,
   setGrammarStatus,
+  loadAdminUsage,
   cleanSpeechText,
   speakJapanese,
   stopJapaneseSpeech,

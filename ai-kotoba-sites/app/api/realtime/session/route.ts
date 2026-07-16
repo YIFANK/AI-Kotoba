@@ -10,7 +10,6 @@ import {
 } from "../../../../lib/server";
 
 export const dynamic = "force-dynamic";
-const DAILY_REALTIME_SESSIONS = 12;
 
 export async function POST(request: Request) {
   const user = getRequestUser(request);
@@ -27,8 +26,8 @@ export async function POST(request: Request) {
     const inputLanguage = String(body.inputLanguage || "ja").trim().toLowerCase();
     const transcription: Record<string, string> = { model: "gpt-realtime-whisper", delay: "low" };
     if (inputLanguage && inputLanguage !== "auto") transcription.language = inputLanguage;
-    const quota = await consumeDailyQuota(user, "realtime", DAILY_REALTIME_SESSIONS);
-    if (!quota.allowed) return quotaExceeded(quota.limit);
+    const quota = await consumeDailyQuota(user, "realtime");
+    if (!quota.allowed) return quotaExceeded(quota);
     const model = runtime.OPENAI_REALTIME_MODEL || "gpt-realtime-2.1";
     const session = {
       type: "realtime",

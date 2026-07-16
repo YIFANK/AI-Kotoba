@@ -1,6 +1,7 @@
 // OpenAI Realtime API（WebRTC）语音 Tutor
 // 优先通过本地 server.py 的统一接口建立会话；纯静态托管时保留 BYOK 直连兼容。
 const REALTIME_MODEL = 'gpt-realtime-2.1';
+const REALTIME_MAX_DURATION_MS = 12 * 60 * 1000;
 const ALLOWED_VOICES = new Set(['marin', 'cedar']);
 const REALTIME_TRUNCATION = {
   type: 'retention_ratio',
@@ -51,6 +52,9 @@ export async function startRealtimeSession({
   onStatus,
   onError,
   onToolCall,
+  onTimeRemaining,
+  onTimeLimit,
+  maxDurationMs = REALTIME_MAX_DURATION_MS,
 }) {
   const selectedVoice = ALLOWED_VOICES.has(voice) ? voice : 'marin';
   const transcription = { model: 'gpt-realtime-whisper', delay: 'low' };
@@ -98,6 +102,8 @@ export async function startRealtimeSession({
   let talkCycle = 0;
   let talkStartedAt = 0;
   let commitTimer = null;
+  let durationTimer = null;
+  let durationDeadline = 0;
   const dc = pc.createDataChannel('oai-events');
   dc.addEventListener('open', () => {
     dc.send(JSON.stringify({ type: 'session.update', session: sessionConfig }));
@@ -208,6 +214,17 @@ export async function startRealtimeSession({
       inputLanguage,
     });
     await pc.setRemoteDescription({ type: 'answer', sdp: answerSDP });
+    durationDeadline = Date.now() + maxDurationMs;
+    onTimeRemaining?.(Math.ceil(maxDurationMs / 1000));
+    durationTimer = setInterval(() => {
+      if (stopped) return;
+      const seconds = Math.max(0, Math.ceil((durationDeadline - Date.now()) / 1000));
+      onTimeRemaining?.(seconds);
+      if (seconds <= 0) {
+        stop();
+        onTimeLimit?.();
+      }
+    }, 1000);
   } catch (error) {
     stop();
     throw error;
@@ -262,9 +279,12 @@ export async function startRealtimeSession({
   }
 
   function stop() {
+    if (stopped) return;
     stopped = true;
     if (commitTimer) clearTimeout(commitTimer);
     commitTimer = null;
+    if (durationTimer) clearInterval(durationTimer);
+    durationTimer = null;
     setMuted(true);
     try { dc.close(); } catch { /* noop */ }
     try { pc.close(); } catch { /* noop */ }
@@ -274,7 +294,7 @@ export async function startRealtimeSession({
     audioEl.remove();
   }
 
-  return { stop, setMuted, startTalking, stopTalking, isTalking: () => talking };
+  return { stop, setMuted, startTalking, stopTalking, isTalking: () => talking, maxDurationMs };
 }
 
 async function createRealtimeCall({ sdp, apiKey, instructions, voice, inputLanguage }) {

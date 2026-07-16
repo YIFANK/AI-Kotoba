@@ -9,7 +9,6 @@ import {
 } from "../../../../lib/server";
 
 export const dynamic = "force-dynamic";
-const DAILY_TTS_GENERATIONS = 120;
 const DEFAULT_VOICES = {
   a: "Xb7hH8MSUJpSbSDYk0k2",
   b: "JBFqnCBsd6RMkjVDRZzb",
@@ -48,8 +47,8 @@ export async function POST(request: Request) {
       });
     }
 
-    const quota = await consumeDailyQuota(user, "tts", DAILY_TTS_GENERATIONS);
-    if (!quota.allowed) return quotaExceeded(quota.limit);
+    const quota = await consumeDailyQuota(user, "tts");
+    if (!quota.allowed) return quotaExceeded(quota);
     const requestBody: Record<string, unknown> = {
       text,
       model_id: model,

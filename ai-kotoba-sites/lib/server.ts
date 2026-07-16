@@ -35,6 +35,11 @@ export type AppEnv = {
   ELEVENLABS_TTS_MODEL?: string;
   ELEVENLABS_JA_VOICE_A?: string;
   ELEVENLABS_JA_VOICE_B?: string;
+  ADMIN_EMAILS?: string;
+  GLOBAL_DAILY_AI_REQUESTS?: string;
+  GLOBAL_DAILY_REALTIME_SESSIONS?: string;
+  GLOBAL_DAILY_PRONUNCIATION_CHECKS?: string;
+  GLOBAL_DAILY_TTS_GENERATIONS?: string;
 };
 
 export type RequestUser = {
@@ -43,6 +48,49 @@ export type RequestUser = {
 };
 
 let schemaReady: Promise<void> | null = null;
+const GLOBAL_USAGE_EMAIL = "__global__";
+
+export type QuotaBucket = "ai_text" | "realtime" | "pronunciation" | "tts";
+
+export type QuotaResult = {
+  allowed: boolean;
+  count: number;
+  limit: number;
+  scope?: "user" | "global";
+  global: { count: number; limit: number };
+};
+
+const QUOTA_DEFAULTS: Record<QuotaBucket, { label: string; unit: string; perUser: number; global: number }> = {
+  ai_text: { label: "文本 AI", unit: "次", perUser: 30, global: 300 },
+  realtime: { label: "Realtime Tutor", unit: "次", perUser: 12, global: 30 },
+  pronunciation: { label: "发音诊断", unit: "次", perUser: 15, global: 100 },
+  tts: { label: "ElevenLabs TTS", unit: "次新生成", perUser: 120, global: 300 },
+};
+
+const QUOTA_ENV_KEYS: Record<QuotaBucket, keyof AppEnv> = {
+  ai_text: "GLOBAL_DAILY_AI_REQUESTS",
+  realtime: "GLOBAL_DAILY_REALTIME_SESSIONS",
+  pronunciation: "GLOBAL_DAILY_PRONUNCIATION_CHECKS",
+  tts: "GLOBAL_DAILY_TTS_GENERATIONS",
+};
+
+function positiveInteger(value: unknown, fallback: number): number {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+export function quotaDefinitions(runtime: AppEnv = getEnv()) {
+  return (Object.keys(QUOTA_DEFAULTS) as QuotaBucket[]).map((bucket) => {
+    const defaults = QUOTA_DEFAULTS[bucket];
+    return {
+      bucket,
+      label: defaults.label,
+      unit: defaults.unit,
+      perUserLimit: defaults.perUser,
+      globalLimit: positiveInteger(runtime[QUOTA_ENV_KEYS[bucket]], defaults.global),
+    };
+  });
+}
 
 export function getEnv(): AppEnv {
   return env as unknown as AppEnv;
@@ -62,6 +110,15 @@ export function getRequestUser(request: Request): RequestUser | null {
     }
   }
   return { email, name };
+}
+
+export function isAdminUser(user: RequestUser | null, runtime: AppEnv = getEnv()): boolean {
+  if (!user) return false;
+  const allowed = String(runtime.ADMIN_EMAILS || "")
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+  return allowed.includes(user.email);
 }
 
 export function json(data: unknown, init: ResponseInit = {}): Response {
@@ -106,28 +163,82 @@ export async function ensureSchema(): Promise<Database> {
 
 export async function consumeDailyQuota(
   user: RequestUser,
-  bucket: string,
-  limit: number,
-): Promise<{ allowed: boolean; count: number; limit: number }> {
+  bucket: QuotaBucket,
+): Promise<QuotaResult> {
   const db = await ensureSchema();
   const day = new Date().toISOString().slice(0, 10);
-  const current = await db
+  const definition = quotaDefinitions().find((item) => item.bucket === bucket);
+  if (!definition) throw new Error(`Unknown quota bucket: ${bucket}`);
+  const currentUser = await db
     .prepare("SELECT count FROM daily_usage WHERE user_email = ? AND bucket = ? AND day = ?")
     .bind(user.email, bucket, day)
     .first<{ count: number }>();
-  const count = Number(current?.count || 0);
-  if (count >= limit) return { allowed: false, count, limit };
-  await db
+  const userCount = Number(currentUser?.count || 0);
+  const currentGlobal = await db
+    .prepare("SELECT count FROM daily_usage WHERE user_email = ? AND bucket = ? AND day = ?")
+    .bind(GLOBAL_USAGE_EMAIL, bucket, day)
+    .first<{ count: number }>();
+  const globalCount = Number(currentGlobal?.count || 0);
+  const global = { count: globalCount, limit: definition.globalLimit };
+  if (userCount >= definition.perUserLimit) {
+    return { allowed: false, count: userCount, limit: definition.perUserLimit, scope: "user", global };
+  }
+  if (globalCount >= definition.globalLimit) {
+    return { allowed: false, count: userCount, limit: definition.perUserLimit, scope: "global", global };
+  }
+
+  const reserved = await db
     .prepare(`INSERT INTO daily_usage (user_email, bucket, day, count)
       VALUES (?, ?, ?, 1)
-      ON CONFLICT(user_email, bucket, day) DO UPDATE SET count = count + 1`)
-    .bind(user.email, bucket, day)
-    .run();
-  return { allowed: true, count: count + 1, limit };
+      ON CONFLICT(user_email, bucket, day) DO UPDATE SET count = daily_usage.count + 1
+      WHERE daily_usage.count < ?
+      RETURNING count`)
+    .bind(GLOBAL_USAGE_EMAIL, bucket, day, definition.globalLimit)
+    .first<{ count: number }>();
+  if (!reserved) {
+    const latest = await db
+      .prepare("SELECT count FROM daily_usage WHERE user_email = ? AND bucket = ? AND day = ?")
+      .bind(GLOBAL_USAGE_EMAIL, bucket, day)
+      .first<{ count: number }>();
+    return {
+      allowed: false,
+      count: userCount,
+      limit: definition.perUserLimit,
+      scope: "global",
+      global: { count: Number(latest?.count || definition.globalLimit), limit: definition.globalLimit },
+    };
+  }
+
+  const consumed = await db
+    .prepare(`INSERT INTO daily_usage (user_email, bucket, day, count)
+      VALUES (?, ?, ?, 1)
+      ON CONFLICT(user_email, bucket, day) DO UPDATE SET count = daily_usage.count + 1
+      WHERE daily_usage.count < ?
+      RETURNING count`)
+    .bind(user.email, bucket, day, definition.perUserLimit)
+    .first<{ count: number }>();
+  if (!consumed) {
+    return {
+      allowed: false,
+      count: userCount,
+      limit: definition.perUserLimit,
+      scope: "user",
+      global: { count: Number(reserved.count), limit: definition.globalLimit },
+    };
+  }
+  return {
+    allowed: true,
+    count: Number(consumed.count),
+    limit: definition.perUserLimit,
+    global: { count: Number(reserved.count), limit: definition.globalLimit },
+  };
 }
 
-export function quotaExceeded(limit: number): Response {
-  return json({ error: `今天的公测额度已用完（${limit} 次）。明天会自动恢复。` }, { status: 429 });
+export function quotaExceeded(quota: QuotaResult): Response {
+  const error = quota.scope === "global"
+    ? `今天的全站 AI 预算已用完（${quota.global.limit} 次）。明天会自动恢复。`
+    : `你今天的公测额度已用完（${quota.limit} 次）。明天会自动恢复。`;
+  return json({ error, usage: quota }, { status: 429 });
 }
 
 export async function sha256(value: string): Promise<string> {

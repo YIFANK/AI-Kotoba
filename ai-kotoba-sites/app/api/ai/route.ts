@@ -10,7 +10,6 @@ import {
 } from "../../../lib/server";
 
 export const dynamic = "force-dynamic";
-const DAILY_AI_REQUESTS = 30;
 
 const grammarLessonSchema = {
   type: "object",
@@ -116,8 +115,8 @@ export async function POST(request: Request) {
     const prompt = String(body.prompt || "").trim();
     if (!prompt) return json({ error: "Prompt 不能为空" }, { status: 400 });
     if (prompt.length > 40_000) return json({ error: "Prompt 过长" }, { status: 413 });
-    const quota = await consumeDailyQuota(user, "ai_text", DAILY_AI_REQUESTS);
-    if (!quota.allowed) return quotaExceeded(quota.limit);
+    const quota = await consumeDailyQuota(user, "ai_text");
+    if (!quota.allowed) return quotaExceeded(quota);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
