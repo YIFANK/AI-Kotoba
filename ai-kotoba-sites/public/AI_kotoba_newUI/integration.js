@@ -170,7 +170,10 @@ async function speakJapanese(source, { role = 'a', rate = getSpeechRate(), onEnd
 }
 
 function normalizeTranslation(value) {
-  return String(value?.translation || value?.chinese || value?.localizedText || '');
+  const english = db.getSettings().uiLanguage === 'en';
+  return String(english
+    ? (value?.english || value?.translationEnglish || value?.translation || value?.localizedText || value?.chinese || '')
+    : (value?.chinese || value?.translationChinese || value?.translation || value?.localizedText || value?.english || ''));
 }
 
 function preferredExplanationLanguage() {
@@ -205,7 +208,21 @@ function usableMeaning(value, language) {
   const text = String(value || '').trim();
   if (!text || text === '—') return '';
   if (/chinese|中文|简体/i.test(language) && !/[\u3400-\u9fff]/.test(text)) return '';
+  if (/english|英语|英文/i.test(language) && /[\u3400-\u9fff]/.test(text)) return '';
   return text;
+}
+
+function localizedVocabulary(item) {
+  const english = db.getSettings().uiLanguage === 'en';
+  return {
+    ...item,
+    meaning: String(english
+      ? (item?.meaningEnglish || item?.meaning || item?.meaningChinese || '')
+      : (item?.meaningChinese || item?.meaning || item?.meaningEnglish || '')),
+    exampleTranslation: String(english
+      ? (item?.exampleEnglish || item?.exampleTranslation || item?.exampleChinese || '')
+      : (item?.exampleChinese || item?.exampleTranslation || item?.exampleEnglish || '')),
+  };
 }
 
 function snapshot() {
@@ -484,13 +501,17 @@ function tokenizeParagraph(paragraph, vocabulary = []) {
 }
 
 function prepareArticle(article) {
-  const vocabulary = Array.isArray(article?.vocabulary) ? article.vocabulary : [];
+  const english = db.getSettings().uiLanguage === 'en';
+  const vocabulary = Array.isArray(article?.vocabulary) ? article.vocabulary.map(localizedVocabulary) : [];
   const sentences = (article?.paragraphs || []).flatMap((paragraph, paragraphIndex) =>
     splitParagraphIntoSentences(paragraph, paragraphIndex)
   );
   return {
     ...article,
-    localizedTitle: String(article?.localizedTitle || article?.titleChinese || ''),
+    localizedTitle: String(english
+      ? (article?.titleEnglish || article?.localizedTitle || article?.titleChinese || '')
+      : (article?.titleChinese || article?.localizedTitle || article?.titleEnglish || '')),
+    vocabulary,
     paragraphs: sentences.map(paragraph => ({
       japanese: String(paragraph.japanese || ''),
       furigana: String(paragraph.furigana || paragraph.japanese || ''),
@@ -503,7 +524,7 @@ function prepareArticle(article) {
 
 async function prepareArticleForStudy(article) {
   const prepared = prepareArticle(article);
-  const vocabulary = Array.isArray(article?.vocabulary) ? article.vocabulary : [];
+  const vocabulary = Array.isArray(prepared.vocabulary) ? prepared.vocabulary : [];
   const translationLanguage = preferredExplanationLanguage();
   try {
     let paragraphs = await Promise.all(prepared.paragraphs.map(async paragraph => {
@@ -601,7 +622,11 @@ async function prepareArticleForStudy(article) {
 async function addVocabulary(item) {
   const word = String(item?.word || item?.surface || '').trim();
   const language = preferredExplanationLanguage();
-  let meaning = usableMeaning(item?.gloss, language) || usableMeaning(item?.meaning, language);
+  const english = /english|英语|英文/i.test(language);
+  const suppliedMeaning = english
+    ? (item?.meaningEnglish || item?.meaning || item?.meaningChinese)
+    : (item?.meaningChinese || item?.meaning || item?.meaningEnglish);
+  let meaning = usableMeaning(item?.gloss, language) || usableMeaning(suppliedMeaning, language);
   if (!meaning && word) {
     const generated = await glossJapaneseTokens({
       title: '生词释义',
@@ -626,8 +651,14 @@ async function addVocabulary(item) {
     reading: String(item?.reading || '').trim(),
     meaning,
     meaningLanguage: language,
+    meaningChinese: String(item?.meaningChinese || (!english ? meaning : '')).trim(),
+    meaningEnglish: String(item?.meaningEnglish || (english ? meaning : '')).trim(),
     example: String(item?.example || '').trim(),
-    exampleTranslation: String(item?.exampleTranslation || '').trim(),
+    exampleChinese: String(item?.exampleChinese || (!english ? item?.exampleTranslation : '') || '').trim(),
+    exampleEnglish: String(item?.exampleEnglish || (english ? item?.exampleTranslation : '') || '').trim(),
+    exampleTranslation: String(english
+      ? (item?.exampleEnglish || item?.exampleTranslation || item?.exampleChinese || '')
+      : (item?.exampleChinese || item?.exampleTranslation || item?.exampleEnglish || '')).trim(),
     source: String(item?.source || 'three-line-reading').trim().slice(0, 40),
   };
   const existing = db.getVocab().find(entry => entry.word === word);

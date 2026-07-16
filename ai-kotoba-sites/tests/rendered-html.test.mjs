@@ -133,6 +133,52 @@ test("supports Chinese and English learner onboarding with one frontend language
   assert.match(storage, /旧用户升级时不要强制重新走新手引导/);
 });
 
+test("localizes every built-in dialogue, article, and seed flashcard in English", async () => {
+  const [seedRaw, englishRaw, html, integration, storage] = await Promise.all([
+    readFile(new URL("../public/ai-kotoba-web/seed.json", import.meta.url), "utf8"),
+    readFile(new URL("../public/ai-kotoba-web/seed-localizations.en.json", import.meta.url), "utf8"),
+    readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/ai-kotoba-web/js/storage.js", import.meta.url), "utf8"),
+  ]);
+  const seed = JSON.parse(seedRaw);
+  const english = JSON.parse(englishRaw);
+  const nonEnglish = /[\u3040-\u30ff\u3400-\u9fff]/;
+
+  assert.equal(english.version, 1);
+  for (const scenario of seed.scenarios) {
+    const localized = english.scenarios[scenario.id];
+    assert.ok(localized, `missing English scenario ${scenario.id}`);
+    assert.equal(localized.lines.length, scenario.lines.length);
+    assert.equal(localized.vocabulary.length, scenario.vocabulary.length);
+    assert.ok(localized.lines.every(line => line && !nonEnglish.test(line)));
+    assert.ok(localized.vocabulary.every((item, index) =>
+      item.word === scenario.vocabulary[index].word
+      && item.meaning && item.example
+      && !nonEnglish.test(item.meaning) && !nonEnglish.test(item.example)
+    ));
+  }
+  for (const article of seed.articles) {
+    const localized = english.articles[article.id];
+    assert.ok(localized, `missing English article ${article.id}`);
+    assert.equal(localized.paragraphs.length, article.paragraphs.length);
+    assert.equal(localized.vocabulary.length, article.vocabulary.length);
+    assert.ok(localized.paragraphs.every(paragraph => paragraph && !nonEnglish.test(paragraph)));
+    assert.ok(localized.vocabulary.every((item, index) =>
+      item.word === article.vocabulary[index].word
+      && item.meaning && item.example
+      && !nonEnglish.test(item.meaning) && !nonEnglish.test(item.example)
+    ));
+  }
+  assert.match(storage, /seed-localizations\.en\.json/);
+  assert.match(storage, /seedLocalizationVersion/);
+  assert.match(storage, /addSeedEnglishToSavedVocabulary/);
+  assert.match(integration, /item\?\.meaningEnglish/);
+  assert.match(integration, /item\?\.exampleEnglish/);
+  assert.match(html, /localizedVocabulary\(item,language\)/);
+  assert.match(html, /\{\{ flash\.exampleTranslation \}\}/);
+});
+
 test("adapts the full learning UI for mobile browsers", async () => {
   const html = await readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8");
   assert.match(html, /@media \(max-width:760px\)/);

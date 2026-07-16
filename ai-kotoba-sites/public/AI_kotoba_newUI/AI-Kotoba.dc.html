@@ -460,6 +460,7 @@
                 <div class="jp" style="font-size:12.5px;color:var(--color-accent)">{{ v.reading }}</div>
                 <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ v.meaning }}</div>
                 <div class="jp" style="font-size:12px;color:color-mix(in srgb,var(--color-text) 52%,transparent);margin-top:6px;padding-top:7px;border-top:1px dashed var(--color-divider)">{{ v.example }}</div>
+                <div style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 46%,transparent);margin-top:3px">{{ v.exampleTranslation }}</div>
                 <button class="btn btn-secondary" onClick="{{ v.onAdd }}" disabled="{{ v.added }}" style="align-self:flex-start;margin-top:10px;font-family:var(--font-body);font-weight:600;font-size:12.5px;padding:6px 13px">{{ v.addLabel }}</button>
               </div>
             </sc-for>
@@ -512,6 +513,7 @@
                 <div class="jp" style="color:var(--color-accent);font-size:17px;margin-top:8px">{{ flash.reading }}</div>
                 <div style="font-size:20px;margin-top:16px">{{ flash.meaning }}</div>
                 <div class="jp" style="font-size:14px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:18px;padding-top:16px;border-top:1px dashed var(--color-divider);width:100%">{{ flash.example }}</div>
+                <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 48%,transparent);margin-top:7px;width:100%">{{ flash.exampleTranslation }}</div>
               </div>
               <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px">
                 <button class="ratebtn card elev-sm" onClick="{{ flash.r0 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px;color:#b2622d">{{ ui.forgot }}</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">{{ ui.again }}</span></button>
@@ -966,12 +968,12 @@ class Component extends DCLogic {
       {sp:'王',jp:'まだ三ヶ月です。',furi:'まだ三[さん]ヶ月[かげつ]です。',cn:'才三个月。'},
     ];
     this.V = [
-      {word:'はじめまして',reading:'はじめまして',meaning:'初次见面（问候语）',example:'はじめまして。田中です。'},
-      {word:'よろしくお願いします',reading:'よろしくおねがいします',meaning:'请多关照',example:'王です。よろしくお願いします。'},
-      {word:'学生',reading:'がくせい',meaning:'学生',example:'王さんは学生ですか。'},
-      {word:'勉強する',reading:'べんきょうする',meaning:'学习',example:'日本語を勉強しています。'},
-      {word:'どのくらい',reading:'どのくらい',meaning:'多久，多少',example:'日本に来て、どのくらいですか。'},
-      {word:'働く',reading:'はたらく',meaning:'工作，劳动',example:'近くの会社で働いています。'},
+      {word:'はじめまして',reading:'はじめまして',meaning:'初次见面（问候语）',meaningEnglish:'Nice to meet you',example:'はじめまして。田中です。',exampleEnglish:"Nice to meet you. I'm Tanaka."},
+      {word:'よろしくお願いします',reading:'よろしくおねがいします',meaning:'请多关照',meaningEnglish:'a polite phrase meaning “I look forward to working with you / thank you in advance”',example:'王です。よろしくお願いします。',exampleEnglish:"I'm Wang. It's a pleasure to meet you."},
+      {word:'学生',reading:'がくせい',meaning:'学生',meaningEnglish:'student',example:'王さんは学生ですか。',exampleEnglish:'Are you a student, Wang-san?'},
+      {word:'勉強する',reading:'べんきょうする',meaning:'学习',meaningEnglish:'to study',example:'日本語を勉強しています。',exampleEnglish:"I'm studying Japanese."},
+      {word:'どのくらい',reading:'どのくらい',meaning:'多久，多少',meaningEnglish:'how long; how much',example:'日本に来て、どのくらいですか。',exampleEnglish:'How long have you been in Japan?'},
+      {word:'働く',reading:'はたらく',meaning:'工作，劳动',meaningEnglish:'to work',example:'近くの会社で働いています。',exampleEnglish:'I work at a company nearby.'},
     ];
     this.presets = ['在便利店结账','和房东谈租房','医院挂号','面试自我介绍','餐厅点餐','问路'];
     this.recents = [
@@ -1083,7 +1085,34 @@ class Component extends DCLogic {
     const raw=this.stripSpeakerPrefix(l.japanese||l.jp||'',speaker);
     const annotated=this.stripSpeakerPrefix(l.furigana||l.furi||'',speaker)||raw;
     const plain=this.ttsText(raw);
-    return {sp:speaker,jp:plain,furi:annotated,cn:l.translation||l.chinese||l.cn||''};
+    const english=this.settings?.uiLanguage==='en';
+    const translation=english
+      ? (l.english||l.translationEnglish||l.translation||l.cn||l.chinese||'')
+      : (l.chinese||l.translationChinese||l.translation||l.cn||l.english||'');
+    return {sp:speaker,jp:plain,furi:annotated,cn:translation};
+  }
+
+  localizedScenarioText(scenario,field,language){
+    const english=language==='en';
+    if(field==='title') return english
+      ? (scenario?.titleEnglish||scenario?.localizedTitle||scenario?.titleChinese||'')
+      : (scenario?.titleChinese||scenario?.localizedTitle||scenario?.titleEnglish||'');
+    return english
+      ? (scenario?.topicEnglish||scenario?.topic||scenario?.titleEnglish||'')
+      : (scenario?.topic||scenario?.topicChinese||scenario?.titleChinese||'');
+  }
+
+  localizedVocabulary(item,language){
+    const english=language==='en';
+    return {
+      ...item,
+      meaning:english
+        ? (item?.meaningEnglish||item?.meaning||item?.meaningChinese||'')
+        : (item?.meaningChinese||item?.meaning||item?.meaningEnglish||''),
+      exampleTranslation:english
+        ? (item?.exampleEnglish||item?.exampleTranslation||item?.exampleChinese||'')
+        : (item?.exampleChinese||item?.exampleTranslation||item?.exampleEnglish||''),
+    };
   }
 
   stripSpeakerPrefix(text,speaker){
@@ -1226,8 +1255,8 @@ class Component extends DCLogic {
     const language=this.settings.uiLanguage==='en'?'en':'zh-CN';
     document.documentElement.lang=language;
     this.scenarios=Array.isArray(data.scenarios)?data.scenarios:[];
-    if(this.scenarios.length && !this.activeScenario){
-      this.activeScenario=this.scenarios[0];
+    if(this.scenarios.length){
+      this.activeScenario=this.scenarios.find(item=>item.id===this.activeScenario?.id)||this.activeScenario||this.scenarios[0];
       this.L=(this.activeScenario.lines||[]).map((l,i)=>this.scenarioLine(l,i));
     }
     if(Array.isArray(data.vocab) && data.vocab.length) this.V=data.vocab;
@@ -1554,9 +1583,12 @@ class Component extends DCLogic {
     const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); if(view!=='tutor'&&this._realtime) this.finishTutor(); this.setState({view,playing:-1}); this.scrollMainTop(); };
     const crumbs={home:ui.today,practice:ui.practice,detail:`${ui.practice} › ${ui.dialogueDetail}`,tutor:ui.voiceTutor,ability:ui.ability,pron:ui.pronunciation,reading:ui.reading,article:`${ui.reading} › ${ui.threeLine}`,grammar:ui.grammar,history:ui.history,fav:ui.favorites,vocab:ui.vocabulary,cards:ui.flashcards,settings:ui.settings,admin:ui.admin};
     const badge=(role)=>role==='a'?{bg:'var(--color-accent-100)',fg:'var(--color-accent-800)'}:{bg:'var(--color-accent-2-100)',fg:'var(--color-accent-2-800)'};
-    const active=this.activeScenario||{title:'はじめまして',localizedTitle:'初次见面 · 自我介绍',titleChinese:'初次见面 · 自我介绍',level:'N5',topic:'初次见面的自我介绍',vocabulary:this.V};
+    const active=this.activeScenario||{title:'はじめまして',localizedTitle:'初次见面 · 自我介绍',titleChinese:'初次见面 · 自我介绍',titleEnglish:'Nice to meet you · Self-introduction',level:'N5',topic:'初次见面的自我介绍',topicEnglish:'Self-introduction when meeting for the first time',vocabulary:this.V};
+    const activeLocalizedTitle=this.localizedScenarioText(active,'title',language);
+    const activeLocalizedTopic=this.localizedScenarioText(active,'topic',language);
+    const localizedSavedVocabulary=this.V.map(item=>this.localizedVocabulary(item,language));
     const scenarios=this.scenarios?.length?this.scenarios:[];
-    const recents=scenarios.slice(0,12).map(sc=>({glyph:(sc.title||'言').slice(0,1),title:sc.title||'会話',sub:(sc.localizedTitle||sc.titleChinese||sc.topic||(language==='en'?'Japanese dialogue':'日语会话'))+' · '+new Date(sc.createdAt||Date.now()).toLocaleDateString(locale),level:sc.level||'N4',onOpen:()=>this.openScenario(sc)}));
+    const recents=scenarios.slice(0,12).map(sc=>({glyph:(sc.title||'言').slice(0,1),title:sc.title||'会話',sub:(this.localizedScenarioText(sc,'title',language)||this.localizedScenarioText(sc,'topic',language)||(language==='en'?'Japanese dialogue':'日语会话'))+' · '+new Date(sc.createdAt||Date.now()).toLocaleDateString(locale),level:sc.level||'N4',onOpen:()=>this.openScenario(sc)}));
     const fallbackRecentSubs=language==='en'?['Ordering at a restaurant · 2 days ago','Hotel check-in · 3 days ago','First meeting · 5 days ago']:null;
     const actualRecents=recents.length?recents:this.recents.map((r,index)=>({...r,sub:fallbackRecentSubs?.[index]||r.sub,onOpen:()=>this.openScenario(active)}));
     const presetLabels=language==='en'
@@ -1671,18 +1703,18 @@ class Component extends DCLogic {
       sceneInput:this.state.sceneInput,sceneLevel:this.state.sceneLevel,onSceneInput:e=>this.setState({sceneInput:e.target.value}),onSceneLevel:e=>this.setState({sceneLevel:e.target.value}),
       generating:this.state.generating,genLabel:this.state.generating?ui.generating:ui.generate,onGenerate:()=>this.onGenerate(),
       sc:{
-        title:active.title||'はじめまして',titleCn:active.localizedTitle||active.titleChinese||'',level:active.level||'N4',topic:active.topic||'',date:new Date(active.createdAt||Date.now()).toLocaleDateString(locale),speechRate:String(this.state.speechRate),onSpeechRate:e=>this.changeSpeechRate(e.target.value),
+        title:active.title||'はじめまして',titleCn:activeLocalizedTitle,level:active.level||'N4',topic:activeLocalizedTopic,date:new Date(active.createdAt||Date.now()).toLocaleDateString(locale),speechRate:String(this.state.speechRate),onSpeechRate:e=>this.changeSpeechRate(e.target.value),
         onShare:()=>this.shareItem('scenario',active),shareDisabled:this.state.shareBusy,shareLabel:this.state.shareBusy?ui.generatingLink:(this.state.shareNotice||ui.share),
         lines:this.L.map((l,i)=>{const b=badge(i%2===0?'a':'b');return{sp:l.sp,cn:l.cn,segs:this.parseFuri(l.furi),playing:i===this.state.playing,onPlay:()=>this.play(i),badgeBg:b.bg,badgeFg:b.fg};}),
-        vocab:(active.vocabulary||this.V.slice(0,8)).map(x=>{const added=!!this.state.added[x.word]||this.V.some(v=>v.word===x.word);return{word:x.word,reading:x.reading,meaning:x.meaning,example:x.example,added,addLabel:added?ui.added:ui.addVocab,onAdd:()=>this.addVocabItem(x)};}),
+        vocab:(active.vocabulary||this.V.slice(0,8)).map(x=>{const display=this.localizedVocabulary(x,language);const added=!!this.state.added[x.word]||this.V.some(v=>v.word===x.word);return{word:x.word,reading:x.reading,meaning:display.meaning,example:x.example,exampleTranslation:display.exampleTranslation,added,addLabel:added?ui.added:ui.addVocab,onAdd:()=>this.addVocabItem(x)};}),
       },
-      vocabList:this.V.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?ui.dueToday:ui.reviewLater,dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
-      flash:(()=>{const cards=this.V.slice(0,Math.max(1,Math.min(20,this.V.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:ui.emptyVocab,reading:'',meaning:ui.addWordsFirst,example:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
+      vocabList:localizedSavedVocabulary.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?ui.dueToday:ui.reviewLater,dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
+      flash:(()=>{const cards=localizedSavedVocabulary.slice(0,Math.max(1,Math.min(20,localizedSavedVocabulary.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:ui.emptyVocab,reading:'',meaning:ui.addWordsFirst,example:'',exampleTranslation:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,exampleTranslation:c.exampleTranslation,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
       ability:{overallLevel:ability.overallLevel||(language==='en'?'Not assessed':'待测'),summaryTitle:ability.overallLevel?(language==='en'?`Suggested level ${ability.overallLevel} · Confidence ${Math.round((Number(ability.confidence)||0)*100)}%`:`当前建议水平 ${ability.overallLevel} · 置信度 ${Math.round((Number(ability.confidence)||0)*100)}%`):(language==='en'?'Build your first ability map':'先建立你的第一张能力地图'),summary:ability.summary||(language==='en'?'A natural conversation estimates what you understand and can express. Reading and writing remain unassessed until relevant tasks provide evidence.':'用一段自然对话估计你能听懂什么、能表达什么。阅读和写作会保留为未测评，等对应任务提供真实证据。'),updatedLabel:ability.lastAssessmentAt?(language==='en'?`Updated ${new Date(ability.lastAssessmentAt).toLocaleDateString(locale)}`:`更新于 ${new Date(ability.lastAssessmentAt).toLocaleDateString(locale)}`):(language==='en'?'Not assessed yet':'尚未测评'),assessing:this.state.tutorStatus==='placementReviewing',assessLabel:this.state.tutorStatus==='placementReviewing'?(language==='en'?'Analyzing ability…':'正在分析能力…'):(ability.overallLevel?(language==='en'?'Retake oral placement':'重新进行听说分级'):(language==='en'?'Start 8–10 minute placement':'开始 8–10 分钟听说分级')),onAssess:()=>this.startOralAssessment(),skills:abilitySkills,oral:oralRows,priorities:abilityPriorities},
       tutor:{assessment:this.state.tutorMode==='assessment',showStyle:this.state.tutorMode!=='assessment',pageTitle:this.state.tutorMode==='assessment'?tutorCopy.assessmentTitle:tutorCopy.tutorTitle,pageDescription:this.state.tutorMode==='assessment'?tutorCopy.assessmentDescription:tutorCopy.tutorDescription,cardTitle:this.state.tutorMode==='assessment'?tutorCopy.assessmentCard:tutorCopy.tutorCard,cardDescription:this.state.tutorMode==='assessment'?tutorCopy.assessmentHelp:tutorCopy.tutorHelp,onToggle:()=>this.toggleTutor(this.state.tutorMode),active:this.state.tutorActive,finishing:this.state.tutorFinishing,buttonDisabled:this.state.tutorFinishing,talking:this.state.tutorTalking,onTalkStart:e=>this.startTutorTalking(e),onTalkEnd:e=>this.stopTutorTalking(e),talkLabel:this.state.tutorTalking?tutorCopy.talking:tutorCopy.hold,style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?(language==='en'?'Natural Japanese by default; brief English help only when you ask, get stuck, or answer in English.':'默认自然日语；只有你求助、没听懂或用中文回答时，才补一句中文，不强制复述。'):this.state.tutorStyle==='conversation'?(language==='en'?'Natural Japanese conversation with only gentle correction of important issues.':'尽量保持全日语自然会话，只温和纠正关键问题。'):this.state.tutorStyle==='correction'?(language==='en'?'Respond to the meaning first, then correct at most one high-value expression.':'回应内容后，每次最多纠正一个最值得改进的表达。'):(language==='en'?'Practice like a Japanese oral interview with brief feedback.':'像日语口试一样逐题练习并简短评价。'),buttonLabel:this.state.tutorFinishing?tutorCopy.finishing:(this.state.tutorActive?(this.state.tutorMode==='assessment'?tutorCopy.endAssessment:tutorCopy.endTutor):(this.state.tutorMode==='assessment'?tutorCopy.startAssessment:tutorCopy.startTutor)),statusLabel:statusLabels[this.state.tutorStatus]||'',timeLabel:`${tutorCopy.time} ${String(Math.floor(this.state.tutorRemainingSeconds/60)).padStart(2,'0')}:${String(this.state.tutorRemainingSeconds%60).padStart(2,'0')}`,hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages,hasHistory:tutorHistory.length>0,history:tutorHistory},
       admin:{visible:!!this.account?.isAdmin,loading:this.state.adminLoading,hasError:!!this.state.adminError,error:this.state.adminError,ready:!!usage&&!this.state.adminLoading,onRefresh:()=>this.openAdmin(),dayLabel:usage?`${usage.day} · ${usage.timezone} ${ui.stats}`:'' ,activeUsers:usage?.activeUsers||0,totalUsers:usage?.totalUsers||0,buckets:(usage?.buckets||[]).map(b=>({label:b.label,used:b.used,limit:b.globalLimit,percent:b.percent,width:`${b.percent}%`,color:b.percent>=90?'#b14c35':b.percent>=70?'var(--color-accent-2)':'var(--color-accent)',note:b.bucket==='realtime'?`${ui.maxPerCall} · ${ui.maxToday} ${b.globalLimit*12} ${ui.minutes}`:`${ui.remaining} ${b.remaining} ${b.unit}`})),users:(usage?.users||[]).map(u=>({email:u.email,ai:u.usage?.ai_text||0,realtime:u.usage?.realtime||0,pronunciation:u.usage?.pronunciation||0,tts:u.usage?.tts||0,total:u.total||0})),noUsers:!!usage&&!(usage.users||[]).length,history:(usage?.history||[]).map(d=>({day:d.day.slice(5),summary:`AI ${d.usage?.ai_text||0} · RT ${d.usage?.realtime||0} · ${ui.pronShort} ${d.usage?.pronunciation||0} · TTS ${d.usage?.tts||0}`}))},
       grammar:{isN5:this.state.grammarLevel==='N5',isN4:this.state.grammarLevel==='N4',isN3:this.state.grammarLevel==='N3',onN5:()=>this.setState({grammarLevel:'N5'}),onN4:()=>this.setState({grammarLevel:'N4'}),onN3:()=>this.setState({grammarLevel:'N3'}),query:this.state.grammarQuery,onSearch:e=>this.setState({grammarQuery:e.target.value}),items:grammarItems,count:grammarItems.length,total:(this.grammarCatalog||[]).length,mastered:(this.grammarProgress||[]).filter(item=>item.status==='mastered').length,loading:this.state.grammarLoading,hasLesson:!!grammarLesson&&!this.state.grammarLoading,lesson:grammarLesson?{level:this.activeGrammarPoint?.level||'',title:grammarLesson.title||this.grammarTitle(this.activeGrammarPoint?.title),meaning:grammarLesson.meaning||'',explanation:grammarLesson.explanation||'',formation:grammarLesson.formation||this.activeGrammarPoint?.formation||'',pitfall:grammarLesson.pitfall||'',examples:(grammarLesson.examples||[]).map(item=>({japanese:item.japanese||'',translation:item.translation||'',note:item.note||''})),quizPrompt:grammarLesson.quiz?.prompt||'',quizAnswer:grammarLesson.quiz?.answer||'',quizExplanation:grammarLesson.quiz?.explanation||'',masterLabel:grammarProgress?.status==='mastered'?`${ui.mastered} ✓`:ui.markMastered,onMaster:()=>this.setGrammarProgress(grammarProgress?.status==='mastered'?'studying':'mastered')}:{examples:[]}},
-      articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:`${Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))} ${ui.minutes}`,onOpen:()=>this.openArticle(a)})),
+      articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:language==='en'?(a.titleEnglish||a.localizedTitle||a.titleChinese||''):(a.titleChinese||a.localizedTitle||a.titleEnglish||''),level:a.level||'N4',mins:`${Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))} ${ui.minutes}`,onOpen:()=>this.openArticle(a)})),
       article:{
         onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?ui.newArticleGenerating:ui.newArticle,onShare:()=>this.shareItem('article',current),shareDisabled:this.state.shareBusy||this.state.articleAnalyzing,shareLabel:this.state.articleAnalyzing?ui.analyzing:this.state.shareBusy?ui.generatingLink:(this.state.shareNotice||ui.share),analysisLabel:this.state.articleAnalyzing?ui.glossAnalyzing:(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?ui.stop:ui.readAloud,onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:event=>this.selectToken(t,event)}))}))},
         selection:{visible:!!selected,left:this._selectionPosition?.left||'12px',top:this._selectionPosition?.top||'84px',surface:selected?.surface||'',reading:selected?.reading||'',grammar:grammarParts.join(' · '),meaning:selected?.gloss||selected?.meaning||ui.meaningOnAdd,added:!!selected?.added,disabled:!!selected?.added||!!selected?.adding,addLabel:selected?.adding?ui.meaningGenerating:(selected?.added?ui.added:ui.addVocab),onAdd:()=>this.addSelectedToken(),onClose:()=>this.closeSelectedToken()},

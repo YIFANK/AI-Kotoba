@@ -15,6 +15,7 @@ const ARTICLE_LIMIT = 50;
 const TUTOR_SESSION_LIMIT = 100;
 const LEARNING_NOTE_LIMIT = 120;
 const PRONUNCIATION_ATTEMPT_LIMIT = 60;
+const SEED_LOCALIZATION_VERSION = 1;
 
 const HISTORY_LIMIT = 100; // 仅非收藏计入上限
 
@@ -192,25 +193,119 @@ function enforceLimit(list) {
   return list.filter(s => s.favorite || s.builtin || others.includes(s));
 }
 
-// ---------- 内置范文（seed.json，首次启动导入一次） ----------
+function localizeSeedVocabulary(item, english) {
+  if (!english) return item;
+  return {
+    ...item,
+    meaningChinese: String(item.meaningChinese || item.meaning || ''),
+    meaningEnglish: String(english.meaning || ''),
+    exampleChinese: String(item.exampleChinese || item.exampleTranslation || ''),
+    exampleEnglish: String(english.example || ''),
+  };
+}
+
+function hydrateSeedLocalizations(seed, localizations) {
+  const scenarioLocalizations = localizations?.scenarios || {};
+  const articleLocalizations = localizations?.articles || {};
+  return {
+    ...seed,
+    scenarios: (seed.scenarios || []).map(scenario => {
+      const english = scenarioLocalizations[scenario.id];
+      if (!english) return scenario;
+      return {
+        ...scenario,
+        titleEnglish: String(english.title || ''),
+        topicEnglish: String(english.topic || ''),
+        lines: (scenario.lines || []).map((line, index) => ({
+          ...line,
+          english: String(english.lines?.[index] || ''),
+        })),
+        vocabulary: (scenario.vocabulary || []).map((item, index) =>
+          localizeSeedVocabulary(item, english.vocabulary?.[index])
+        ),
+      };
+    }),
+    articles: (seed.articles || []).map(article => {
+      const english = articleLocalizations[article.id];
+      if (!english) return article;
+      return {
+        ...article,
+        titleEnglish: String(english.title || ''),
+        paragraphs: (article.paragraphs || []).map((paragraph, index) => ({
+          ...paragraph,
+          english: String(english.paragraphs?.[index] || ''),
+        })),
+        vocabulary: (article.vocabulary || []).map((item, index) =>
+          localizeSeedVocabulary(item, english.vocabulary?.[index])
+        ),
+      };
+    }),
+  };
+}
+
+function mergeSeedItems(existing, seeds) {
+  const freshById = new Map((seeds || []).map(item => [item.id, item]));
+  const merged = (existing || []).map(item => {
+    const fresh = freshById.get(item.id);
+    if (!fresh || !item.builtin) return item;
+    freshById.delete(item.id);
+    return {
+      ...item,
+      ...fresh,
+      favorite: item.favorite ?? fresh.favorite,
+      wordGlosses: item.wordGlosses || fresh.wordGlosses,
+    };
+  });
+  return [...merged, ...freshById.values()];
+}
+
+function addSeedEnglishToSavedVocabulary(vocabulary, seed) {
+  const englishByWord = new Map();
+  for (const collection of [...(seed.scenarios || []), ...(seed.articles || [])]) {
+    for (const item of collection.vocabulary || []) {
+      if (item.word && item.meaningEnglish && !englishByWord.has(item.word)) {
+        englishByWord.set(item.word, item);
+      }
+    }
+  }
+  return (vocabulary || []).map(item => {
+    const localized = englishByWord.get(item.word);
+    if (!localized) return item;
+    return {
+      ...item,
+      meaningChinese: item.meaningChinese || (/[\u3400-\u9fff]/.test(String(item.meaning || '')) ? item.meaning : localized.meaningChinese),
+      meaningEnglish: item.meaningEnglish || localized.meaningEnglish,
+      exampleChinese: item.exampleChinese || item.exampleTranslation || localized.exampleChinese,
+      exampleEnglish: item.exampleEnglish || localized.exampleEnglish,
+    };
+  });
+}
+
+// ---------- 内置范文（seed.json；版本升级时更新内置内容并保留用户状态） ----------
 export async function loadSeeds() {
   const s = getSettings();
-  if (s.seedsLoaded) return;
+  if (s.seedsLoaded && Number(s.seedLocalizationVersion || 0) >= SEED_LOCALIZATION_VERSION) return;
   let seed;
+  let localizations;
   try {
-    const res = await fetch('/ai-kotoba-web/seed.json');
-    if (!res.ok) return;
-    seed = await res.json();
+    const [seedResponse, localizationResponse] = await Promise.all([
+      fetch('/ai-kotoba-web/seed.json'),
+      fetch('/ai-kotoba-web/seed-localizations.en.json'),
+    ]);
+    if (!seedResponse.ok || !localizationResponse.ok) return;
+    seed = await seedResponse.json();
+    localizations = await localizationResponse.json();
   } catch {
     return; // 没有 seed 文件或加载失败，跳过
   }
-  const scenarios = getScenarios();
-  const scIds = new Set(scenarios.map(x => x.id));
-  save(KEYS.scenarios, [...scenarios, ...(seed.scenarios || []).filter(x => !scIds.has(x.id))]);
-  const articles = getArticles();
-  const artIds = new Set(articles.map(x => x.id));
-  save(KEYS.articles, [...articles, ...(seed.articles || []).filter(x => !artIds.has(x.id))]);
-  saveSettings(Object.assign(getSettings(), { seedsLoaded: true }));
+  const localizedSeed = hydrateSeedLocalizations(seed, localizations);
+  save(KEYS.scenarios, mergeSeedItems(getScenarios(), localizedSeed.scenarios));
+  save(KEYS.articles, mergeSeedItems(getArticles(), localizedSeed.articles));
+  save(KEYS.vocab, addSeedEnglishToSavedVocabulary(getVocab(), localizedSeed));
+  saveSettings(Object.assign(getSettings(), {
+    seedsLoaded: true,
+    seedLocalizationVersion: SEED_LOCALIZATION_VERSION,
+  }));
 }
 
 export function getVocab() {
