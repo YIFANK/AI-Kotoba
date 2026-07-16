@@ -43,6 +43,7 @@
   .vcard:hover{ box-shadow:var(--shadow-md); }
   .presetchip{ transition:all .15s; }
   .presetchip:hover{ background:var(--color-accent); color:var(--color-bg); }
+  .article-generator-controls{display:flex;gap:10px}
   .recentrow:hover{ background:var(--color-accent-100); }
   .recentrow:hover .rchev{ transform:translateX(3px); }
   .ratebtn{ transition:transform .12s,box-shadow .12s; }
@@ -116,6 +117,8 @@
     .app-content .detail-header>div:first-child{flex:0 0 100%!important;width:100%!important;min-width:0}
     .app-content .detail-header>div:first-child>div:last-child{flex-wrap:wrap}
     .app-content input,.app-content select,.app-content textarea{max-width:100%;box-sizing:border-box;font-size:16px!important}
+    .article-generator-controls{flex-direction:column}
+    .article-generator-controls>input,.article-generator-controls>select,.article-generator-controls>button{width:100%!important;min-height:46px}
     .app-content button{touch-action:manipulation}
     .app-content table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
     .linerow{padding:13px 12px!important;gap:9px!important}
@@ -750,9 +753,28 @@
       <!-- ============ READING ============ -->
       <sc-if value="{{ nav.reading }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:820px">
-          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px">
-            <div><h1 style="font-size:34px;margin:0 0 4px">{{ ui.readingTitle }}</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">{{ ui.readingDescription }}</p></div>
-            <button class="btn btn-primary" onClick="{{ article.onGenerate }}" style="font-family:var(--font-body);font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>{{ article.generateLabel }}</button>
+          <div style="margin-bottom:20px">
+            <h1 style="font-size:34px;margin:0 0 4px">{{ ui.readingTitle }}</h1>
+            <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">{{ ui.readingDescription }}</p>
+          </div>
+          <div class="card elev-sm" style="padding:24px;gap:0;margin-bottom:24px">
+            <div class="field">
+              <label style="font-size:13px">{{ ui.articleTopic }}</label>
+              <div class="article-generator-controls">
+                <input class="input" value="{{ article.topic }}" onInput="{{ article.onTopic }}" placeholder="{{ ui.articlePlaceholder }}" aria-label="{{ ui.articleTopic }}" style="flex:1"/>
+                <select class="input" value="{{ article.level }}" onChange="{{ article.onLevel }}" aria-label="{{ ui.articleLevel }}" style="width:96px;flex:none;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%234f6bf5%22 stroke-width=%222.5%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 12px center"><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
+                <button class="btn btn-primary" onClick="{{ article.onGenerate }}" disabled="{{ article.generating }}" style="font-size:14px;padding:0 20px;flex:none">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                  {{ article.generateLabel }}
+                </button>
+              </div>
+            </div>
+            <sc-if value="{{ article.generating }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:10px;margin-top:18px;color:var(--color-accent);font-size:13px">
+                <span style="width:15px;height:15px;border-radius:50%;border:2px solid var(--color-accent-200);border-top-color:var(--color-accent);animation:spin .7s linear infinite;display:inline-block"></span>
+                {{ ui.generatingArticle }}
+              </div>
+            </sc-if>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px">
             <sc-for list="{{ articles }}" as="a" hint-placeholder-count="3">
@@ -887,7 +909,7 @@ const UI_TEXT={
     practiceTitle:'练习场景对话',practiceDescription:'描述任意现实场景，AI 生成自然日语会话和你的语言对照。',sceneTopic:'场景主题',generate:'生成',generating:'生成中…',recentGenerated:'最近生成',
     vocabTitle:'生词本',vocabDescription:'收藏的词汇会进入 SM-2 间隔复习',reviewCards:'去复习',flashTitle:'闪卡复习',historyDescription:'自动保留最近 100 条会话，收藏的会话不受上限限制',favoritesDescription:'给会话加星，收藏后永不自动删除',
     abilityTitle:'听说读写能力地图',abilityDescription:'把每次练习变成能力证据；没有测过的项目会明确标记。',settingsTitle:'设置',learnerProfile:'学习者档案',yourLanguage:'你的语言',languageHelp:'界面、翻译、语法讲解、纠错与课后复盘都会使用这个语言。后端仍分别保存母语与解释语言。',data:'数据',exportData:'导出数据',importData:'导入数据',clearData:'清空数据',
-    aiSource:'AI 来源',localCli:'本地 CLI',noApiKey:'免 API Key',readingTitle:'阅读文章',readingDescription:'两轮生成日语短文，支持注音、逐段翻译与朗读',grammarTitle:'逐语法点学习',grammarDescription:'从 N5 学到 N3，每一条都有中文讲解、例句和小测验。',
+    aiSource:'AI 来源',localCli:'本地 CLI',noApiKey:'免 API Key',readingTitle:'阅读文章',readingDescription:'两轮生成日语短文，支持注音、逐段翻译与朗读',articleTopic:'文章主题',articleLevel:'文章难度',articlePlaceholder:'例如：介绍日本夏日祭典、东京租房生活…',generatingArticle:'正在生成自然日语文章…',grammarTitle:'逐语法点学习',grammarDescription:'从 N5 学到 N3，每一条都有中文讲解、例句和小测验。',
     streakDays:'天连续打卡',checkedIn:'今天已打卡 · 保持下去 🔥',todayGoal:'今日目标',goalRemaining:'再学 3 个词完成今日目标',generateDialogue:'生成场景对话',generateDialogueDesc:'描述任意场景，AI 生成自然会话',reviewFlashcards:'复习闪卡',reviewFlashcardsDesc:'SM-2 间隔重复，到期待复习',continueLesson:'继续「はじめまして」',continueLessonDesc:'上次学到第 4 句 · 继续',
     scenePlaceholder:'例如：在居酒屋点餐、和房东谈租房…',generatingDialogue:'正在生成自然会话…',back:'返回',sharedScenarioHelp:'这是只读副本；保存后会加入你自己的对话历史。',speechRate:'语速',verySlow:'很慢',slow:'慢速',normalSpeed:'原速',interactiveComing:'互动模式 · 开发中',vocabSuggestions:'生词建议',searchVocab:'搜索词汇…',
     reviewDone:'今日复习完成！',reviewDoneDesc:'连续打卡 +1 天 · 明天还有新的到期卡片',reviewAgain:'再复习一遍',backToday:'回到今日',forgot:'忘了',again:'重来',hard:'困难',good:'良好',easy:'简单',day:'天',revealHint:'点击卡片查看读音与释义',noFavorites:'还没有收藏的会话',noFavoritesDesc:'在会话详情点击 ★ 即可收藏，随时回来温习最喜欢的场景。',firstScenario:'去生成第一个场景',
@@ -912,7 +934,7 @@ const UI_TEXT={
     practiceTitle:'Practice a scenario',practiceDescription:'Describe a real-life situation and AI will create natural Japanese dialogue with translations in your language.',sceneTopic:'Scenario',generate:'Generate',generating:'Generating…',recentGenerated:'Recently generated',
     vocabTitle:'Vocabulary',vocabDescription:'Saved words enter SM-2 spaced repetition',reviewCards:'Review',flashTitle:'Flashcard review',historyDescription:'Keeps the latest 100 conversations; favorites are never removed automatically.',favoritesDescription:'Star conversations to keep them permanently.',
     abilityTitle:'Listening, Speaking, Reading & Writing Map',abilityDescription:'Every activity becomes evidence. Unmeasured skills remain clearly marked.',settingsTitle:'Settings',learnerProfile:'Learner profile',yourLanguage:'Your language',languageHelp:'The interface, translations, grammar explanations, corrections, and session reviews will use this language. Native and explanation language remain separate in the backend.',data:'Data',exportData:'Export data',importData:'Import data',clearData:'Clear data',
-    aiSource:'AI source',localCli:'Local CLI',noApiKey:'No API key required',readingTitle:'Reading',readingDescription:'Two-pass Japanese article generation with furigana, translations, and audio.',grammarTitle:'Grammar by point',grammarDescription:'Study N5–N3 grammar with explanations, examples, and quick checks.',
+    aiSource:'AI source',localCli:'Local CLI',noApiKey:'No API key required',readingTitle:'Reading',readingDescription:'Two-pass Japanese article generation with furigana, translations, and audio.',articleTopic:'Article topic',articleLevel:'Article level',articlePlaceholder:'For example: Japanese summer festivals, renting in Tokyo…',generatingArticle:'Generating a natural Japanese article…',grammarTitle:'Grammar by point',grammarDescription:'Study N5–N3 grammar with explanations, examples, and quick checks.',
     streakDays:'day streak',checkedIn:'Checked in today · Keep it going 🔥',todayGoal:'Today’s goal',goalRemaining:'Learn 3 more words to finish today’s goal',generateDialogue:'Generate a scenario',generateDialogueDesc:'Describe any situation and generate natural dialogue',reviewFlashcards:'Review flashcards',reviewFlashcardsDesc:'SM-2 spaced repetition for cards due now',continueLesson:'Continue 「はじめまして」',continueLessonDesc:'Continue from line 4 of your last lesson',
     scenePlaceholder:'For example: order at an izakaya, talk to a landlord…',generatingDialogue:'Generating natural dialogue…',back:'Back',sharedScenarioHelp:'This is a read-only copy. Save it to add it to your own history.',speechRate:'Speed',verySlow:'Very slow',slow:'Slow',normalSpeed:'Normal',interactiveComing:'Interactive mode · Coming soon',vocabSuggestions:'Suggested vocabulary',searchVocab:'Search vocabulary…',
     reviewDone:'Today’s review is complete!',reviewDoneDesc:'Streak +1 day · More cards will be due tomorrow',reviewAgain:'Review again',backToday:'Back to Today',forgot:'Forgot',again:'Again',hard:'Hard',good:'Good',easy:'Easy',day:'day',revealHint:'Tap the card to see its reading and meaning',noFavorites:'No favorite conversations yet',noFavoritesDesc:'Select ★ in a conversation to keep it here for later review.',firstScenario:'Generate your first scenario',
@@ -983,7 +1005,7 @@ class Component extends DCLogic {
     try{ const saved=window.localStorage.getItem('ai-kotoba-palette'); if(['blue','terra','sage'].includes(saved)) savedPalette=saved; }catch(e){}
     this.settings={uiLanguage:'zh-CN',onboardingCompleted:true,selfAssessedLevel:'unsure',learningGoal:'conversation'};
     this.languageOptions=[{code:'zh-CN',label:'简体中文'},{code:'en',label:'English'}];
-    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorMode:'tutor', tutorActive:false, tutorFinishing:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], tutorRemainingSeconds:720, grammarLevel:'N5', grammarQuery:'', grammarLoading:false, adminLoading:false, adminError:'', shareBusy:false, shareNotice:'', sharedSaved:false, onboardingStep:1, onboardingLanguage:'zh-CN', onboardingLevel:'unsure', onboardingGoal:'conversation' };
+    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, articleInput:'介绍日本夏日祭典', articleLevel:'N4', added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorMode:'tutor', tutorActive:false, tutorFinishing:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], tutorRemainingSeconds:720, grammarLevel:'N5', grammarQuery:'', grammarLoading:false, adminLoading:false, adminError:'', shareBusy:false, shareNotice:'', sharedSaved:false, onboardingStep:1, onboardingLanguage:'zh-CN', onboardingLevel:'unsure', onboardingGoal:'conversation' };
   }
 
   changePalette(dir){
@@ -1000,7 +1022,12 @@ class Component extends DCLogic {
       : language==='zh-CN'&&this.state.sceneInput==='At a convenience store checkout'
         ? '在便利店结账'
         : this.state.sceneInput;
-    this.setState({onboardingLanguage:language,sceneInput});
+    const articleInput=language==='en'&&this.state.articleInput==='介绍日本夏日祭典'
+      ? 'Japanese summer festivals'
+      : language==='zh-CN'&&this.state.articleInput==='Japanese summer festivals'
+        ? '介绍日本夏日祭典'
+        : this.state.articleInput;
+    this.setState({onboardingLanguage:language,sceneInput,articleInput});
   }
 
   nextOnboarding(){
@@ -1035,6 +1062,8 @@ class Component extends DCLogic {
     if(data) this.applyData(data);
     if(language==='en'&&this.state.sceneInput==='在便利店结账') this.setState({sceneInput:'At a convenience store checkout'});
     if(language==='zh-CN'&&this.state.sceneInput==='At a convenience store checkout') this.setState({sceneInput:'在便利店结账'});
+    if(language==='en'&&this.state.articleInput==='介绍日本夏日祭典') this.setState({articleInput:'Japanese summer festivals'});
+    if(language==='zh-CN'&&this.state.articleInput==='Japanese summer festivals') this.setState({articleInput:'介绍日本夏日祭典'});
   }
 
   reveal(){ this.setState({flashRevealed:true}); }
@@ -1392,12 +1421,12 @@ class Component extends DCLogic {
 
   async generateArticle(){
     if(this.state.articleGenerating) return;
-    const request=window.prompt('想读什么主题？','介绍日本夏日祭典');
-    if(!request?.trim()) return;
-    const level=window.prompt('JLPT 等级（N5–N1）',this.state.sceneLevel)||this.state.sceneLevel;
+    const request=String(this.state.articleInput||'').trim();
+    if(!request) return;
+    const level=/^N[1-5]$/.test(this.state.articleLevel)?this.state.articleLevel:'N4';
     this.setState({articleGenerating:true});
     try{
-      const article=await window.AIKotoba.createArticle(request.trim(),/^N[1-5]$/.test(level)?level:'N4',()=>{});
+      const article=await window.AIKotoba.createArticle(request,level,()=>{});
       this.applyData(window.AIKotoba.snapshot());
       this.currentArticle=article;
       this.setState({articleGenerating:false,view:'article'});
@@ -1692,6 +1721,7 @@ class Component extends DCLogic {
       grammar:{isN5:this.state.grammarLevel==='N5',isN4:this.state.grammarLevel==='N4',isN3:this.state.grammarLevel==='N3',onN5:()=>this.setState({grammarLevel:'N5'}),onN4:()=>this.setState({grammarLevel:'N4'}),onN3:()=>this.setState({grammarLevel:'N3'}),query:this.state.grammarQuery,onSearch:e=>this.setState({grammarQuery:e.target.value}),items:grammarItems,count:grammarItems.length,total:(this.grammarCatalog||[]).length,mastered:(this.grammarProgress||[]).filter(item=>item.status==='mastered').length,loading:this.state.grammarLoading,hasLesson:!!grammarLesson&&!this.state.grammarLoading,lesson:grammarLesson?{level:this.activeGrammarPoint?.level||'',title:grammarLesson.title||this.grammarTitle(this.activeGrammarPoint?.title),meaning:grammarLesson.meaning||'',explanation:grammarLesson.explanation||'',formation:grammarLesson.formation||this.activeGrammarPoint?.formation||'',pitfall:grammarLesson.pitfall||'',examples:(grammarLesson.examples||[]).map(item=>({japanese:item.japanese||'',translation:item.translation||'',note:item.note||''})),quizPrompt:grammarLesson.quiz?.prompt||'',quizAnswer:grammarLesson.quiz?.answer||'',quizExplanation:grammarLesson.quiz?.explanation||'',masterLabel:grammarProgress?.status==='mastered'?`${ui.mastered} ✓`:ui.markMastered,onMaster:()=>this.setGrammarProgress(grammarProgress?.status==='mastered'?'studying':'mastered')}:{examples:[]}},
       articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:language==='en'?(a.titleEnglish||a.localizedTitle||a.titleChinese||''):(a.titleChinese||a.localizedTitle||a.titleEnglish||''),level:a.level||'N4',mins:`${Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))} ${ui.minutes}`,onOpen:()=>this.openArticle(a)})),
       article:{
+        topic:this.state.articleInput,level:this.state.articleLevel,generating:this.state.articleGenerating,onTopic:e=>this.setState({articleInput:e.target.value}),onLevel:e=>this.setState({articleLevel:e.target.value}),
         onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?ui.newArticleGenerating:ui.newArticle,onShare:()=>this.shareItem('article',current),shareDisabled:this.state.shareBusy||this.state.articleAnalyzing,shareLabel:this.state.articleAnalyzing?ui.analyzing:this.state.shareBusy?ui.generatingLink:(this.state.shareNotice||ui.share),analysisLabel:this.state.articleAnalyzing?ui.glossAnalyzing:(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?ui.stop:ui.readAloud,onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:event=>this.selectToken(t,event)}))}))},
         selection:{visible:!!selected,left:this._selectionPosition?.left||'12px',top:this._selectionPosition?.top||'84px',surface:selected?.surface||'',reading:selected?.reading||'',grammar:grammarParts.join(' · '),meaning:selected?.gloss||selected?.meaning||ui.meaningOnAdd,added:!!selected?.added,disabled:!!selected?.added||!!selected?.adding,addLabel:selected?.adding?ui.meaningGenerating:(selected?.added?ui.added:ui.addVocab),onAdd:()=>this.addSelectedToken(),onClose:()=>this.closeSelectedToken()},
       },

@@ -231,6 +231,18 @@ test("localizes every built-in dialogue, article, and seed flashcard in English"
   assert.match(integration, /translationParts\.length === parts\.length/);
 });
 
+test("embeds article generation controls in the Reading page", async () => {
+  const html = await readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8");
+  assert.match(html, /class="article-generator-controls"/);
+  assert.match(html, /value="\{\{ article\.topic \}\}"/);
+  assert.match(html, /value="\{\{ article\.level \}\}"/);
+  assert.match(html, /articleInput:'介绍日本夏日祭典'/);
+  assert.match(html, /articleLevel:'N4'/);
+  assert.match(html, /const request=String\(this\.state\.articleInput\|\|''\)\.trim\(\)/);
+  assert.doesNotMatch(html, /window\.prompt\('想读什么主题？'/);
+  assert.doesNotMatch(html, /window\.prompt\('JLPT 等级（N5–N1）'/);
+});
+
 test("adapts the full learning UI for mobile browsers", async () => {
   const html = await readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8");
   assert.match(html, /@media \(max-width:760px\)/);
@@ -242,6 +254,7 @@ test("adapts the full learning UI for mobile browsers", async () => {
   assert.match(html, /class="app-content"/);
   assert.match(html, /class="detail-header"/);
   assert.match(html, /class="detail-actions"/);
+  assert.match(html, /\.article-generator-controls\{flex-direction:column\}/);
   assert.doesNotMatch(html, /class="tag tag-neutral">\{\{ sc\.topic \}\}<\/span>/);
   assert.match(html, /scrollMainTop\(\)/);
   assert.match(html, /scroll-padding-bottom:100px/);
