@@ -93,6 +93,21 @@ test("ships the original UI with account, playback, and push-to-talk controls", 
   assert.match(storage, /grammarProgress/);
 });
 
+test("adapts the full learning UI for mobile browsers", async () => {
+  const html = await readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8");
+  assert.match(html, /@media \(max-width:760px\)/);
+  assert.match(html, /class="app-shell"/);
+  assert.match(html, /class="app-sidebar"/);
+  assert.match(html, /position:fixed!important/);
+  assert.match(html, /env\(safe-area-inset-bottom\)/);
+  assert.match(html, /class="app-topbar"/);
+  assert.match(html, /class="app-content"/);
+  assert.match(html, /class="detail-header"/);
+  assert.match(html, /class="detail-actions"/);
+  assert.match(html, /scrollMainTop\(\)/);
+  assert.match(html, /scroll-padding-bottom:100px/);
+});
+
 test("enforces global paid API caps and protects the admin usage dashboard", async () => {
   const [server, adminRoute, html, integration] = await Promise.all([
     readFile(new URL("../lib/server.ts", import.meta.url), "utf8"),

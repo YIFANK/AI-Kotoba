@@ -70,13 +70,69 @@
   .tutor-history summary::-webkit-details-marker{display:none}
   .tutor-history summary::after{content:'⌄';margin-left:auto;color:color-mix(in srgb,var(--color-text) 45%,transparent)}
   .tutor-history[open] summary::after{transform:rotate(180deg)}
+  @media (max-width:760px){
+    html,body{height:100dvh;overflow:hidden;overscroll-behavior:none}
+    .app-shell{display:block!important;height:100dvh!important;overflow:hidden!important}
+    .app-main{width:100%!important;height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;scroll-padding-bottom:100px}
+    .app-sidebar{position:fixed!important;z-index:50;left:0;right:0;bottom:0;width:auto!important;height:calc(72px + env(safe-area-inset-bottom));padding:6px 8px env(safe-area-inset-bottom)!important;display:flex!important;flex-direction:row!important;align-items:stretch!important;gap:3px!important;overflow-x:auto!important;overflow-y:hidden!important;border-right:0!important;border-top:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-surface) 96%,transparent)!important;backdrop-filter:blur(12px);box-shadow:0 -6px 22px color-mix(in srgb,var(--color-text) 9%,transparent);scrollbar-width:none}
+    .app-sidebar::-webkit-scrollbar{display:none}
+    .app-sidebar>div:not(:last-child){display:none!important}
+    .app-sidebar>div:last-child{display:contents!important}
+    .app-sidebar>nav{display:flex!important;flex:none!important;flex-direction:row!important;gap:3px!important}
+    .app-sidebar sc-if{display:contents!important}
+    .app-sidebar .navbtn{position:relative;min-width:68px!important;height:58px!important;padding:6px 5px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;border-radius:13px!important;text-align:center!important;font-size:10.5px!important;line-height:1.1!important;white-space:nowrap}
+    .app-sidebar .navbtn>span{flex:none!important}
+    .app-sidebar .navbtn>svg,.app-sidebar .navbtn>.jp{width:20px!important;height:20px!important;font-size:16px!important}
+    .app-sidebar .navbtn .ndot{display:none!important}
+    .app-sidebar .navbtn>span[style*="border-radius:99px"]{position:absolute;top:3px;right:7px;font-size:9px!important;padding:1px 5px!important}
+    .app-topbar{min-height:46px;padding:8px 11px!important;gap:7px!important;background:color-mix(in srgb,var(--color-bg) 94%,transparent)!important}
+    .app-topbar>div:first-child{font-size:12px!important;max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .app-topbar>div:nth-child(2){display:none}
+    #account-pill{margin-left:auto;max-width:132px;min-width:0!important;min-height:31px;padding:0 9px;font-size:10px;overflow:hidden}
+    #account-pill a,#account-pill span:not(.account-dot){display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .app-topbar>button{min-width:74px;padding:7px 9px!important;font-size:10.5px!important;white-space:nowrap}
+    .app-topbar>button svg{display:none}
+    .app-palette{display:none!important}
+    .app-content{padding:19px 14px calc(94px + env(safe-area-inset-bottom))!important;overflow:hidden}
+    .app-content h1{font-size:28px!important;line-height:1.2!important;overflow-wrap:anywhere}
+    .app-content h2{font-size:24px!important;line-height:1.25!important;overflow-wrap:anywhere}
+    .app-content h3{line-height:1.3!important}
+    .app-content p{overflow-wrap:anywhere}
+    .app-content [style*="display:grid"],.app-content [style*="display: grid"]{grid-template-columns:minmax(0,1fr)!important}
+    .app-content .ability-skills{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    .app-content [style*="justify-content:space-between"],.app-content [style*="justify-content: space-between"]{flex-wrap:wrap!important}
+    .app-content .card{min-width:0;max-width:100%;box-sizing:border-box}
+    .app-content .detail-actions{width:100%;overflow-x:auto;padding-bottom:3px;flex-wrap:nowrap!important;scrollbar-width:none}
+    .app-content .detail-actions::-webkit-scrollbar{display:none}
+    .app-content .detail-actions>*{flex:none!important}
+    .app-content .detail-header{flex-wrap:wrap!important}
+    .app-content .detail-header>div:first-child{flex:0 0 100%!important;width:100%!important;min-width:0}
+    .app-content .detail-header>div:first-child>div:last-child{flex-wrap:wrap}
+    .app-content input,.app-content select,.app-content textarea{max-width:100%;box-sizing:border-box;font-size:16px!important}
+    .app-content button{touch-action:manipulation}
+    .app-content table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .linerow{padding:13px 12px!important;gap:9px!important}
+    .linerow .jp{font-size:16px!important;line-height:1.85!important}
+    .reading-token{font-size:17px;line-height:1.9}
+    .three-line{grid-template-columns:1fr;gap:3px}
+    .three-label{padding-top:4px}
+    .word-float{left:12px!important;right:12px!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;top:auto!important;width:auto!important;max-height:55dvh;overflow:auto}
+    .tutor-talk{width:100%;min-height:52px;padding:14px 18px}
+    .tutor-history summary{align-items:flex-start;flex-wrap:wrap}
+  }
+  @media (max-width:360px){
+    .app-sidebar .navbtn{min-width:64px!important}
+    .app-content{padding-inline:11px!important}
+    .app-content .ability-skills{grid-template-columns:minmax(0,1fr)!important}
+    #account-pill{max-width:105px}
+  }
 </style>
 </helmet>
 
-<div style="display:flex;height:100vh;overflow:hidden;font-family:var(--font-body);color:var(--color-text);background:var(--color-bg)" data-dir="{{ dirAttr }}" data-furi="{{ furiAttr }}">
+<div class="app-shell" style="display:flex;height:100vh;overflow:hidden;font-family:var(--font-body);color:var(--color-text);background:var(--color-bg)" data-dir="{{ dirAttr }}" data-furi="{{ furiAttr }}">
 
   <!-- ===================== SIDEBAR ===================== -->
-  <aside style="width:256px;flex:none;background:var(--color-surface);display:flex;flex-direction:column;padding:22px 16px;border-right:1px solid var(--color-divider)">
+  <aside class="app-sidebar" style="width:256px;flex:none;background:var(--color-surface);display:flex;flex-direction:column;padding:22px 16px;border-right:1px solid var(--color-divider)">
     <div style="display:flex;align-items:center;gap:12px;padding:2px 8px 20px">
       <div class="jp" style="width:46px;height:46px;border-radius:16px;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--shadow-sm)">言</div>
       <div>
@@ -152,8 +208,8 @@
   </aside>
 
   <!-- ===================== MAIN ===================== -->
-  <main style="flex:1;min-width:0;overflow-y:auto;position:relative">
-    <div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:16px 40px;background:color-mix(in srgb,var(--color-bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--color-divider)">
+  <main class="app-main" style="flex:1;min-width:0;overflow-y:auto;position:relative">
+    <div class="app-topbar" style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:16px 40px;background:color-mix(in srgb,var(--color-bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--color-divider)">
       <div style="font-family:var(--font-heading);font-size:15px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ crumb }}</div>
       <div style="flex:1"></div>
       <div id="account-pill" aria-live="polite"><span class="account-dot"></span><span>检查登录状态…</span></div>
@@ -161,14 +217,14 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
         振り仮名 {{ furiLabel }}
       </button>
-      <div style="display:flex;align-items:center;gap:0;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:999px;padding:3px">
+      <div class="app-palette" style="display:flex;align-items:center;gap:0;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:999px;padding:3px">
         <button class="segdir" onClick="{{ dir.blue }}" data-on="{{ dirIsBlue }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ blueBg }};color:{{ blueFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#4f6bf5"></span>蓝白</button>
         <button class="segdir" onClick="{{ dir.terra }}" data-on="{{ dirIsTerra }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ terraBg }};color:{{ terraFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#c67139"></span>陶土</button>
         <button class="segdir" onClick="{{ dir.sage }}" data-on="{{ dirIsSage }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ sageBg }};color:{{ sageFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#7a8a5e"></span>苔绿</button>
       </div>
     </div>
 
-    <div style="padding:32px 40px 72px">
+    <div class="app-content" style="padding:32px 40px 72px">
 
       <!-- ============ HOME ============ -->
       <sc-if value="{{ nav.home }}" hint-placeholder-val="{{ true }}">
@@ -302,7 +358,7 @@
             </div>
           </sc-if>
 
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px">
+          <div class="detail-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px">
             <div>
               <h1 class="jp" style="font-size:32px;margin:0 0 4px">{{ sc.title }}</h1>
               <div style="color:color-mix(in srgb,var(--color-text) 58%,transparent);font-size:15px">{{ sc.titleCn }}</div>
@@ -312,7 +368,7 @@
                 <span class="tag tag-neutral">{{ sc.date }}</span>
               </div>
             </div>
-            <div style="display:flex;gap:8px;flex:none">
+            <div class="detail-actions" style="display:flex;gap:8px;flex:none">
               <label style="height:40px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1.5px solid var(--color-divider);border-radius:12px;background:var(--color-neutral-100);font-size:12px;font-weight:700;color:color-mix(in srgb,var(--color-text) 65%,transparent)">
                 语速
                 <select aria-label="会话朗读语速" value="{{ sc.speechRate }}" onChange="{{ sc.onSpeechRate }}" style="border:none;background:transparent;color:var(--color-text);font:700 13px var(--font-body);outline:none;cursor:pointer">
@@ -467,7 +523,7 @@
             <div style="font-size:13px;line-height:1.65;color:color-mix(in srgb,var(--color-text) 72%,transparent)">{{ ability.summary }}</div>
             <div style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 54%,transparent)">语音测评根据对话转写与回答相关性评估听说；精细发音仍由“发音诊断”单独测量。</div>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px">
+          <div class="ability-skills" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px">
             <sc-for list="{{ ability.skills }}" as="s" hint-placeholder-count="4">
               <div class="card elev-sm" style="padding:17px;gap:9px;background:{{ s.bg }}">
                 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--font-heading);font-size:18px">{{ s.label }}</span><span class="tag">{{ s.level }}</span></div>
@@ -1066,11 +1122,16 @@ class Component extends DCLogic {
     }catch(e){ window.alert(e.message||'保存分享内容失败'); }
   }
 
+  scrollMainTop(){
+    requestAnimationFrame(()=>document.querySelector('.app-main')?.scrollTo({top:0,behavior:'auto'}));
+  }
+
   openScenario(sc){
     if(!sc) return;
     this.activeScenario=sc;
     this.L=(sc.lines||[]).map((l,i)=>this.scenarioLine(l,i));
     this.setState({view:'detail',playing:-1,shareNotice:''});
+    this.scrollMainTop();
   }
 
   async openArticle(article){
@@ -1078,6 +1139,7 @@ class Component extends DCLogic {
     this.currentArticle=article;
     this.selectedToken=null;
     this.setState({view:'article',articleAnalyzing:true,shareNotice:''});
+    this.scrollMainTop();
     try{
       this.currentArticle=await window.AIKotoba.prepareArticleForStudy(article);
       this.setState({articleTokenized:true,articleAnalyzing:false});
@@ -1157,6 +1219,7 @@ class Component extends DCLogic {
       this.applyData(window.AIKotoba.snapshot());
       this.currentArticle=article;
       this.setState({articleGenerating:false,view:'article'});
+      this.scrollMainTop();
     }catch(e){ this.setState({articleGenerating:false}); window.alert(e.message||'文章生成失败'); }
   }
 
@@ -1175,6 +1238,7 @@ class Component extends DCLogic {
       this.activeGrammarLesson=result.lesson||null;
       this.applyData(result.data||window.AIKotoba.snapshot());
       this.setState({grammarLoading:false});
+      this.scrollMainTop();
     }catch(e){ this.setState({grammarLoading:false}); window.alert(e.message||'语法课程生成失败'); }
   }
 
@@ -1186,6 +1250,7 @@ class Component extends DCLogic {
   startOralAssessment(){
     if(this._realtime) return;
     this.setState({view:'tutor',tutorMode:'assessment',tutorStatus:'idle',tutorMessages:[]});
+    this.scrollMainTop();
     setTimeout(()=>this.toggleTutor('assessment'),0);
   }
 
@@ -1273,7 +1338,7 @@ class Component extends DCLogic {
   renderVals(){
     const v=this.state.view, dir=this.state.dir;
     const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',ability:v==='ability',pron:v==='pron',reading:v==='reading',article:v==='article',grammar:v==='grammar',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings',admin:v==='admin'};
-    const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); if(view!=='tutor'&&this._realtime) this.finishTutor(); this.setState({view,playing:-1}); };
+    const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); if(view!=='tutor'&&this._realtime) this.finishTutor(); this.setState({view,playing:-1}); this.scrollMainTop(); };
     const crumbs={home:'今日',practice:'练习',detail:'练习 › 会话详情',tutor:'AI 语音 Tutor',ability:'能力地图',pron:'发音诊断',reading:'阅读文章',article:'阅读文章 › 三行对译',grammar:'语法课程',history:'历史',fav:'收藏',vocab:'生词本',cards:'闪卡复习',settings:'设置',admin:'管理员用量'};
     const badge=(role)=>role==='a'?{bg:'var(--color-accent-100)',fg:'var(--color-accent-800)'}:{bg:'var(--color-accent-2-100)',fg:'var(--color-accent-2-800)'};
     const active=this.activeScenario||{title:'はじめまして',localizedTitle:'初次见面 · 自我介绍',titleChinese:'初次见面 · 自我介绍',level:'N5',topic:'初次见面的自我介绍',vocabulary:this.V};
@@ -1321,7 +1386,7 @@ class Component extends DCLogic {
     return {
       nav,crumb:crumbs[v],dirAttr:dir,furiAttr:this.state.furi?'on':'off',
       furiLabel:this.state.furi?'开':'关',toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
-      go:{home:set('home'),practice:set('practice'),tutor:()=>{if(this._realtime)return;this.setState({view:'tutor',tutorMode:'tutor',playing:-1});},ability:set('ability'),pron:set('pron'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings'),admin:()=>this.openAdmin()},
+      go:{home:set('home'),practice:set('practice'),tutor:()=>{if(this._realtime)return;this.setState({view:'tutor',tutorMode:'tutor',playing:-1});this.scrollMainTop();},ability:set('ability'),pron:set('pron'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings'),admin:()=>this.openAdmin()},
       openDetail:()=>this.openScenario(active),
       dir:{blue:()=>this.changePalette('blue'),terra:()=>this.changePalette('terra'),sage:()=>this.changePalette('sage')},dirIsBlue:dir==='blue',dirIsTerra:dir==='terra',dirIsSage:dir==='sage',
       blueBg:dir==='blue'?'var(--color-bg)':'transparent',blueFg:dir==='blue'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
