@@ -242,6 +242,7 @@ test("adapts the full learning UI for mobile browsers", async () => {
   assert.match(html, /class="app-content"/);
   assert.match(html, /class="detail-header"/);
   assert.match(html, /class="detail-actions"/);
+  assert.doesNotMatch(html, /class="tag tag-neutral">\{\{ sc\.topic \}\}<\/span>/);
   assert.match(html, /scrollMainTop\(\)/);
   assert.match(html, /scroll-padding-bottom:100px/);
 });
