@@ -7,14 +7,12 @@ const KEYS = {
   checkins: 'kotoba.checkins',
   tutorSessions: 'kotoba.tutorSessions',
   learningNotes: 'kotoba.learningNotes',
-  pronunciationAttempts: 'kotoba.pronunciationAttempts',
   grammarProgress: 'kotoba.grammarProgress',
   abilityProfiles: 'kotoba.abilityProfiles',
 };
 const ARTICLE_LIMIT = 50;
 const TUTOR_SESSION_LIMIT = 100;
 const LEARNING_NOTE_LIMIT = 120;
-const PRONUNCIATION_ATTEMPT_LIMIT = 60;
 const SEED_LOCALIZATION_VERSION = 1;
 
 const HISTORY_LIMIT = 100; // 仅非收藏计入上限
@@ -81,7 +79,6 @@ export async function initSync() {
     checkins: [...new Set([...(local.checkins || []), ...(server.checkins || [])])].sort(),
     tutorSessions: mergeById(local.tutorSessions, server.tutorSessions, 'createdAt'),
     learningNotes: mergeById(local.learningNotes, server.learningNotes, 'updatedAt'),
-    pronunciationAttempts: mergeById(local.pronunciationAttempts, server.pronunciationAttempts, 'createdAt'),
     grammarProgress: mergeById(local.grammarProgress, server.grammarProgress, 'updatedAt'),
     abilityProfiles: [...(local.abilityProfiles || []), ...(server.abilityProfiles || [])]
       .filter(item => item?.id)
@@ -397,18 +394,6 @@ export function addLearningNote(input) {
   return { created: true, note: created };
 }
 
-// ---------- 发音诊断 ----------
-export function getPronunciationAttempts(limit) {
-  const list = load(KEYS.pronunciationAttempts, [])
-    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  return Number.isFinite(limit) ? list.slice(0, Math.max(0, limit)) : list;
-}
-export function savePronunciationAttempt(attempt) {
-  const list = getPronunciationAttempts().filter(item => item.id !== attempt.id);
-  list.unshift(attempt);
-  save(KEYS.pronunciationAttempts, list.slice(0, PRONUNCIATION_ATTEMPT_LIMIT));
-}
-
 // ---------- 语法课程进度与按需生成的本地化讲解 ----------
 export function getGrammarProgress() {
   return load(KEYS.grammarProgress, [])
@@ -503,7 +488,6 @@ export function exportAll() {
     checkins: getCheckins(),
     tutorSessions: getTutorSessions(),
     learningNotes: getLearningNotes(),
-    pronunciationAttempts: getPronunciationAttempts(),
     abilityProfiles: getAbilityProfile() ? [getAbilityProfile()] : [],
     exportedAt: new Date().toISOString(),
   }, null, 2);
@@ -519,7 +503,6 @@ export function importAll(json) {
   if (Array.isArray(data.checkins)) save(KEYS.checkins, data.checkins);
   if (Array.isArray(data.tutorSessions)) save(KEYS.tutorSessions, data.tutorSessions);
   if (Array.isArray(data.learningNotes)) save(KEYS.learningNotes, data.learningNotes);
-  if (Array.isArray(data.pronunciationAttempts)) save(KEYS.pronunciationAttempts, data.pronunciationAttempts);
   if (Array.isArray(data.abilityProfiles)) save(KEYS.abilityProfiles, data.abilityProfiles.slice(0, 1));
 }
 export function clearAll() {
@@ -529,6 +512,5 @@ export function clearAll() {
   localStorage.removeItem(KEYS.checkins);
   localStorage.removeItem(KEYS.tutorSessions);
   localStorage.removeItem(KEYS.learningNotes);
-  localStorage.removeItem(KEYS.pronunciationAttempts);
   localStorage.removeItem(KEYS.abilityProfiles);
 }

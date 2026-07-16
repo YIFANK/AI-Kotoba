@@ -29,7 +29,6 @@ export type AppEnv = {
   MEDIA?: ObjectBucket;
   OPENAI_API_KEY?: string;
   OPENAI_FAST_MODEL?: string;
-  OPENAI_AUDIO_MODEL?: string;
   OPENAI_REALTIME_MODEL?: string;
   ELEVENLABS_API_KEY?: string;
   ELEVENLABS_TTS_MODEL?: string;
@@ -38,7 +37,6 @@ export type AppEnv = {
   ADMIN_EMAILS?: string;
   GLOBAL_DAILY_AI_REQUESTS?: string;
   GLOBAL_DAILY_REALTIME_SESSIONS?: string;
-  GLOBAL_DAILY_PRONUNCIATION_CHECKS?: string;
   GLOBAL_DAILY_TTS_GENERATIONS?: string;
 };
 
@@ -50,7 +48,7 @@ export type RequestUser = {
 let schemaReady: Promise<void> | null = null;
 const GLOBAL_USAGE_EMAIL = "__global__";
 
-export type QuotaBucket = "ai_text" | "realtime" | "pronunciation" | "tts";
+export type QuotaBucket = "ai_text" | "realtime" | "tts";
 
 export type QuotaResult = {
   allowed: boolean;
@@ -63,14 +61,12 @@ export type QuotaResult = {
 const QUOTA_DEFAULTS: Record<QuotaBucket, { label: string; unit: string; perUser: number; global: number }> = {
   ai_text: { label: "文本 AI", unit: "次", perUser: 30, global: 300 },
   realtime: { label: "Realtime Tutor", unit: "次", perUser: 12, global: 30 },
-  pronunciation: { label: "发音诊断", unit: "次", perUser: 15, global: 100 },
   tts: { label: "ElevenLabs TTS", unit: "次新生成", perUser: 120, global: 300 },
 };
 
 const QUOTA_ENV_KEYS: Record<QuotaBucket, keyof AppEnv> = {
   ai_text: "GLOBAL_DAILY_AI_REQUESTS",
   realtime: "GLOBAL_DAILY_REALTIME_SESSIONS",
-  pronunciation: "GLOBAL_DAILY_PRONUNCIATION_CHECKS",
   tts: "GLOBAL_DAILY_TTS_GENERATIONS",
 };
 

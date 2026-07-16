@@ -134,18 +134,33 @@ test("supports Chinese and English learner onboarding with one frontend language
 });
 
 test("folds pronunciation guidance into voice Tutor reviews instead of a standalone page", async () => {
-  const [html, integration, realtime, layout] = await Promise.all([
+  const [html, integration, realtime, layout, storage, server] = await Promise.all([
     readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8"),
     readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8"),
     readFile(new URL("../public/ai-kotoba-web/js/realtime.js", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../public/ai-kotoba-web/js/storage.js", import.meta.url), "utf8"),
+    readFile(new URL("../lib/server.ts", import.meta.url), "utf8"),
   ]);
+  await assert.rejects(
+    readFile(new URL("../app/api/pronunciation/analyze/route.ts", import.meta.url), "utf8"),
+    error => error?.code === "ENOENT",
+  );
+  await assert.rejects(
+    readFile(new URL("../public/ai-kotoba-web/js/pronunciation.js", import.meta.url), "utf8"),
+    error => error?.code === "ENOENT",
+  );
   assert.doesNotMatch(html, /go\.pron/);
   assert.doesNotMatch(html, /nav\.pron/);
   assert.doesNotMatch(html, /pronunciationTitle/);
   assert.doesNotMatch(html, /发音诊断/);
+  assert.doesNotMatch(html, /u\.pronunciation/);
+  assert.doesNotMatch(html, /pronShort/);
   assert.doesNotMatch(integration, /前往发音诊断/);
   assert.doesNotMatch(layout, /发音诊断/);
+  assert.doesNotMatch(storage, /pronunciationAttempts/);
+  assert.doesNotMatch(server, /GLOBAL_DAILY_PRONUNCIATION_CHECKS/);
+  assert.doesNotMatch(server, /"pronunciation"/);
   assert.match(html, /课后复盘只在原始语音证据清楚时提示发音或节奏问题/);
   assert.match(html, /Session reviews mention pronunciation or rhythm only when the original audio provides clear evidence/);
   assert.match(realtime, /include at most one cautious, practical note about intelligibility, rhythm, long vowels, or geminate consonants/);

@@ -43,7 +43,9 @@ export async function GET(request: Request) {
     ]);
 
     const globalCounts = new Map((globalResult.results || []).map((row) => [row.bucket, Number(row.count || 0)]));
-    const buckets = quotaDefinitions().map((definition) => {
+    const definitions = quotaDefinitions();
+    const activeBuckets = new Set(definitions.map(definition => definition.bucket));
+    const buckets = definitions.map((definition) => {
       const used = globalCounts.get(definition.bucket) || 0;
       return {
         ...definition,
@@ -56,6 +58,7 @@ export async function GET(request: Request) {
 
     const users = new Map<string, { email: string; total: number; usage: Record<string, number> }>();
     for (const row of userResult.results || []) {
+      if (!activeBuckets.has(row.bucket as typeof definitions[number]["bucket"])) continue;
       const entry = users.get(row.userEmail) || { email: row.userEmail, total: 0, usage: {} };
       const count = Number(row.count || 0);
       entry.usage[row.bucket] = count;
@@ -65,6 +68,7 @@ export async function GET(request: Request) {
 
     const historyByDay = new Map<string, Record<string, number>>();
     for (const row of historyResult.results || []) {
+      if (!activeBuckets.has(row.bucket as typeof definitions[number]["bucket"])) continue;
       const entry = historyByDay.get(row.day) || {};
       entry[row.bucket] = Number(row.count || 0);
       historyByDay.set(row.day, entry);
