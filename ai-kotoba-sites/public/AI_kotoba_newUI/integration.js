@@ -390,6 +390,22 @@ function splitParagraphIntoSentences(paragraph, sourceParagraphIndex) {
     ? Array.from(segmenter.segment(japanese))
     : Array.from(japanese.matchAll(/[^。！？!?]+[。！？!?]?/g), match => ({ segment: match[0], index: match.index || 0 }));
   const parts = raw.filter(part => String(part.segment || '').trim());
+  const paragraphTranslation = normalizeTranslation(paragraph);
+  const translationLocale = db.getSettings().uiLanguage === 'en' ? 'en' : 'zh';
+  const translationSegmenter = typeof Intl?.Segmenter === 'function' && paragraphTranslation
+    ? new Intl.Segmenter(translationLocale, { granularity: 'sentence' })
+    : null;
+  const translationParts = translationSegmenter
+    ? Array.from(translationSegmenter.segment(paragraphTranslation), part => String(part.segment || '').trim()).filter(Boolean)
+    : Array.from(
+        paragraphTranslation.matchAll(translationLocale === 'en' ? /[^.!?]+[.!?]?/g : /[^。！？!?]+[。！？!?]?/g),
+        match => String(match[0] || '').trim()
+      ).filter(Boolean);
+  const alignedTranslations = translationParts.length === parts.length
+    ? translationParts
+    : parts.length === 1
+      ? [paragraphTranslation]
+      : [];
   return parts.map((part, sentenceIndex) => {
     const start = Array.from(japanese.slice(0, part.index)).length;
     const sentence = String(part.segment);
@@ -397,7 +413,7 @@ function splitParagraphIntoSentences(paragraph, sourceParagraphIndex) {
     return {
       japanese: sentence,
       furigana: sliceFurigana(paragraph.furigana || japanese, start, end, sentence),
-      translation: parts.length === 1 ? normalizeTranslation(paragraph) : '',
+      translation: alignedTranslations[sentenceIndex] || '',
       sourceParagraphIndex,
       sentenceIndex,
     };

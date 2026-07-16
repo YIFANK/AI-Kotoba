@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "language": "en",
   "scenarios": {
     "seed-scenario-n5-1": {
@@ -685,7 +685,7 @@
     "seed-article-n5-2": {
       "title": "My Family",
       "paragraphs": [
-        "Nice to meet you. I will introduce my family. My family has five members: my father, my mother, my older brother, my younger sister, and me. Everyone is healthy, and we have fun every day.",
+        "Nice to meet you. I will introduce my family. There are five people in my family. They are my father, mother, older brother, younger sister, and me. Everyone is healthy, and every day is fun.",
         "My father is a company employee. He wakes up early every morning and goes to work. His job is very busy, but he always spends time with the family on weekends. My father is good at cooking, and on his days off, he often makes curry for us.",
         "My mother is kind and is good at both cooking and cleaning. She likes playing the piano and sometimes plays it at home. I love listening to her music.",
         "My older brother is a university student. He is a bit strict, but he always helps me. My younger sister is still in elementary school and is very energetic. She often sings songs.",

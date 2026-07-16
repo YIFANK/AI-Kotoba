@@ -13,7 +13,7 @@ const KEYS = {
 const ARTICLE_LIMIT = 50;
 const TUTOR_SESSION_LIMIT = 100;
 const LEARNING_NOTE_LIMIT = 120;
-const SEED_LOCALIZATION_VERSION = 1;
+const SEED_LOCALIZATION_VERSION = 2;
 
 const HISTORY_LIMIT = 100; // 仅非收藏计入上限
 
@@ -278,10 +278,31 @@ function addSeedEnglishToSavedVocabulary(vocabulary, seed) {
   });
 }
 
+function hasCompleteSeedEnglish(scenarios, articles) {
+  const builtInScenarios = (scenarios || []).filter(item => item?.builtin);
+  const builtInArticles = (articles || []).filter(item => item?.builtin);
+  return builtInScenarios.length >= 10
+    && builtInArticles.length >= 10
+    && builtInScenarios.every(item =>
+      item.titleEnglish
+      && (item.lines || []).length
+      && item.lines.every(line => String(line.english || '').trim())
+    )
+    && builtInArticles.every(item =>
+      item.titleEnglish
+      && (item.paragraphs || []).length
+      && item.paragraphs.every(paragraph => String(paragraph.english || '').trim())
+    );
+}
+
 // ---------- 内置范文（seed.json；版本升级时更新内置内容并保留用户状态） ----------
 export async function loadSeeds() {
   const s = getSettings();
-  if (s.seedsLoaded && Number(s.seedLocalizationVersion || 0) >= SEED_LOCALIZATION_VERSION) return;
+  if (
+    s.seedsLoaded
+    && Number(s.seedLocalizationVersion || 0) >= SEED_LOCALIZATION_VERSION
+    && hasCompleteSeedEnglish(getScenarios(), getArticles())
+  ) return;
   let seed;
   let localizations;
   try {

@@ -179,7 +179,12 @@ test("localizes every built-in dialogue, article, and seed flashcard in English"
   const english = JSON.parse(englishRaw);
   const nonEnglish = /[\u3040-\u30ff\u3400-\u9fff]/;
 
-  assert.equal(english.version, 1);
+  assert.equal(english.version, 2);
+  const sentenceCount = (text, locale) =>
+    Array.from(new Intl.Segmenter(locale, { granularity: "sentence" }).segment(text))
+      .map(item => item.segment.trim())
+      .filter(Boolean)
+      .length;
   for (const scenario of seed.scenarios) {
     const localized = english.scenarios[scenario.id];
     assert.ok(localized, `missing English scenario ${scenario.id}`);
@@ -198,6 +203,13 @@ test("localizes every built-in dialogue, article, and seed flashcard in English"
     assert.equal(localized.paragraphs.length, article.paragraphs.length);
     assert.equal(localized.vocabulary.length, article.vocabulary.length);
     assert.ok(localized.paragraphs.every(paragraph => paragraph && !nonEnglish.test(paragraph)));
+    localized.paragraphs.forEach((paragraph, index) => {
+      assert.equal(
+        sentenceCount(paragraph, "en"),
+        sentenceCount(article.paragraphs[index].japanese, "ja"),
+        `${article.id} paragraph ${index} must keep one English translation per Japanese sentence`,
+      );
+    });
     assert.ok(localized.vocabulary.every((item, index) =>
       item.word === article.vocabulary[index].word
       && item.meaning && item.example
@@ -206,11 +218,17 @@ test("localizes every built-in dialogue, article, and seed flashcard in English"
   }
   assert.match(storage, /seed-localizations\.en\.json/);
   assert.match(storage, /seedLocalizationVersion/);
+  assert.match(storage, /SEED_LOCALIZATION_VERSION = 2/);
+  assert.match(storage, /hasCompleteSeedEnglish/);
   assert.match(storage, /addSeedEnglishToSavedVocabulary/);
   assert.match(integration, /item\?\.meaningEnglish/);
   assert.match(integration, /item\?\.exampleEnglish/);
   assert.match(html, /localizedVocabulary\(item,language\)/);
+  assert.match(html, /l\.english\|\|l\.translationEnglish/);
   assert.match(html, /\{\{ flash\.exampleTranslation \}\}/);
+  assert.match(html, /\.three-line-head\{grid-column:1\/-1/);
+  assert.match(html, /\.three-line-original\{grid-column:2/);
+  assert.match(integration, /translationParts\.length === parts\.length/);
 });
 
 test("adapts the full learning UI for mobile browsers", async () => {

@@ -56,6 +56,9 @@
   .reading-token:hover,.reading-token[data-selected="true"]{background:var(--color-accent-200);color:var(--color-accent-900)}
   .reading-token[data-word="false"]{cursor:default;padding-inline:0}
   .three-line{display:grid;grid-template-columns:58px 1fr;gap:8px 14px;align-items:start}
+  .three-line-head{grid-column:1/-1;display:grid;grid-template-columns:58px minmax(0,1fr);gap:14px;align-items:start}
+  .three-line-head .btn{justify-self:end}
+  .three-line-original{grid-column:2;min-width:0}
   .three-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent);padding-top:7px}
   .gloss-line{display:flex;flex-wrap:wrap;gap:6px 8px;padding-top:2px}
   .gloss-chip{display:inline-flex;align-items:baseline;gap:5px;padding:3px 8px;border-radius:9px;background:var(--color-accent-100);font-size:12px;line-height:1.45}
@@ -119,6 +122,8 @@
     .linerow .jp{font-size:16px!important;line-height:1.85!important}
     .reading-token{font-size:17px;line-height:1.9}
     .three-line{grid-template-columns:1fr;gap:3px}
+    .three-line-head{grid-column:1;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+    .three-line-original{grid-column:1}
     .three-label{padding-top:4px}
     .word-float{left:12px!important;right:12px!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;top:auto!important;width:auto!important;max-height:55dvh;overflow:auto}
     .tutor-talk{width:100%;min-height:52px;padding:14px 18px}
@@ -783,11 +788,11 @@
           <div style="display:flex;flex-direction:column;gap:13px">
             <sc-for list="{{ article.current.paragraphs }}" as="p" hint-placeholder-count="4">
               <div class="card elev-sm three-line" style="padding:20px 22px;background:var(--color-neutral-100)">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                <div class="three-line-head">
                   <div class="three-label" style="margin:0">{{ ui.original }}</div>
                   <button class="btn btn-ghost" onClick="{{ p.onPlay }}" style="font-family:var(--font-body);font-size:12px;padding:5px 9px">{{ p.playLabel }}</button>
                 </div>
-                <div class="jp" style="font-size:0;line-height:1.9">
+                <div class="jp three-line-original" style="font-size:0;line-height:1.9">
                   <sc-for list="{{ p.tokens }}" as="t" hint-placeholder-count="12"><button class="reading-token" data-word="{{ t.wordLike }}" data-selected="{{ t.selected }}" onClick="{{ t.onSelect }}" title="{{ t.reading }}"><ruby>{{ t.surface }}<rt>{{ t.rubyReading }}</rt></ruby></button></sc-for>
                 </div>
                 <div class="three-label">{{ ui.wordGloss }}</div><div class="gloss-line"><sc-for list="{{ p.glosses }}" as="g" hint-placeholder-count="10"><span class="gloss-chip"><span class="jp">{{ g.surface }}</span><span>{{ g.gloss }}</span></span></sc-for></div>
