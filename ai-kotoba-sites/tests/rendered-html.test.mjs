@@ -133,6 +133,25 @@ test("supports Chinese and English learner onboarding with one frontend language
   assert.match(storage, /旧用户升级时不要强制重新走新手引导/);
 });
 
+test("folds pronunciation guidance into voice Tutor reviews instead of a standalone page", async () => {
+  const [html, integration, realtime, layout] = await Promise.all([
+    readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/ai-kotoba-web/js/realtime.js", import.meta.url), "utf8"),
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.doesNotMatch(html, /go\.pron/);
+  assert.doesNotMatch(html, /nav\.pron/);
+  assert.doesNotMatch(html, /pronunciationTitle/);
+  assert.doesNotMatch(html, /发音诊断/);
+  assert.doesNotMatch(integration, /前往发音诊断/);
+  assert.doesNotMatch(layout, /发音诊断/);
+  assert.match(html, /课后复盘只在原始语音证据清楚时提示发音或节奏问题/);
+  assert.match(html, /Session reviews mention pronunciation or rhythm only when the original audio provides clear evidence/);
+  assert.match(realtime, /include at most one cautious, practical note about intelligibility, rhythm, long vowels, or geminate consonants/);
+  assert.match(realtime, /otherwise omit pronunciation feedback entirely/);
+});
+
 test("localizes every built-in dialogue, article, and seed flashcard in English", async () => {
   const [seedRaw, englishRaw, html, integration, storage] = await Promise.all([
     readFile(new URL("../public/ai-kotoba-web/seed.json", import.meta.url), "utf8"),

@@ -214,10 +214,6 @@
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19V2"/><path d="M2 19h22"/></svg>
         <span style="flex:1">{{ ui.ability }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
-      <button class="navbtn" onClick="{{ go.pron }}" data-on="{{ nav.pron }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v-2M8 16V8M12 19V5M16 16V8M20 12v-2"/></svg>
-        <span style="flex:1">{{ ui.pronunciation }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
-      </button>
       <button class="navbtn" onClick="{{ go.reading }}" data-on="{{ nav.reading }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-4.5-2-8-2v14c3.5 0 6 .5 8 2 2-1.5 4.5-2 8-2V4c-3.5 0-6 .5-8 2z"/><path d="M12 6v14"/></svg>
         <span style="flex:1">{{ ui.reading }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
@@ -747,30 +743,6 @@
         </div>
       </sc-if>
 
-      <!-- ============ PRONUNCIATION ============ -->
-      <sc-if value="{{ nav.pron }}" hint-placeholder-val="{{ false }}">
-        <div style="animation:fadeUp .35s ease both;max-width:760px">
-          <h1 style="font-size:34px;margin:0 0 4px">{{ ui.pronunciationTitle }}</h1>
-          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">{{ ui.pronunciationDescription }}</p>
-          <div class="card elev-sm" style="padding:24px;gap:16px">
-            <div class="jp" style="font-size:22px;line-height:1.6">きのう、友だちと映画を見に行きました。</div>
-            <div style="display:flex;align-items:center;justify-content:center;gap:18px;padding:22px;border-radius:20px;background:var(--color-accent-100);border:1px dashed var(--color-accent-300)">
-              <button class="btn btn-primary" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px;border-radius:999px"><span style="width:11px;height:11px;border-radius:50%;background:var(--color-bg);display:inline-block"></span>{{ ui.startRecording }}</button>
-              <span style="font:700 16px ui-monospace,Menlo,monospace;color:color-mix(in srgb,var(--color-text) 55%,transparent)">00:00</span>
-            </div>
-          </div>
-          <div class="card elev-sm" style="padding:24px;margin-top:16px;flex-direction:row;gap:24px;align-items:center">
-            <div style="position:relative;width:112px;height:112px;flex:none"><svg width="112" height="112" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent-200)" stroke-width="13"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent)" stroke-width="13" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="62" transform="rotate(-90 60 60)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:var(--font-heading);font-size:30px;color:var(--color-accent)">81</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ ui.overallScore }}</span></div></div>
-            <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ ui.intelligibility }}</span><b style="color:var(--color-accent)">{{ ui.excellent }}</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:88%;background:var(--color-accent)"></span></div></div>
-              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ ui.longSounds }}</span><b style="color:var(--color-accent)">{{ ui.attention }}</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:64%;background:var(--color-accent)"></span></div></div>
-              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ ui.rhythm }}</span><b style="color:var(--color-accent)">{{ ui.good }}</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:76%;background:var(--color-accent)"></span></div></div>
-              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ ui.fluency }}</span><b style="color:var(--color-accent)">{{ ui.good }}</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:79%;background:var(--color-accent)"></span></div></div>
-            </div>
-          </div>
-        </div>
-      </sc-if>
-
       <!-- ============ READING ============ -->
       <sc-if value="{{ nav.reading }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:820px">
@@ -906,18 +878,18 @@
 <script type="text/x-dc" data-dc-script>
 const UI_TEXT={
   'zh-CN':{
-    tagline:'日语情景会话学习',learn:'学习',records:'词汇 · 记录',today:'今日',practice:'练习',voiceTutor:'AI 语音 Tutor',ability:'能力地图',pronunciation:'发音诊断',reading:'阅读文章',grammar:'语法课程',vocabulary:'生词本',flashcards:'闪卡复习',history:'历史',favorites:'收藏',settings:'设置',admin:'管理员用量',
+    tagline:'日语情景会话学习',learn:'学习',records:'词汇 · 记录',today:'今日',practice:'练习',voiceTutor:'AI 语音 Tutor',ability:'能力地图',reading:'阅读文章',grammar:'语法课程',vocabulary:'生词本',flashcards:'闪卡复习',history:'历史',favorites:'收藏',settings:'设置',admin:'管理员用量',
     furigana:'振假名',on:'开',off:'关',blue:'蓝白',terra:'陶土',sage:'苔绿',checkingAccount:'检查登录状态…',welcome:'こんにちは，继续加油 👋',newScenario:'生成新场景',recentLearning:'最近学习',allHistory:'全部历史 ›',dialogueDetail:'会话详情',threeLine:'三行对译',
     practiceTitle:'练习场景对话',practiceDescription:'描述任意现实场景，AI 生成自然日语会话和你的语言对照。',sceneTopic:'场景主题',generate:'生成',generating:'生成中…',recentGenerated:'最近生成',
     vocabTitle:'生词本',vocabDescription:'收藏的词汇会进入 SM-2 间隔复习',reviewCards:'去复习',flashTitle:'闪卡复习',historyDescription:'自动保留最近 100 条会话，收藏的会话不受上限限制',favoritesDescription:'给会话加星，收藏后永不自动删除',
     abilityTitle:'听说读写能力地图',abilityDescription:'把每次练习变成能力证据；没有测过的项目会明确标记。',settingsTitle:'设置',learnerProfile:'学习者档案',yourLanguage:'你的语言',languageHelp:'界面、翻译、语法讲解、纠错与课后复盘都会使用这个语言。后端仍分别保存母语与解释语言。',data:'数据',exportData:'导出数据',importData:'导入数据',clearData:'清空数据',
-    aiSource:'AI 来源',localCli:'本地 CLI',noApiKey:'免 API Key',readingTitle:'阅读文章',readingDescription:'两轮生成日语短文，支持注音、逐段翻译与朗读',grammarTitle:'逐语法点学习',grammarDescription:'从 N5 学到 N3，每一条都有中文讲解、例句和小测验。',pronunciationTitle:'发音诊断',pronunciationDescription:'朗读目标句，AI 从可理解度、长音促音、节奏、流畅度给出反馈。',
+    aiSource:'AI 来源',localCli:'本地 CLI',noApiKey:'免 API Key',readingTitle:'阅读文章',readingDescription:'两轮生成日语短文，支持注音、逐段翻译与朗读',grammarTitle:'逐语法点学习',grammarDescription:'从 N5 学到 N3，每一条都有中文讲解、例句和小测验。',
     streakDays:'天连续打卡',checkedIn:'今天已打卡 · 保持下去 🔥',todayGoal:'今日目标',goalRemaining:'再学 3 个词完成今日目标',generateDialogue:'生成场景对话',generateDialogueDesc:'描述任意场景，AI 生成自然会话',reviewFlashcards:'复习闪卡',reviewFlashcardsDesc:'SM-2 间隔重复，到期待复习',continueLesson:'继续「はじめまして」',continueLessonDesc:'上次学到第 4 句 · 继续',
     scenePlaceholder:'例如：在居酒屋点餐、和房东谈租房…',generatingDialogue:'正在生成自然会话…',back:'返回',sharedScenarioHelp:'这是只读副本；保存后会加入你自己的对话历史。',speechRate:'语速',verySlow:'很慢',slow:'慢速',normalSpeed:'原速',interactiveComing:'互动模式 · 开发中',vocabSuggestions:'生词建议',searchVocab:'搜索词汇…',
     reviewDone:'今日复习完成！',reviewDoneDesc:'连续打卡 +1 天 · 明天还有新的到期卡片',reviewAgain:'再复习一遍',backToday:'回到今日',forgot:'忘了',again:'重来',hard:'困难',good:'良好',easy:'简单',day:'天',revealHint:'点击卡片查看读音与释义',noFavorites:'还没有收藏的会话',noFavoritesDesc:'在会话详情点击 ★ 即可收藏，随时回来温习最喜欢的场景。',firstScenario:'去生成第一个场景',
-    oralEvidenceNote:'语音测评根据对话转写与回答相关性评估听说；精细发音仍由“发音诊断”单独测量。',oralBreakdown:'口语能力拆解',oralBreakdownDesc:'让 Tutor 知道应该在哪一层提供挑战。',nextPractice:'接下来练什么',nextPracticeDesc:'按证据更新，不是一次测评定终身。',practiceSpeaking:'按当前水平练口语',
+    oralEvidenceNote:'听说能力根据真实对话中的理解、回应与表达评估；课后复盘只在原始语音证据清楚时提示发音或节奏问题。',oralBreakdown:'口语能力拆解',oralBreakdownDesc:'让 Tutor 知道应该在哪一层提供挑战。',nextPractice:'接下来练什么',nextPracticeDesc:'按证据更新，不是一次测评定终身。',practiceSpeaking:'按当前水平练口语',
     teachingStyle:'教学方式',styleBilingual:'双语入门（推荐 N5–N4）',styleImmersion:'日语沉浸',styleCorrection:'即时纠错',styleInterview:'口试训练',recentCalls:'最近通话',reviewGenerating:'正在生成课后复盘…通话记录已经保存，可以先离开。',reviewFailed:'复盘暂时生成失败，通话记录不受影响。',sessionReview:'课后复盘',strengths:'做得不错',moreNatural:'可以更自然',reviewVocab:'课后生词与表达',nextStep:'下一步：',naturalConversation:'自然会话',naturalConversationDesc:'更像会话伙伴，不会每轮都纠错、提问或要求复述。',instantCorrection:'即时纠错',instantCorrectionDesc:'说错立刻提示，课后自动沉淀为长期复习重点。',
-    grammarLoading:'正在为你生成这条语法的中文微课…',grammarLoadingDesc:'生成一次后会保存，下次可以直接打开。',formation:'接续',commonMistake:'常见错误',examples:'例句',quiz:'小测验：',answer:'答案：',startRecording:'开始录音',overallScore:'综合分',intelligibility:'可理解度',longSounds:'长音促音',rhythm:'拍节奏',fluency:'流畅度',excellent:'很好',attention:'注意',
+    grammarLoading:'正在为你生成这条语法的中文微课…',grammarLoadingDesc:'生成一次后会保存，下次可以直接打开。',formation:'接续',commonMistake:'常见错误',examples:'例句',quiz:'小测验：',answer:'答案：',fluency:'流畅度',
     newArticle:'生成新文章',backArticles:'← 返回文章',sharedArticleHelp:'你可以直接阅读；保存后会加入自己的文章库。',threeLineTitle:'三行对译学习',threeLineDesc:'原文注音 · 逐词语境释义 · 自然对译。点击原文中的词可加入生词本。',original:'原文',wordGloss:'逐词',translation:'对译',stop:'停止',readAloud:'朗读',
     share:'分享',generatingLink:'生成链接…',added:'已加入 ✓',addVocab:'+ 加入生词本',dueToday:'今天到期',reviewLater:'稍后复习',emptyVocab:'暂无词汇',addWordsFirst:'请先加入生词',sourceAudio:'基于原始语音',sourceTranscript:'STT 文本备用分析',addShort:'+ 加入',allAdded:'已全部加入 ✓',addAll:'全部加入复习',turns:'轮',minutes:'分钟',mastered:'已掌握',studying:'学习中',notStarted:'未学习',openForLesson:'打开生成中文讲解',markMastered:'标记为已掌握',analyzing:'分析完成后可分享',newArticleGenerating:'生成中…',glossAnalyzing:'正在生成逐词语境释义…',meaningOnAdd:'加入时自动生成释义',meaningGenerating:'正在生成释义…',
     aLearner:'一位学习者',sharedYou:'分享给你的',articleNoun:'文章',dialogueNoun:'对话',savedLibrary:'已保存到我的学习库 ✓',saveLibrary:'保存到我的学习库',
@@ -931,18 +903,18 @@ const UI_TEXT={
     saved:'已保存',languageChinese:'简体中文',languageEnglish:'English',step:'第 {current} / 3 步'
   },
   en:{
-    tagline:'Scenario-based Japanese learning',learn:'Learn',records:'Vocabulary · Records',today:'Today',practice:'Practice',voiceTutor:'AI Voice Tutor',ability:'Ability Map',pronunciation:'Pronunciation',reading:'Reading',grammar:'Grammar',vocabulary:'Vocabulary',flashcards:'Flashcards',history:'History',favorites:'Favorites',settings:'Settings',admin:'Admin Usage',
+    tagline:'Scenario-based Japanese learning',learn:'Learn',records:'Vocabulary · Records',today:'Today',practice:'Practice',voiceTutor:'AI Voice Tutor',ability:'Ability Map',reading:'Reading',grammar:'Grammar',vocabulary:'Vocabulary',flashcards:'Flashcards',history:'History',favorites:'Favorites',settings:'Settings',admin:'Admin Usage',
     furigana:'Furigana',on:'On',off:'Off',blue:'Blue',terra:'Terra',sage:'Sage',checkingAccount:'Checking account…',welcome:'こんにちは, keep going 👋',newScenario:'New scenario',recentLearning:'Recent learning',allHistory:'All history ›',dialogueDetail:'Dialogue',threeLine:'Three-line reading',
     practiceTitle:'Practice a scenario',practiceDescription:'Describe a real-life situation and AI will create natural Japanese dialogue with translations in your language.',sceneTopic:'Scenario',generate:'Generate',generating:'Generating…',recentGenerated:'Recently generated',
     vocabTitle:'Vocabulary',vocabDescription:'Saved words enter SM-2 spaced repetition',reviewCards:'Review',flashTitle:'Flashcard review',historyDescription:'Keeps the latest 100 conversations; favorites are never removed automatically.',favoritesDescription:'Star conversations to keep them permanently.',
     abilityTitle:'Listening, Speaking, Reading & Writing Map',abilityDescription:'Every activity becomes evidence. Unmeasured skills remain clearly marked.',settingsTitle:'Settings',learnerProfile:'Learner profile',yourLanguage:'Your language',languageHelp:'The interface, translations, grammar explanations, corrections, and session reviews will use this language. Native and explanation language remain separate in the backend.',data:'Data',exportData:'Export data',importData:'Import data',clearData:'Clear data',
-    aiSource:'AI source',localCli:'Local CLI',noApiKey:'No API key required',readingTitle:'Reading',readingDescription:'Two-pass Japanese article generation with furigana, translations, and audio.',grammarTitle:'Grammar by point',grammarDescription:'Study N5–N3 grammar with explanations, examples, and quick checks.',pronunciationTitle:'Pronunciation diagnosis',pronunciationDescription:'Read the target sentence and get feedback on intelligibility, timing, rhythm, and fluency.',
+    aiSource:'AI source',localCli:'Local CLI',noApiKey:'No API key required',readingTitle:'Reading',readingDescription:'Two-pass Japanese article generation with furigana, translations, and audio.',grammarTitle:'Grammar by point',grammarDescription:'Study N5–N3 grammar with explanations, examples, and quick checks.',
     streakDays:'day streak',checkedIn:'Checked in today · Keep it going 🔥',todayGoal:'Today’s goal',goalRemaining:'Learn 3 more words to finish today’s goal',generateDialogue:'Generate a scenario',generateDialogueDesc:'Describe any situation and generate natural dialogue',reviewFlashcards:'Review flashcards',reviewFlashcardsDesc:'SM-2 spaced repetition for cards due now',continueLesson:'Continue 「はじめまして」',continueLessonDesc:'Continue from line 4 of your last lesson',
     scenePlaceholder:'For example: order at an izakaya, talk to a landlord…',generatingDialogue:'Generating natural dialogue…',back:'Back',sharedScenarioHelp:'This is a read-only copy. Save it to add it to your own history.',speechRate:'Speed',verySlow:'Very slow',slow:'Slow',normalSpeed:'Normal',interactiveComing:'Interactive mode · Coming soon',vocabSuggestions:'Suggested vocabulary',searchVocab:'Search vocabulary…',
     reviewDone:'Today’s review is complete!',reviewDoneDesc:'Streak +1 day · More cards will be due tomorrow',reviewAgain:'Review again',backToday:'Back to Today',forgot:'Forgot',again:'Again',hard:'Hard',good:'Good',easy:'Easy',day:'day',revealHint:'Tap the card to see its reading and meaning',noFavorites:'No favorite conversations yet',noFavoritesDesc:'Select ★ in a conversation to keep it here for later review.',firstScenario:'Generate your first scenario',
-    oralEvidenceNote:'The oral assessment uses the conversation transcript and answer relevance. Detailed pronunciation is measured separately in Pronunciation.',oralBreakdown:'Speaking breakdown',oralBreakdownDesc:'Helps the Tutor choose the right level of challenge.',nextPractice:'What to practice next',nextPracticeDesc:'Updated from evidence, not fixed by one assessment.',practiceSpeaking:'Practice speaking at this level',
+    oralEvidenceNote:'Listening and speaking are assessed from comprehension, responses, and expression in real conversations. Session reviews mention pronunciation or rhythm only when the original audio provides clear evidence.',oralBreakdown:'Speaking breakdown',oralBreakdownDesc:'Helps the Tutor choose the right level of challenge.',nextPractice:'What to practice next',nextPracticeDesc:'Updated from evidence, not fixed by one assessment.',practiceSpeaking:'Practice speaking at this level',
     teachingStyle:'Teaching style',styleBilingual:'Bilingual support (N5–N4)',styleImmersion:'Japanese immersion',styleCorrection:'Immediate correction',styleInterview:'Oral interview',recentCalls:'Recent calls',reviewGenerating:'Generating the session review… The call is already saved, so you can leave this page.',reviewFailed:'The review could not be generated, but the call was saved.',sessionReview:'Session review',strengths:'What went well',moreNatural:'Make it more natural',reviewVocab:'Words and phrases to review',nextStep:'Next step: ',naturalConversation:'Natural conversation',naturalConversationDesc:'Acts more like a conversation partner without correcting, asking, or requesting repetition every turn.',instantCorrection:'Immediate correction',instantCorrectionDesc:'Highlights important mistakes and saves them as long-term review points.',
-    grammarLoading:'Generating this grammar mini-lesson…',grammarLoadingDesc:'It will be saved after the first generation for faster access next time.',formation:'Formation',commonMistake:'Common mistake',examples:'Examples',quiz:'Quick check: ',answer:'Answer: ',startRecording:'Start recording',overallScore:'Overall',intelligibility:'Intelligibility',longSounds:'Long and geminate sounds',rhythm:'Rhythm',fluency:'Fluency',excellent:'Great',attention:'Needs attention',
+    grammarLoading:'Generating this grammar mini-lesson…',grammarLoadingDesc:'It will be saved after the first generation for faster access next time.',formation:'Formation',commonMistake:'Common mistake',examples:'Examples',quiz:'Quick check: ',answer:'Answer: ',fluency:'Fluency',
     newArticle:'Generate article',backArticles:'← Back to articles',sharedArticleHelp:'You can read this copy now. Save it to add it to your own library.',threeLineTitle:'Three-line translation study',threeLineDesc:'Furigana text · contextual word glosses · natural translation. Select a word to save it.',original:'Original',wordGloss:'Word glosses',translation:'Translation',stop:'Stop',readAloud:'Read aloud',
     share:'Share',generatingLink:'Creating link…',added:'Added ✓',addVocab:'+ Add to vocabulary',dueToday:'Due today',reviewLater:'Review later',emptyVocab:'No vocabulary yet',addWordsFirst:'Add some words first',sourceAudio:'Based on original audio',sourceTranscript:'STT transcript fallback',addShort:'+ Add',allAdded:'All added ✓',addAll:'Add all to review',turns:'turns',minutes:'min',mastered:'Mastered',studying:'Studying',notStarted:'Not started',openForLesson:'Open to generate an explanation',markMastered:'Mark as mastered',analyzing:'Share after analysis',newArticleGenerating:'Generating…',glossAnalyzing:'Generating contextual word glosses…',meaningOnAdd:'A meaning will be generated when added',meaningGenerating:'Generating meaning…',
     aLearner:'A learner',sharedYou:'shared this',articleNoun:'article with you',dialogueNoun:'dialogue with you',savedLibrary:'Saved to my library ✓',saveLibrary:'Save to my library',
@@ -1167,16 +1139,16 @@ class Component extends DCLogic {
 
   renderVals(){
     const v=this.state.view, dir=this.state.dir;
-    const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',pron:v==='pron',reading:v==='reading',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings'};
+    const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',reading:v==='reading',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings'};
     const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); this.setState({view,playing:-1}); };
-    const crumbs={home:'今日',practice:'练习',detail:'练习 › 会话详情',tutor:'AI 语音 Tutor',pron:'发音诊断',reading:'阅读文章',history:'历史',fav:'收藏',vocab:'生词本',cards:'闪卡复习',settings:'设置'};
+    const crumbs={home:'今日',practice:'练习',detail:'练习 › 会话详情',tutor:'AI 语音 Tutor',reading:'阅读文章',history:'历史',fav:'收藏',vocab:'生词本',cards:'闪卡复习',settings:'设置'};
     const badge=(role)=>role==='a'?{bg:'var(--color-accent-100)',fg:'var(--color-accent-800)'}:{bg:'var(--color-accent-2-100)',fg:'var(--color-accent-2-800)'};
     const days=['日','一','二','三','四','五','六'];
     return {
       nav, crumb:crumbs[v],
       dirAttr:dir, furiAttr:this.state.furi?'on':'off',
       furiLabel:this.state.furi?'开':'关', toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
-      go:{home:set('home'),practice:set('practice'),tutor:set('tutor'),pron:set('pron'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings')},
+      go:{home:set('home'),practice:set('practice'),tutor:set('tutor'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings')},
       openDetail:set('detail'),
       dir:{blue:()=>this.changePalette('blue'),terra:()=>this.changePalette('terra'),sage:()=>this.changePalette('sage')},
       dirIsBlue:dir==='blue', dirIsTerra:dir==='terra', dirIsSage:dir==='sage',
@@ -1579,9 +1551,9 @@ class Component extends DCLogic {
     const language=(this.settings?.uiLanguage==='en'||this.state.onboardingLanguage==='en'&&!this.settings?.onboardingCompleted)?'en':'zh-CN';
     const ui=UI_TEXT[language];
     const locale=language==='en'?'en-US':'zh-CN';
-    const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',ability:v==='ability',pron:v==='pron',reading:v==='reading',article:v==='article',grammar:v==='grammar',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings',admin:v==='admin'};
+    const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',ability:v==='ability',reading:v==='reading',article:v==='article',grammar:v==='grammar',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings',admin:v==='admin'};
     const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); if(view!=='tutor'&&this._realtime) this.finishTutor(); this.setState({view,playing:-1}); this.scrollMainTop(); };
-    const crumbs={home:ui.today,practice:ui.practice,detail:`${ui.practice} › ${ui.dialogueDetail}`,tutor:ui.voiceTutor,ability:ui.ability,pron:ui.pronunciation,reading:ui.reading,article:`${ui.reading} › ${ui.threeLine}`,grammar:ui.grammar,history:ui.history,fav:ui.favorites,vocab:ui.vocabulary,cards:ui.flashcards,settings:ui.settings,admin:ui.admin};
+    const crumbs={home:ui.today,practice:ui.practice,detail:`${ui.practice} › ${ui.dialogueDetail}`,tutor:ui.voiceTutor,ability:ui.ability,reading:ui.reading,article:`${ui.reading} › ${ui.threeLine}`,grammar:ui.grammar,history:ui.history,fav:ui.favorites,vocab:ui.vocabulary,cards:ui.flashcards,settings:ui.settings,admin:ui.admin};
     const badge=(role)=>role==='a'?{bg:'var(--color-accent-100)',fg:'var(--color-accent-800)'}:{bg:'var(--color-accent-2-100)',fg:'var(--color-accent-2-800)'};
     const active=this.activeScenario||{title:'はじめまして',localizedTitle:'初次见面 · 自我介绍',titleChinese:'初次见面 · 自我介绍',titleEnglish:'Nice to meet you · Self-introduction',level:'N5',topic:'初次见面的自我介绍',topicEnglish:'Self-introduction when meeting for the first time',vocabulary:this.V};
     const activeLocalizedTitle=this.localizedScenarioText(active,'title',language);
@@ -1639,7 +1611,7 @@ class Component extends DCLogic {
       const score=measured?Math.max(0,Math.min(100,Number(item.score))):0;
       return{label,level:measured?(item.level||'—'):(language==='en'?'Not assessed':'未测评'),width:`${score}%`,color:measured?'var(--color-accent)':'var(--color-neutral-300)',bg:measured?'var(--color-surface)':'var(--color-neutral-100)',note:measured?(language==='en'?`${Math.round(score)} · Evidence confidence ${Math.round((Number(item.confidence)||0)*100)}%`:`${Math.round(score)} 分 · 证据置信度 ${Math.round((Number(item.confidence)||0)*100)}%`):(language==='en'?'Waiting for relevant learning evidence':'等待对应任务提供证据'),nextStep:item.nextStep||(language==='en'?(key==='reading'?'Complete a leveled reading task':key==='writing'?'Complete a short writing task':'Complete the listening and speaking placement'):(key==='reading'?'完成一次分级阅读任务后更新':key==='writing'?'完成一次短文写作任务后更新':'完成听说分级测评后更新'))};
     });
-    const oralMeta=language==='en'?[['fluency','Fluency'],['vocabulary','Vocabulary access'],['grammar','Grammar control'],['interaction','Interaction'],['organization','Organization'],['pronunciation','Pronunciation']]:[['fluency','流畅度'],['vocabulary','词汇调用'],['grammar','语法控制'],['interaction','互动应对'],['organization','表达组织'],['pronunciation','发音']];
+    const oralMeta=language==='en'?[['fluency','Fluency'],['vocabulary','Vocabulary access'],['grammar','Grammar control'],['interaction','Interaction'],['organization','Organization']]:[['fluency','流畅度'],['vocabulary','词汇调用'],['grammar','语法控制'],['interaction','互动应对'],['organization','表达组织']];
     const oralRows=oralMeta.map(([key,label])=>{const item=ability.oralDimensions?.[key]||{};const measured=item.status==='assessed'&&Number.isFinite(Number(item.score));const score=measured?Math.max(0,Math.min(100,Number(item.score))):0;return{label,value:measured?`${Math.round(score)} · ${item.level||''}`:(language==='en'?'Not assessed':'未测评'),width:`${score}%`};});
     const defaultPriorities=language==='en'?['Complete an 8–10 minute oral placement to establish initial evidence.','Use a leveled reading task to add reading evidence.','Write an 80–150 character passage to add writing evidence.']:['先完成 8–10 分钟听说分级，建立第一批能力证据。','之后用分级阅读任务补全阅读能力。','写一段 80–150 字短文，补全写作能力。'];
     const abilityPriorities=(ability.priorities?.length?ability.priorities:defaultPriorities).slice(0,3).map((text,index)=>({index:index+1,text}));
@@ -1690,7 +1662,7 @@ class Component extends DCLogic {
       settings:{language, languages:this.languageOptions,onLanguage:e=>this.changeUserLanguage(e.target.value)},
       nav,crumb:crumbs[v],dirAttr:dir,furiAttr:this.state.furi?'on':'off',
       furiLabel:this.state.furi?ui.on:ui.off,toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
-      go:{home:set('home'),practice:set('practice'),tutor:()=>{if(this._realtime)return;this.setState({view:'tutor',tutorMode:'tutor',playing:-1});this.scrollMainTop();},ability:set('ability'),pron:set('pron'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings'),admin:()=>this.openAdmin()},
+      go:{home:set('home'),practice:set('practice'),tutor:()=>{if(this._realtime)return;this.setState({view:'tutor',tutorMode:'tutor',playing:-1});this.scrollMainTop();},ability:set('ability'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings'),admin:()=>this.openAdmin()},
       openDetail:()=>this.openScenario(active),
       dir:{blue:()=>this.changePalette('blue'),terra:()=>this.changePalette('terra'),sage:()=>this.changePalette('sage')},dirIsBlue:dir==='blue',dirIsTerra:dir==='terra',dirIsSage:dir==='sage',
       blueBg:dir==='blue'?'var(--color-bg)':'transparent',blueFg:dir==='blue'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',

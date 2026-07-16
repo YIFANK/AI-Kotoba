@@ -787,7 +787,6 @@ async function assessTutorPlacement(sessionId) {
         grammar: assessment.dimensions.grammar,
         interaction: assessment.dimensions.interaction,
         organization: assessment.dimensions.organization,
-        pronunciation: previous.oralDimensions?.pronunciation || { status: 'unmeasured', score: null, level: null, confidence: 0, evidence: [], nextStep: '前往发音诊断完成朗读测评' },
       },
       canDo: assessment.canDo,
       priorities: assessment.priorities,
