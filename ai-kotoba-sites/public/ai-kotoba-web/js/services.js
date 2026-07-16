@@ -197,6 +197,56 @@ ${transcript}`;
   return extractJSON(await callFastAI(prompt, { schema: 'tutor_review' }));
 }
 
+export async function assessOralPlacement(session) {
+  const { nativeLanguage, explanationLanguage } = learnerProfile();
+  const transcript = String(session?.transcript || '').trim().slice(0, 24_000);
+  if (!transcript) throw new Error('没有可用于分级的通话文本');
+  const prompt = `You are a conservative Japanese oral placement assessor.
+Learner native language: ${nativeLanguage}
+Report language: ${explanationLanguage}
+
+The transcript comes from a voice conversation, but automatic input transcription can contain recognition and punctuation errors. Judge only observable evidence. Listening comprehension may be inferred from whether answers address the tutor's spoken questions, but state uncertainty when evidence is weak. Do not score pronunciation because audio is not included.
+
+Use these practical JLPT-aligned oral bands:
+- N5: familiar words, memorized phrases, very short supported answers
+- N4: handles routine daily exchanges and simple connected sentences
+- N3: follows ordinary speech on familiar topics and explains experiences/reasons with some detail
+- N2: sustains nuanced discussion with flexible language and good organization
+- N1: precise, flexible, sophisticated interaction across unfamiliar topics
+
+Return JSON only. Scores are 0-100 and confidence is 0-1. Evidence and advice must be in ${explanationLanguage}; quoted Japanese stays Japanese.
+{
+  "recommendedLevel": "N5|N4|N3|N2|N1",
+  "confidence": 0.0,
+  "summary": "short evidence-based placement summary",
+  "dimensions": {
+    "listening": {"score": 0, "level": "N5|N4|N3|N2|N1", "confidence": 0.0, "evidence": ["up to 3 observations"], "nextStep": "one next task"},
+    "speaking": {"score": 0, "level": "N5|N4|N3|N2|N1", "confidence": 0.0, "evidence": ["up to 3 observations"], "nextStep": "one next task"},
+    "fluency": {"score": 0, "level": "N5|N4|N3|N2|N1", "confidence": 0.0, "evidence": ["up to 2 observations"], "nextStep": "one next task"},
+    "vocabulary": {"score": 0, "level": "N5|N4|N3|N2|N1", "confidence": 0.0, "evidence": ["up to 2 observations"], "nextStep": "one next task"},
+    "grammar": {"score": 0, "level": "N5|N4|N3|N2|N1", "confidence": 0.0, "evidence": ["up to 2 observations"], "nextStep": "one next task"},
+    "interaction": {"score": 0, "level": "N5|N4|N3|N2|N1", "confidence": 0.0, "evidence": ["up to 2 observations"], "nextStep": "one next task"},
+    "organization": {"score": 0, "level": "N5|N4|N3|N2|N1", "confidence": 0.0, "evidence": ["up to 2 observations"], "nextStep": "one next task"}
+  },
+  "canDo": ["up to 3 demonstrated can-do statements"],
+  "priorities": ["up to 3 practice priorities"],
+  "caveats": ["important limitations, including no direct pronunciation score"],
+  "tutorAdaptation": {
+    "speechPace": "slow|natural-slow|natural",
+    "japaneseComplexity": "N5|N4|N3|N2|N1",
+    "correctionFrequency": "low|medium|high",
+    "supportLanguage": "minimal|when-blocked|frequent",
+    "instructions": "one concise instruction for future tutors in ${explanationLanguage}"
+  }
+}
+
+If there are fewer than 3 meaningful learner turns, keep confidence below 0.45 and avoid a high placement.
+
+Transcript:
+${transcript}`;
+  return extractJSON(await callFastAI(prompt, { schema: 'oral_placement' }));
+}
+
 // ---------- 逐语法点课程（开放资料为骨架，按学习者语言生成原创讲解） ----------
 function unwrapGrammarLesson(value) {
   if (!value || typeof value !== 'object') return {};
@@ -555,7 +605,21 @@ function learningMemoryBlock(learningNotes = []) {
   return notes.length ? `\n\nこの学習者の最近の重点項目：\n${notes.join('\n')}\n学習者が関連する質問をした時、または今の話題に自然に関係する時だけ参考にしてください。こちらから復習テストや反復を強制しないでください。` : '';
 }
 
-export function freeTalkInstructions(scene, level, style = 'conversation', learningNotes = []) {
+function abilityAdaptationBlock(abilityProfile) {
+  const adaptation = abilityProfile?.tutorAdaptation;
+  if (!adaptation || !abilityProfile?.overallLevel) return '';
+  const pace = { slow: 'かなりゆっくり', 'natural-slow': '自然だが少しゆっくり', natural: '自然な速度' }[adaptation.speechPace] || '少しゆっくり';
+  return `
+
+能力マップによる調整：
+- 現在の推定レベルは ${abilityProfile.overallLevel}（信頼度 ${Math.round((Number(abilityProfile.confidence) || 0) * 100)}%）
+- 話す速度は「${pace}」、日本語の複雑さは ${adaptation.japaneseComplexity || abilityProfile.overallLevel} を目安にする
+- 学習者が詰まる前から答えを与えず、必要な待ち時間を作る
+- 個人化メモ：${adaptation.instructions || '学習者の反応に合わせて一段階ずつ難しくする'}
+これは固定レベルではない。学習者が楽に答えられる時は少し難しくし、負荷が高すぎる時は一段階戻す。`;
+}
+
+export function freeTalkInstructions(scene, level, style = 'conversation', learningNotes = [], abilityProfile = null) {
   const { nativeLanguage, explanationLanguage } = learnerProfile();
   const bilingual = style === 'bilingual';
   const styleRule = {
@@ -596,7 +660,31 @@ ${languageRule}
 - 教師として常に主導せず、会話相手として沈黙や話題転換も受け入れる。教科書的な進行、毎回の称賛、復唱の強制を避ける
 - 長い会話で文脈が不足した場合は、日本語で短く確認する。英語や第三の言語へ切り替えない
 - 学習者が表現の保存や弱点の記録を明確に頼んだ場合だけ、利用可能な保存ツールを使う
-- セッション開始時は短く挨拶し、今日のテーマに合う最初の質問を一つだけする${learningMemoryBlock(learningNotes)}`;
+- セッション開始時は短く挨拶し、今日のテーマに合う最初の質問を一つだけする${abilityAdaptationBlock(abilityProfile)}${learningMemoryBlock(learningNotes)}`;
+}
+
+export function oralPlacementInstructions() {
+  const { nativeLanguage, explanationLanguage } = learnerProfile();
+  return `最重要の言語規則：日本語と「${explanationLanguage}」だけを使用してください。「${explanationLanguage}」が英語でない限り、英語は絶対に使用しないでください。
+
+あなたは、母語が「${nativeLanguage}」の学習者に対する、日本語の適応型・音声プレースメント面接官です。これは授業ではなく、8〜10分程度の自然な会話による聞く力・話す力の測定です。
+
+面接の進め方：
+1. 短い自己紹介と身近な日常質問から始める
+2. あなたが伝えた具体的な情報を、次の質問で理解できたか自然に確認する
+3. 買い物・予定変更などの短いロールプレイを行う
+4. 過去の経験、理由、比較を説明してもらう
+5. 余裕があれば N3 以上の少し抽象的な質問へ進み、難しければ一段階戻す
+
+厳守事項：
+- 一度に一つの短い質問だけを出す。面接段階、JLPT レベル、採点意図は学習者に見せない
+- 正誤を教えたり、文法を解説したり、模範解答を先に与えたりしない
+- 小さな誤りは訂正せず、答えの内容にだけ自然に反応して次の課題へ進む
+- 学習者が聞き返した時は一度だけ、同じ意味をより簡単な日本語で言い換える
+- 完全に行き詰まった時だけ「${explanationLanguage}」で一文以内の補助を出す
+- 発音を数値評価すると約束しない。この面接の後、会話証拠から聞く力と話す力を判定する
+- 十分な証拠が集まったら「測定に必要な会話はできました。終了ボタンを押してください」と短く案内する
+- 最初の発話は日本語で短く挨拶し、名前または今日したことを尋ねる`;
 }
 
 export async function freeTalkReply(scene, level, history, userMsg, style = 'conversation', learningNotes = []) {

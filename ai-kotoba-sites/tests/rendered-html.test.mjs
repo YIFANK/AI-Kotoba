@@ -66,6 +66,16 @@ test("ships the original UI with account, playback, and push-to-talk controls", 
   assert.match(realtime, /REALTIME_MAX_DURATION_MS = 12 \* 60 \* 1000/);
   assert.match(realtime, /onTimeLimit/);
   assert.match(html, /本次最多 12 分钟/);
+  assert.match(html, /听说读写能力地图/);
+  assert.match(html, /开始 8–10 分钟听说分级/);
+  assert.match(html, /互动模式 · 开发中/);
+  assert.match(html, /没有测过的项目会明确标记/);
+  assert.match(integration, /assessTutorPlacement/);
+  assert.match(integration, /db\.saveAbilityProfile/);
+  assert.match(integration, /mode === 'assessment'/);
+  assert.match(services, /oralPlacementInstructions/);
+  assert.match(services, /これは授業ではなく/);
+  assert.match(storage, /abilityProfiles/);
   assert.doesNotMatch(realtime, /response:\s*\{\s*instructions:/);
   assert.match(realtimeRoute, /turn_detection:\s*null/);
   assert.match(services, /英語は絶対に使用しない/);
@@ -162,6 +172,8 @@ test("requests strict structured output for grammar lessons", async () => {
   assert.match(route, /type: "json_schema"/);
   assert.match(route, /strict: true/);
   assert.match(route, /grammar_lesson/);
+  assert.match(route, /oral_placement/);
+  assert.match(route, /oralPlacementSchema/);
   assert.match(integration, /isCompleteGrammarLesson\(existing\.lesson\)/);
   assert.match(integration, /lesson: null/);
 });

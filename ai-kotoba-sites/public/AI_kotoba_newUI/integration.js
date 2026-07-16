@@ -4,8 +4,10 @@ import {
   generateGrammarLesson,
   generateScenario,
   freeTalkInstructions,
+  oralPlacementInstructions,
   glossJapaneseTokens,
   isCompleteGrammarLesson,
+  assessOralPlacement,
   reviewTutorConversation,
 } from '../ai-kotoba-web/js/services.js';
 import { startRealtimeSession } from '../ai-kotoba-web/js/realtime.js';
@@ -190,6 +192,7 @@ function snapshot() {
     tutorSessions: db.getTutorSessions(),
     learningNotes: db.getLearningNotes(),
     grammarProgress: db.getGrammarProgress(),
+    abilityProfile: db.getAbilityProfile(),
     streak: db.streakInfo(),
   };
 }
@@ -649,17 +652,102 @@ function saveTutorSession(input = {}) {
     scene: String(input.scene || input.topic || '日常会話').trim().slice(0, 80),
     level: /^N[1-5]$/.test(String(input.level)) ? String(input.level) : 'N4',
     style: normalizeTutorStyle(input.style),
+    mode: input.mode === 'assessment' ? 'assessment' : 'tutor',
     createdAt,
     endedAt,
     durationMs: Math.max(0, endedAt - createdAt),
     userTurns: messages.filter(item => item.role === 'me').length,
     messages,
     transcript: messages.map(item => `${item.role === 'me' ? 'Learner' : 'Tutor'}: ${item.text}`).join('\n'),
-    reviewStatus: 'pending',
+    reviewStatus: input.mode === 'assessment' ? 'not-applicable' : 'pending',
+    assessmentStatus: input.mode === 'assessment' ? 'pending' : 'not-applicable',
   };
   db.saveTutorSession(session);
   db.recordActivity();
   return { ...snapshot(), savedTutorSessionId: session.id };
+}
+
+function normalizePlacementDimension(value = {}) {
+  const level = /^N[1-5]$/.test(String(value.level)) ? String(value.level) : 'N5';
+  return {
+    score: Math.max(0, Math.min(100, Math.round(Number(value.score) || 0))),
+    level,
+    confidence: Math.max(0, Math.min(1, Number(value.confidence) || 0)),
+    status: 'assessed',
+    evidence: (Array.isArray(value.evidence) ? value.evidence : []).slice(0, 3).map(item => String(item || '').trim()).filter(Boolean),
+    nextStep: String(value.nextStep || '').trim(),
+  };
+}
+
+async function assessTutorPlacement(sessionId) {
+  const session = db.getTutorSessions().find(item => item.id === sessionId);
+  if (!session) throw new Error('找不到这次测评');
+  if (session.assessment) return snapshot();
+  db.updateTutorSession(sessionId, { assessmentStatus: 'generating', assessmentError: '' });
+  try {
+    const raw = await assessOralPlacement(session);
+    const overallLevel = /^N[1-5]$/.test(String(raw?.recommendedLevel)) ? String(raw.recommendedLevel) : 'N5';
+    const confidence = Math.max(0, Math.min(1, Number(raw?.confidence) || 0));
+    const dimensions = raw?.dimensions || {};
+    const assessment = {
+      recommendedLevel: overallLevel,
+      confidence,
+      summary: String(raw?.summary || '').trim(),
+      dimensions: Object.fromEntries(['listening', 'speaking', 'fluency', 'vocabulary', 'grammar', 'interaction', 'organization'].map(key => [key, normalizePlacementDimension(dimensions[key])])),
+      canDo: (Array.isArray(raw?.canDo) ? raw.canDo : []).slice(0, 3).map(item => String(item || '').trim()).filter(Boolean),
+      priorities: (Array.isArray(raw?.priorities) ? raw.priorities : []).slice(0, 3).map(item => String(item || '').trim()).filter(Boolean),
+      caveats: (Array.isArray(raw?.caveats) ? raw.caveats : []).slice(0, 3).map(item => String(item || '').trim()).filter(Boolean),
+      tutorAdaptation: {
+        speechPace: ['slow', 'natural-slow', 'natural'].includes(raw?.tutorAdaptation?.speechPace) ? raw.tutorAdaptation.speechPace : 'natural-slow',
+        japaneseComplexity: /^N[1-5]$/.test(String(raw?.tutorAdaptation?.japaneseComplexity)) ? String(raw.tutorAdaptation.japaneseComplexity) : overallLevel,
+        correctionFrequency: ['low', 'medium', 'high'].includes(raw?.tutorAdaptation?.correctionFrequency) ? raw.tutorAdaptation.correctionFrequency : 'medium',
+        supportLanguage: ['minimal', 'when-blocked', 'frequent'].includes(raw?.tutorAdaptation?.supportLanguage) ? raw.tutorAdaptation.supportLanguage : 'when-blocked',
+        instructions: String(raw?.tutorAdaptation?.instructions || '').trim(),
+      },
+      generatedAt: Date.now(),
+    };
+    const previous = db.getAbilityProfile() || {};
+    const unmeasured = key => previous.dimensions?.[key] || { status: 'unmeasured', score: null, level: null, confidence: 0, evidence: [], nextStep: key === 'reading' ? '完成一次分级阅读任务后更新' : '完成一次短文写作任务后更新' };
+    const history = [
+      { id: crypto.randomUUID(), sessionId, level: overallLevel, confidence, summary: assessment.summary, createdAt: Date.now() },
+      ...(Array.isArray(previous.assessmentHistory) ? previous.assessmentHistory : []),
+    ].slice(0, 12);
+    db.saveAbilityProfile({
+      ...previous,
+      overallLevel,
+      confidence,
+      summary: assessment.summary,
+      dimensions: {
+        listening: assessment.dimensions.listening,
+        speaking: assessment.dimensions.speaking,
+        reading: unmeasured('reading'),
+        writing: unmeasured('writing'),
+      },
+      oralDimensions: {
+        fluency: assessment.dimensions.fluency,
+        vocabulary: assessment.dimensions.vocabulary,
+        grammar: assessment.dimensions.grammar,
+        interaction: assessment.dimensions.interaction,
+        organization: assessment.dimensions.organization,
+        pronunciation: previous.oralDimensions?.pronunciation || { status: 'unmeasured', score: null, level: null, confidence: 0, evidence: [], nextStep: '前往发音诊断完成朗读测评' },
+      },
+      canDo: assessment.canDo,
+      priorities: assessment.priorities,
+      caveats: assessment.caveats,
+      tutorAdaptation: assessment.tutorAdaptation,
+      assessmentHistory: history,
+      lastAssessmentAt: Date.now(),
+    });
+    db.updateTutorSession(sessionId, { assessment, assessmentStatus: 'ready', assessmentError: '' });
+    db.recordActivity();
+  } catch (error) {
+    db.updateTutorSession(sessionId, {
+      assessmentStatus: 'error',
+      assessmentError: String(error?.message || '分级结果生成失败').slice(0, 240),
+    });
+    throw error;
+  }
+  return snapshot();
 }
 
 async function reviewTutorSession(sessionId) {
@@ -787,14 +875,16 @@ function setGrammarStatus(id, status) {
   return snapshot();
 }
 
-async function startTutor({ topic = '日常会話', level = 'N4', style, onUserText, onAIDelta, onAIDone, onStatus, onError, onTimeRemaining, onTimeLimit }) {
+async function startTutor({ topic = '日常会話', level = 'N4', style, mode = 'tutor', onUserText, onAIDelta, onAIDone, onStatus, onError, onTimeRemaining, onTimeLimit }) {
   const settings = db.getSettings();
   const teachingStyle = normalizeTutorStyle(style || settings.tutorStyle);
   return startRealtimeSession({
     apiKey: settings.openaiKey,
     voice: settings.realtimeVoice || 'marin',
-    inputLanguage: teachingStyle === 'bilingual' ? 'auto' : 'ja',
-    instructions: freeTalkInstructions(topic, level, teachingStyle, db.getLearningNotes(8)),
+    inputLanguage: mode === 'assessment' || teachingStyle === 'bilingual' ? 'auto' : 'ja',
+    instructions: mode === 'assessment'
+      ? oralPlacementInstructions()
+      : freeTalkInstructions(topic, db.getAbilityProfile()?.overallLevel || level, teachingStyle, db.getLearningNotes(8), db.getAbilityProfile()),
     onUserText,
     onAIDelta,
     onAIDone,
@@ -820,6 +910,7 @@ window.AIKotoba = {
   createScenario,
   saveTutorSession,
   reviewTutorSession,
+  assessTutorPlacement,
   startTutor,
   loadGrammarCatalog,
   openGrammarLesson,

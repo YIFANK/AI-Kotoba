@@ -95,11 +95,66 @@ const tutorReviewSchema = {
   },
 } as const;
 
+const placementDimensionSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["score", "level", "confidence", "evidence", "nextStep"],
+  properties: {
+    score: { type: "number", minimum: 0, maximum: 100 },
+    level: { type: "string", enum: ["N5", "N4", "N3", "N2", "N1"] },
+    confidence: { type: "number", minimum: 0, maximum: 1 },
+    evidence: { type: "array", maxItems: 3, items: { type: "string" } },
+    nextStep: { type: "string" },
+  },
+} as const;
+
+const oralPlacementSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["recommendedLevel", "confidence", "summary", "dimensions", "canDo", "priorities", "caveats", "tutorAdaptation"],
+  properties: {
+    recommendedLevel: { type: "string", enum: ["N5", "N4", "N3", "N2", "N1"] },
+    confidence: { type: "number", minimum: 0, maximum: 1 },
+    summary: { type: "string" },
+    dimensions: {
+      type: "object",
+      additionalProperties: false,
+      required: ["listening", "speaking", "fluency", "vocabulary", "grammar", "interaction", "organization"],
+      properties: {
+        listening: placementDimensionSchema,
+        speaking: placementDimensionSchema,
+        fluency: placementDimensionSchema,
+        vocabulary: placementDimensionSchema,
+        grammar: placementDimensionSchema,
+        interaction: placementDimensionSchema,
+        organization: placementDimensionSchema,
+      },
+    },
+    canDo: { type: "array", maxItems: 3, items: { type: "string" } },
+    priorities: { type: "array", maxItems: 3, items: { type: "string" } },
+    caveats: { type: "array", maxItems: 3, items: { type: "string" } },
+    tutorAdaptation: {
+      type: "object",
+      additionalProperties: false,
+      required: ["speechPace", "japaneseComplexity", "correctionFrequency", "supportLanguage", "instructions"],
+      properties: {
+        speechPace: { type: "string", enum: ["slow", "natural-slow", "natural"] },
+        japaneseComplexity: { type: "string", enum: ["N5", "N4", "N3", "N2", "N1"] },
+        correctionFrequency: { type: "string", enum: ["low", "medium", "high"] },
+        supportLanguage: { type: "string", enum: ["minimal", "when-blocked", "frequent"] },
+        instructions: { type: "string" },
+      },
+    },
+  },
+} as const;
+
 function structuredResponseFormat(schemaName: string) {
   const schema = schemaName === "grammar_lesson"
     ? grammarLessonSchema
     : schemaName === "tutor_review"
       ? tutorReviewSchema
+      : schemaName === "oral_placement"
+        ? oralPlacementSchema
       : null;
   return schema ? { type: "json_schema", json_schema: { name: schemaName, strict: true, schema } } : undefined;
 }

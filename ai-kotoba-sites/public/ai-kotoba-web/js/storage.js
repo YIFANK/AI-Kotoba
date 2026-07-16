@@ -9,6 +9,7 @@ const KEYS = {
   learningNotes: 'kotoba.learningNotes',
   pronunciationAttempts: 'kotoba.pronunciationAttempts',
   grammarProgress: 'kotoba.grammarProgress',
+  abilityProfiles: 'kotoba.abilityProfiles',
 };
 const ARTICLE_LIMIT = 50;
 const TUTOR_SESSION_LIMIT = 100;
@@ -81,6 +82,10 @@ export async function initSync() {
     learningNotes: mergeById(local.learningNotes, server.learningNotes, 'updatedAt'),
     pronunciationAttempts: mergeById(local.pronunciationAttempts, server.pronunciationAttempts, 'createdAt'),
     grammarProgress: mergeById(local.grammarProgress, server.grammarProgress, 'updatedAt'),
+    abilityProfiles: [...(local.abilityProfiles || []), ...(server.abilityProfiles || [])]
+      .filter(item => item?.id)
+      .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+      .slice(0, 1),
   };
   for (const [name, key] of Object.entries(KEYS)) {
     localStorage.setItem(key, JSON.stringify(merged[name]));
@@ -300,6 +305,19 @@ export function upsertGrammarProgress(input) {
   return updated;
 }
 
+// ---------- 听说读写能力地图 ----------
+export function getAbilityProfile() {
+  return load(KEYS.abilityProfiles, [])[0] || null;
+}
+export function saveAbilityProfile(profile) {
+  const value = Object.assign({ id: 'current', createdAt: Date.now() }, profile, {
+    id: 'current',
+    updatedAt: Date.now(),
+  });
+  save(KEYS.abilityProfiles, [value]);
+  return value;
+}
+
 // ---------- 阅读文章 ----------
 export function getArticles() {
   return load(KEYS.articles, []);
@@ -364,6 +382,7 @@ export function exportAll() {
     tutorSessions: getTutorSessions(),
     learningNotes: getLearningNotes(),
     pronunciationAttempts: getPronunciationAttempts(),
+    abilityProfiles: getAbilityProfile() ? [getAbilityProfile()] : [],
     exportedAt: new Date().toISOString(),
   }, null, 2);
 }
@@ -379,6 +398,7 @@ export function importAll(json) {
   if (Array.isArray(data.tutorSessions)) save(KEYS.tutorSessions, data.tutorSessions);
   if (Array.isArray(data.learningNotes)) save(KEYS.learningNotes, data.learningNotes);
   if (Array.isArray(data.pronunciationAttempts)) save(KEYS.pronunciationAttempts, data.pronunciationAttempts);
+  if (Array.isArray(data.abilityProfiles)) save(KEYS.abilityProfiles, data.abilityProfiles.slice(0, 1));
 }
 export function clearAll() {
   localStorage.removeItem(KEYS.scenarios);
@@ -388,4 +408,5 @@ export function clearAll() {
   localStorage.removeItem(KEYS.tutorSessions);
   localStorage.removeItem(KEYS.learningNotes);
   localStorage.removeItem(KEYS.pronunciationAttempts);
+  localStorage.removeItem(KEYS.abilityProfiles);
 }
