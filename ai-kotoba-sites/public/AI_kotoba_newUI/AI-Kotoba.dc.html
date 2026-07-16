@@ -297,8 +297,8 @@
               <div style="display:flex;align-items:center;gap:14px">
                 <div style="width:52px;height:52px;border-radius:16px;background:var(--color-accent-100);display:flex;align-items:center;justify-content:center;color:var(--color-accent)"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s5 4.5 5 9.5a5 5 0 0 1-10 0c0-1.6.6-2.7.6-2.7.6 2.2 2.2 2.8 2.2 2.8S9 8.5 12 2z"/></svg></div>
                 <div>
-                  <div style="display:flex;align-items:baseline;gap:6px"><span style="font-family:var(--font-heading);font-size:38px;line-height:1;color:var(--color-accent)">{{ streak }}</span><span style="font-size:14px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">天连续打卡</span></div>
-                  <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin-top:3px">今天已打卡 · 保持下去 🔥</div>
+                  <div style="display:flex;align-items:baseline;gap:6px"><span style="font-family:var(--font-heading);font-size:38px;line-height:1;color:var(--color-accent)">{{ streak }}</span><span style="font-size:14px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">{{ ui.streakDays }}</span></div>
+                  <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin-top:3px">{{ ui.checkedIn }}</div>
                 </div>
               </div>
               <div style="display:flex;gap:10px;margin-top:22px">
@@ -314,27 +314,27 @@
             <div class="card elev-sm" style="padding:24px;align-items:center;justify-content:center;text-align:center;gap:0">
               <div style="position:relative;width:120px;height:120px">
                 <svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent-200)" stroke-width="13"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent)" stroke-width="13" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="98" transform="rotate(-90 60 60)"/></svg>
-                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:var(--font-heading);font-size:30px;line-height:1;color:var(--color-accent)">7/10</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">今日目标</span></div>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:var(--font-heading);font-size:30px;line-height:1;color:var(--color-accent)">7/10</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">{{ ui.todayGoal }}</span></div>
               </div>
-              <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 65%,transparent);margin-top:14px">再学 <b style="color:var(--color-text)">3 个词</b> 完成今日目标</div>
+              <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 65%,transparent);margin-top:14px">{{ ui.goalRemaining }}</div>
             </div>
           </div>
 
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px">
             <button class="tile card elev-sm" onClick="{{ go.practice }}" style="cursor:pointer;text-align:left;border:none;font:inherit;color:inherit;padding:20px;transition:transform .15s,box-shadow .15s">
               <div style="width:42px;height:42px;border-radius:13px;background:var(--color-accent-100);color:var(--color-accent);display:flex;align-items:center;justify-content:center;margin-bottom:12px"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
-              <div style="font-family:var(--font-heading);font-size:16px">生成场景对话</div>
-              <div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:3px">描述任意场景，AI 生成自然会话</div>
+              <div style="font-family:var(--font-heading);font-size:16px">{{ ui.generateDialogue }}</div>
+              <div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:3px">{{ ui.generateDialogueDesc }}</div>
             </button>
             <button class="tile card elev-sm" onClick="{{ go.cards }}" style="cursor:pointer;text-align:left;border:none;font:inherit;color:inherit;padding:20px;transition:transform .15s,box-shadow .15s">
               <div style="width:42px;height:42px;border-radius:13px;background:var(--color-accent-2-100);color:var(--color-accent-2-700);display:flex;align-items:center;justify-content:center;margin-bottom:12px"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/><path d="M7 12h5"/></svg></div>
-              <div style="font-family:var(--font-heading);font-size:16px">复习闪卡 · {{ dueCount }} 张</div>
-              <div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:3px">SM-2 间隔重复，到期待复习</div>
+              <div style="font-family:var(--font-heading);font-size:16px">{{ ui.reviewFlashcards }} · {{ dueCount }}</div>
+              <div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:3px">{{ ui.reviewFlashcardsDesc }}</div>
             </button>
             <button class="tile card elev-sm" onClick="{{ openDetail }}" style="cursor:pointer;text-align:left;border:none;font:inherit;color:inherit;padding:20px;transition:transform .15s,box-shadow .15s">
               <div style="width:42px;height:42px;border-radius:13px;background:var(--color-neutral-200);color:var(--color-neutral-700);display:flex;align-items:center;justify-content:center;margin-bottom:12px"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
-              <div class="jp" style="font-family:var(--font-heading);font-size:16px">继续「はじめまして」</div>
-              <div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:3px">上次学到第 4 句 · 继续</div>
+              <div class="jp" style="font-family:var(--font-heading);font-size:16px">{{ ui.continueLesson }}</div>
+              <div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:3px">{{ ui.continueLessonDesc }}</div>
             </button>
           </div>
 
@@ -367,7 +367,7 @@
           <div class="card elev-sm" style="padding:24px;gap:0">
             <div class="field" style="margin-bottom:14px"><label style="font-size:13px">{{ ui.sceneTopic }}</label>
               <div style="display:flex;gap:10px">
-                <input class="input jp" value="{{ sceneInput }}" onInput="{{ onSceneInput }}" placeholder="例如：在居酒屋点餐、和房东谈租房…" style="flex:1"/>
+                <input class="input jp" value="{{ sceneInput }}" onInput="{{ onSceneInput }}" placeholder="{{ ui.scenePlaceholder }}" style="flex:1"/>
                 <select class="input" value="{{ sceneLevel }}" onChange="{{ onSceneLevel }}" style="width:96px;flex:none;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23c67139%22 stroke-width=%222.5%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 12px center"><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
                 <button class="btn btn-primary" onClick="{{ onGenerate }}" style="font-size:14px;padding:0 20px">{{ genLabel }}</button>
               </div>
@@ -380,7 +380,7 @@
             <sc-if value="{{ generating }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;align-items:center;gap:10px;margin-top:18px;color:var(--color-accent);font-size:13px">
                 <span style="width:15px;height:15px;border-radius:50%;border:2px solid var(--color-accent-200);border-top-color:var(--color-accent);animation:spin .7s linear infinite;display:inline-block"></span>
-                正在生成自然会话…
+                {{ ui.generatingDialogue }}
               </div>
             </sc-if>
           </div>
@@ -404,11 +404,11 @@
       <!-- ============ DETAIL ============ -->
       <sc-if value="{{ nav.detail }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:820px">
-          <button class="btn btn-ghost" onClick="{{ go.practice }}" style="font-family:var(--font-body);font-weight:600;margin-bottom:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>返回</button>
+          <button class="btn btn-ghost" onClick="{{ go.practice }}" style="font-family:var(--font-body);font-weight:600;margin-bottom:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>{{ ui.back }}</button>
 
           <sc-if value="{{ shared.isScenario }}" hint-placeholder-val="{{ false }}">
             <div class="card elev-sm" style="padding:14px 16px;margin-bottom:16px;background:var(--color-accent-100);flex-direction:row;align-items:center;gap:12px">
-              <div style="flex:1"><b>{{ shared.title }}</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">这是只读副本；保存后会加入你自己的对话历史。</div></div>
+              <div style="flex:1"><b>{{ shared.title }}</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">{{ ui.sharedScenarioHelp }}</div></div>
               <button class="btn btn-primary" onClick="{{ shared.onSave }}" disabled="{{ shared.saved }}">{{ shared.saveLabel }}</button>
             </div>
           </sc-if>
@@ -425,17 +425,17 @@
             </div>
             <div class="detail-actions" style="display:flex;gap:8px;flex:none">
               <label style="height:40px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1.5px solid var(--color-divider);border-radius:12px;background:var(--color-neutral-100);font-size:12px;font-weight:700;color:color-mix(in srgb,var(--color-text) 65%,transparent)">
-                语速
-                <select aria-label="会话朗读语速" value="{{ sc.speechRate }}" onChange="{{ sc.onSpeechRate }}" style="border:none;background:transparent;color:var(--color-text);font:700 13px var(--font-body);outline:none;cursor:pointer">
-                  <option value="0.6">0.6× 很慢</option>
-                  <option value="0.75">0.75× 慢速</option>
+                {{ ui.speechRate }}
+                <select aria-label="{{ ui.dialogueSpeedLabel }}" value="{{ sc.speechRate }}" onChange="{{ sc.onSpeechRate }}" style="border:none;background:transparent;color:var(--color-text);font:700 13px var(--font-body);outline:none;cursor:pointer">
+                  <option value="0.6">0.6× {{ ui.verySlow }}</option>
+                  <option value="0.75">0.75× {{ ui.slow }}</option>
                   <option value="0.9">0.9×</option>
-                  <option value="1">1.0× 原速</option>
+                  <option value="1">1.0× {{ ui.normalSpeed }}</option>
                 </select>
               </label>
               <button class="btn btn-secondary" onClick="{{ sc.onShare }}" disabled="{{ sc.shareDisabled }}" style="font-family:var(--font-body);font-weight:700">{{ sc.shareLabel }}</button>
-              <button class="btn btn-secondary btn-icon" title="收藏"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg></button>
-              <button class="btn btn-primary" disabled="true" title="脚本角色扮演正在开发" style="font-family:var(--font-body);font-weight:700;opacity:.62"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 8a3 3 0 1 0-6 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>互动模式 · 开发中</button>
+              <button class="btn btn-secondary btn-icon" title="{{ ui.favorite }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg></button>
+              <button class="btn btn-primary" disabled="true" title="{{ ui.interactiveComing }}" style="font-family:var(--font-body);font-weight:700;opacity:.62"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 8a3 3 0 1 0-6 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>{{ ui.interactiveComing }}</button>
             </div>
           </div>
 
@@ -452,7 +452,7 @@
             </sc-for>
           </div>
 
-          <h3 style="font-size:19px;margin:32px 0 12px;display:flex;align-items:center;gap:8px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z"/><path d="M9 8h6"/></svg>生词建议</h3>
+          <h3 style="font-size:19px;margin:32px 0 12px;display:flex;align-items:center;gap:8px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z"/><path d="M9 8h6"/></svg>{{ ui.vocabSuggestions }}</h3>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">
             <sc-for list="{{ sc.vocab }}" as="v" hint-placeholder-count="6">
               <div class="vcard card" style="padding:16px;gap:2px;background:var(--color-neutral-100);transition:box-shadow .15s">
@@ -475,7 +475,7 @@
             <button class="btn btn-primary" onClick="{{ go.cards }}" style="font-family:var(--font-body);font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/></svg>{{ ui.reviewCards }} {{ dueCount }}</button>
           </div>
           <div style="display:flex;gap:12px;margin-bottom:18px">
-            <div style="position:relative;flex:1"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:color-mix(in srgb,var(--color-text) 45%,transparent);display:flex"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><input class="input" placeholder="搜索词汇…" style="padding-left:40px"/></div>
+            <div style="position:relative;flex:1"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:color-mix(in srgb,var(--color-text) 45%,transparent);display:flex"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><input class="input" placeholder="{{ ui.searchVocab }}" style="padding-left:40px"/></div>
           </div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <sc-for list="{{ vocabList }}" as="v" hint-placeholder-count="6">
@@ -498,9 +498,9 @@
           <sc-if value="{{ flash.done }}" hint-placeholder-val="{{ false }}">
             <div class="card elev-md" style="align-items:center;text-align:center;padding:48px 32px;margin-top:20px;animation:pop .3s ease both">
               <div style="width:72px;height:72px;border-radius:50%;background:var(--color-accent-2-100);color:var(--color-accent-2-700);display:flex;align-items:center;justify-content:center;margin-bottom:8px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
-              <h3 style="font-size:24px;margin:0">今日复习完成！</h3>
-              <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:4px 0 20px">连续打卡 +1 天 · 明天还有新的到期卡片</p>
-              <div style="display:flex;gap:10px"><button class="btn btn-secondary" onClick="{{ flash.onRestart }}" style="font-family:var(--font-body);font-weight:600">再复习一遍</button><button class="btn btn-primary" onClick="{{ go.home }}" style="font-family:var(--font-body);font-weight:700">回到今日</button></div>
+              <h3 style="font-size:24px;margin:0">{{ ui.reviewDone }}</h3>
+              <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:4px 0 20px">{{ ui.reviewDoneDesc }}</p>
+              <div style="display:flex;gap:10px"><button class="btn btn-secondary" onClick="{{ flash.onRestart }}" style="font-family:var(--font-body);font-weight:600">{{ ui.reviewAgain }}</button><button class="btn btn-primary" onClick="{{ go.home }}" style="font-family:var(--font-body);font-weight:700">{{ ui.backToday }}</button></div>
             </div>
           </sc-if>
           <sc-if value="{{ flash.revealed }}" hint-placeholder-val="{{ false }}">
@@ -514,10 +514,10 @@
                 <div class="jp" style="font-size:14px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:18px;padding-top:16px;border-top:1px dashed var(--color-divider);width:100%">{{ flash.example }}</div>
               </div>
               <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px">
-                <button class="ratebtn card elev-sm" onClick="{{ flash.r0 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px;color:#b2622d">忘了</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">重来</span></button>
-                <button class="ratebtn card elev-sm" onClick="{{ flash.r3 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px">困难</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">1 天</span></button>
-                <button class="ratebtn card elev-sm" onClick="{{ flash.r4 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px;color:var(--color-accent)">良好</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">3 天</span></button>
-                <button class="ratebtn card elev-sm" onClick="{{ flash.r5 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px;color:var(--color-accent-2-700)">简单</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">7 天</span></button>
+                <button class="ratebtn card elev-sm" onClick="{{ flash.r0 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px;color:#b2622d">{{ ui.forgot }}</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">{{ ui.again }}</span></button>
+                <button class="ratebtn card elev-sm" onClick="{{ flash.r3 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px">{{ ui.hard }}</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">1 {{ ui.day }}</span></button>
+                <button class="ratebtn card elev-sm" onClick="{{ flash.r4 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px;color:var(--color-accent)">{{ ui.good }}</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">3 {{ ui.day }}</span></button>
+                <button class="ratebtn card elev-sm" onClick="{{ flash.r5 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px;color:var(--color-accent-2-700)">{{ ui.easy }}</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">7 {{ ui.day }}</span></button>
               </div>
             </div>
           </sc-if>
@@ -527,7 +527,7 @@
               <div style="height:6px;background:var(--color-neutral-200);border-radius:99px;overflow:hidden;margin-bottom:18px"><div style="height:100%;background:var(--color-accent);border-radius:99px;transition:width .3s;width:{{ flash.pct }}"></div></div>
               <button onClick="{{ flash.onReveal }}" class="card elev-md" style="width:100%;border:none;font:inherit;color:inherit;min-height:300px;align-items:center;justify-content:center;text-align:center;padding:40px 30px;cursor:pointer">
                 <div class="jp" style="font-family:var(--font-heading);font-size:52px">{{ flash.word }}</div>
-                <div style="color:color-mix(in srgb,var(--color-text) 42%,transparent);font-size:13px;margin-top:22px">点击卡片查看读音与释义</div>
+                <div style="color:color-mix(in srgb,var(--color-text) 42%,transparent);font-size:13px;margin-top:22px">{{ ui.revealHint }}</div>
               </button>
             </div>
           </sc-if>
@@ -559,9 +559,9 @@
           <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">{{ ui.favoritesDescription }}</p>
           <div class="card" style="align-items:center;text-align:center;padding:60px 32px;background:var(--color-neutral-100)">
             <div style="width:66px;height:66px;border-radius:50%;background:var(--color-accent-100);color:var(--color-accent);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg></div>
-            <h3 style="font-size:20px;margin:0">还没有收藏的会话</h3>
-            <p style="color:color-mix(in srgb,var(--color-text) 55%,transparent);margin:4px 0 18px;max-width:340px">在会话详情点击 ★ 即可收藏，随时回来温习最喜欢的场景。</p>
-            <button class="btn btn-primary" onClick="{{ go.practice }}" style="font-family:var(--font-body);font-weight:700">去生成第一个场景</button>
+            <h3 style="font-size:20px;margin:0">{{ ui.noFavorites }}</h3>
+            <p style="color:color-mix(in srgb,var(--color-text) 55%,transparent);margin:4px 0 18px;max-width:340px">{{ ui.noFavoritesDesc }}</p>
+            <button class="btn btn-primary" onClick="{{ go.practice }}" style="font-family:var(--font-body);font-weight:700">{{ ui.firstScenario }}</button>
           </div>
         </div>
       </sc-if>
@@ -576,7 +576,7 @@
           <div class="card elev-sm" style="padding:20px 22px;margin-bottom:16px;background:var(--color-accent-100);gap:7px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><b style="font-size:15px">{{ ability.summaryTitle }}</b><span style="font-size:12px;color:var(--color-accent-800)">{{ ability.updatedLabel }}</span></div>
             <div style="font-size:13px;line-height:1.65;color:color-mix(in srgb,var(--color-text) 72%,transparent)">{{ ability.summary }}</div>
-            <div style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 54%,transparent)">语音测评根据对话转写与回答相关性评估听说；精细发音仍由“发音诊断”单独测量。</div>
+            <div style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 54%,transparent)">{{ ui.oralEvidenceNote }}</div>
           </div>
           <div class="ability-skills" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px">
             <sc-for list="{{ ability.skills }}" as="s" hint-placeholder-count="4">
@@ -590,15 +590,15 @@
           </div>
           <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:16px">
             <div class="card elev-sm" style="padding:21px;gap:14px">
-              <div><h3 style="font-size:19px;margin:0">口语能力拆解</h3><p style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 56%,transparent);margin:3px 0 0">让 Tutor 知道应该在哪一层提供挑战。</p></div>
+              <div><h3 style="font-size:19px;margin:0">{{ ui.oralBreakdown }}</h3><p style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 56%,transparent);margin:3px 0 0">{{ ui.oralBreakdownDesc }}</p></div>
               <sc-for list="{{ ability.oral }}" as="o" hint-placeholder-count="6">
                 <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px"><b>{{ o.label }}</b><span style="color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ o.value }}</span></div><div style="height:7px;border-radius:99px;background:var(--color-neutral-200);overflow:hidden"><span style="display:block;height:100%;width:{{ o.width }};border-radius:99px;background:var(--color-accent)"></span></div></div>
               </sc-for>
             </div>
             <div class="card elev-sm" style="padding:21px;gap:15px">
-              <div><h3 style="font-size:19px;margin:0">接下来练什么</h3><p style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 56%,transparent);margin:3px 0 0">按证据更新，不是一次测评定终身。</p></div>
+              <div><h3 style="font-size:19px;margin:0">{{ ui.nextPractice }}</h3><p style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 56%,transparent);margin:3px 0 0">{{ ui.nextPracticeDesc }}</p></div>
               <sc-for list="{{ ability.priorities }}" as="p" hint-placeholder-count="3"><div style="display:flex;gap:9px;font-size:13px;line-height:1.55"><span style="color:var(--color-accent);font-weight:800">{{ p.index }}</span><span>{{ p.text }}</span></div></sc-for>
-              <button class="btn btn-secondary" onClick="{{ go.tutor }}" style="font-family:var(--font-body);font-weight:700;align-self:flex-start">按当前水平练口语</button>
+              <button class="btn btn-secondary" onClick="{{ go.tutor }}" style="font-family:var(--font-body);font-weight:700;align-self:flex-start">{{ ui.practiceSpeaking }}</button>
             </div>
           </div>
         </div>
@@ -617,19 +617,19 @@
             <h3 style="font-size:22px;margin:0">{{ tutor.cardTitle }}</h3>
             <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:4px 0 14px">{{ tutor.cardDescription }}</p>
             <sc-if value="{{ tutor.showStyle }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:16px">
-              <label for="tutor-style" style="font-size:12px;font-weight:700;color:var(--color-accent-800)">教学方式</label>
-              <select id="tutor-style" aria-label="Tutor 教学方式" value="{{ tutor.style }}" onChange="{{ tutor.onStyle }}" disabled="{{ tutor.active }}" class="input" style="width:auto;min-width:160px;padding:7px 34px 7px 13px;font-size:13px">
-                <option value="bilingual">双语入门（推荐 N5–N4）</option>
-                <option value="conversation">日语沉浸</option>
-                <option value="correction">即时纠错</option>
-                <option value="interview">口试训练</option>
+              <label for="tutor-style" style="font-size:12px;font-weight:700;color:var(--color-accent-800)">{{ ui.teachingStyle }}</label>
+              <select id="tutor-style" aria-label="{{ ui.tutorStyleLabel }}" value="{{ tutor.style }}" onChange="{{ tutor.onStyle }}" disabled="{{ tutor.active }}" class="input" style="width:auto;min-width:160px;padding:7px 34px 7px 13px;font-size:13px">
+                <option value="bilingual">{{ ui.styleBilingual }}</option>
+                <option value="conversation">{{ ui.styleImmersion }}</option>
+                <option value="correction">{{ ui.styleCorrection }}</option>
+                <option value="interview">{{ ui.styleInterview }}</option>
               </select>
               <span style="max-width:320px;text-align:left;font-size:11.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ tutor.styleHelp }}</span>
             </div></sc-if>
             <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
               <button class="btn btn-primary" disabled="{{ tutor.buttonDisabled }}" onClick="{{ tutor.onToggle }}" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px">{{ tutor.buttonLabel }}</button>
               <sc-if value="{{ tutor.active }}" hint-placeholder-val="{{ false }}">
-                <button class="tutor-talk" data-talking="{{ tutor.talking }}" aria-label="按住说话，松开发送" onPointerDown="{{ tutor.onTalkStart }}" onPointerUp="{{ tutor.onTalkEnd }}" onPointerCancel="{{ tutor.onTalkEnd }}" onKeyDown="{{ tutor.onTalkStart }}" onKeyUp="{{ tutor.onTalkEnd }}">{{ tutor.talkLabel }}</button>
+                <button class="tutor-talk" data-talking="{{ tutor.talking }}" aria-label="{{ ui.holdTalkLabel }}" onPointerDown="{{ tutor.onTalkStart }}" onPointerUp="{{ tutor.onTalkEnd }}" onPointerCancel="{{ tutor.onTalkEnd }}" onKeyDown="{{ tutor.onTalkStart }}" onKeyUp="{{ tutor.onTalkEnd }}">{{ tutor.talkLabel }}</button>
               </sc-if>
             </div>
             <div style="font-size:12.5px;color:var(--color-accent-800);margin-top:10px">{{ tutor.statusLabel }}</div>
@@ -646,7 +646,7 @@
           </sc-if>
           <sc-if value="{{ tutor.hasHistory }}" hint-placeholder-val="{{ false }}">
             <div style="margin-top:22px">
-              <div style="font-family:var(--font-heading);font-size:18px;margin-bottom:10px">最近通话</div>
+              <div style="font-family:var(--font-heading);font-size:18px;margin-bottom:10px">{{ ui.recentCalls }}</div>
               <div style="display:flex;flex-direction:column;gap:10px">
                 <sc-for list="{{ tutor.history }}" as="h" hint-placeholder-count="3">
                   <details class="card elev-sm tutor-history" style="padding:15px 17px;gap:11px">
@@ -657,23 +657,23 @@
                       </sc-for>
                     </div>
                     <sc-if value="{{ h.review.generating }}" hint-placeholder-val="{{ false }}">
-                      <div style="padding:12px 14px;border-radius:14px;background:var(--color-accent-100);color:var(--color-accent-800);font-size:12.5px">正在生成课后复盘…通话记录已经保存，可以先离开。</div>
+                      <div style="padding:12px 14px;border-radius:14px;background:var(--color-accent-100);color:var(--color-accent-800);font-size:12.5px">{{ ui.reviewGenerating }}</div>
                     </sc-if>
                     <sc-if value="{{ h.review.error }}" hint-placeholder-val="{{ false }}">
-                      <div style="padding:12px 14px;border-radius:14px;background:var(--color-neutral-100);font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">复盘暂时生成失败，通话记录不受影响。</div>
+                      <div style="padding:12px 14px;border-radius:14px;background:var(--color-neutral-100);font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ ui.reviewFailed }}</div>
                     </sc-if>
                     <sc-if value="{{ h.review.ready }}" hint-placeholder-val="{{ false }}">
                       <div style="padding:15px;border-radius:16px;background:var(--color-accent-100);display:flex;flex-direction:column;gap:12px">
-                        <div><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:4px"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--color-accent-800)">课后复盘</div><span class="tag" style="font-size:10.5px">{{ h.review.sourceLabel }}</span></div><div style="font-size:13px;line-height:1.65">{{ h.review.summary }}</div></div>
+                        <div><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:4px"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--color-accent-800)">{{ ui.sessionReview }}</div><span class="tag" style="font-size:10.5px">{{ h.review.sourceLabel }}</span></div><div style="font-size:13px;line-height:1.65">{{ h.review.summary }}</div></div>
                         <sc-if value="{{ h.review.hasStrengths }}" hint-placeholder-val="{{ true }}">
-                          <div><b style="font-size:12.5px">做得不错</b><div style="display:flex;flex-direction:column;gap:4px;margin-top:4px"><sc-for list="{{ h.review.strengths }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px;line-height:1.5">✓ {{ x.text }}</div></sc-for></div></div>
+                          <div><b style="font-size:12.5px">{{ ui.strengths }}</b><div style="display:flex;flex-direction:column;gap:4px;margin-top:4px"><sc-for list="{{ h.review.strengths }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px;line-height:1.5">✓ {{ x.text }}</div></sc-for></div></div>
                         </sc-if>
                         <sc-if value="{{ h.review.hasImprovements }}" hint-placeholder-val="{{ true }}">
-                          <div><b style="font-size:12.5px">可以更自然</b><div style="display:flex;flex-direction:column;gap:7px;margin-top:5px"><sc-for list="{{ h.review.improvements }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px;line-height:1.5"><span class="jp" style="color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ x.original }}</span> → <b class="jp" style="color:var(--color-accent)">{{ x.better }}</b><div style="color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ x.explanation }}</div></div></sc-for></div></div>
+                          <div><b style="font-size:12.5px">{{ ui.moreNatural }}</b><div style="display:flex;flex-direction:column;gap:7px;margin-top:5px"><sc-for list="{{ h.review.improvements }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px;line-height:1.5"><span class="jp" style="color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ x.original }}</span> → <b class="jp" style="color:var(--color-accent)">{{ x.better }}</b><div style="color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ x.explanation }}</div></div></sc-for></div></div>
                         </sc-if>
                         <sc-if value="{{ h.review.hasPhrases }}" hint-placeholder-val="{{ true }}">
                           <div>
-                            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:12.5px">课后生词与表达</b><button class="btn btn-secondary" disabled="{{ h.review.allAdded }}" onClick="{{ h.review.onAddAll }}" style="padding:6px 10px;font-size:11px;font-family:var(--font-body);font-weight:700">{{ h.review.allAddLabel }}</button></div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:12.5px">{{ ui.reviewVocab }}</b><button class="btn btn-secondary" disabled="{{ h.review.allAdded }}" onClick="{{ h.review.onAddAll }}" style="padding:6px 10px;font-size:11px;font-family:var(--font-body);font-weight:700">{{ h.review.allAddLabel }}</button></div>
                             <div style="display:flex;flex-direction:column;gap:8px;margin-top:7px">
                               <sc-for list="{{ h.review.phrases }}" as="x" hint-placeholder-count="3">
                                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:9px 10px;border-radius:12px;background:color-mix(in srgb,var(--color-bg) 72%,transparent)">
@@ -684,7 +684,7 @@
                             </div>
                           </div>
                         </sc-if>
-                        <div style="font-size:12.5px;padding-top:9px;border-top:1px solid color-mix(in srgb,var(--color-accent) 20%,transparent)"><b>下一步：</b>{{ h.review.nextStep }}</div>
+                        <div style="font-size:12.5px;padding-top:9px;border-top:1px solid color-mix(in srgb,var(--color-accent) 20%,transparent)"><b>{{ ui.nextStep }}</b>{{ h.review.nextStep }}</div>
                       </div>
                     </sc-if>
                   </details>
@@ -693,8 +693,8 @@
             </div>
           </sc-if>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px">
-            <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">自然会话</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">更像会话伙伴，不会每轮都纠错、提问或要求复述。</p></div>
-            <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">即时纠错</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">说错立刻提示，课后自动沉淀为长期复习重点。</p></div>
+            <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">{{ ui.naturalConversation }}</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">{{ ui.naturalConversationDesc }}</p></div>
+            <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">{{ ui.instantCorrection }}</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">{{ ui.instantCorrectionDesc }}</p></div>
           </div>
         </div>
       </sc-if>
@@ -712,23 +712,23 @@
               <button class="btn btn-secondary" data-on="{{ grammar.isN4 }}" onClick="{{ grammar.onN4 }}" style="padding:7px 14px">N4</button>
               <button class="btn btn-secondary" data-on="{{ grammar.isN3 }}" onClick="{{ grammar.onN3 }}" style="padding:7px 14px">N3</button>
             </div>
-            <input class="input" aria-label="搜索语法点" placeholder="搜索语法，例如 〜ながら" value="{{ grammar.query }}" onInput="{{ grammar.onSearch }}" style="flex:1;min-width:220px;padding:9px 13px">
+            <input class="input" aria-label="{{ ui.grammarSearch }}" placeholder="{{ ui.grammarSearchPlaceholder }}" value="{{ grammar.query }}" onInput="{{ grammar.onSearch }}" style="flex:1;min-width:220px;padding:9px 13px">
             <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 52%,transparent)">{{ grammar.count }} 条</span>
           </div>
 
           <sc-if value="{{ grammar.loading }}" hint-placeholder-val="{{ false }}">
-            <div class="card elev-sm" style="padding:28px;align-items:center;text-align:center;background:var(--color-accent-100)"><b>正在为你生成这条语法的中文微课…</b><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:5px">生成一次后会保存，下次可以直接打开。</span></div>
+            <div class="card elev-sm" style="padding:28px;align-items:center;text-align:center;background:var(--color-accent-100)"><b>{{ ui.grammarLoading }}</b><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:5px">{{ ui.grammarLoadingDesc }}</span></div>
           </sc-if>
           <sc-if value="{{ grammar.hasLesson }}" hint-placeholder-val="{{ false }}">
             <div class="card elev-md" style="padding:24px;margin-bottom:18px;gap:17px;border:1px solid color-mix(in srgb,var(--color-accent) 24%,var(--color-divider))">
               <div style="display:flex;align-items:flex-start;gap:12px;justify-content:space-between;flex-wrap:wrap"><div><span class="tag tag-accent">{{ grammar.lesson.level }}</span><h2 class="jp" style="font-size:30px;margin:7px 0 3px">{{ grammar.lesson.title }}</h2><div style="font-size:16px;color:var(--color-accent-800)">{{ grammar.lesson.meaning }}</div></div><button class="btn btn-primary" onClick="{{ grammar.lesson.onMaster }}">{{ grammar.lesson.masterLabel }}</button></div>
               <p style="font-size:14px;line-height:1.75;margin:0">{{ grammar.lesson.explanation }}</p>
               <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
-                <div style="padding:14px;border-radius:14px;background:var(--color-neutral-100)"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:5px">接续</div><div class="jp" style="font-size:14px;line-height:1.6">{{ grammar.lesson.formation }}</div></div>
-                <div style="padding:14px;border-radius:14px;background:var(--color-accent-2-100)"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:5px">常见错误</div><div style="font-size:13px;line-height:1.6">{{ grammar.lesson.pitfall }}</div></div>
+                <div style="padding:14px;border-radius:14px;background:var(--color-neutral-100)"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:5px">{{ ui.formation }}</div><div class="jp" style="font-size:14px;line-height:1.6">{{ grammar.lesson.formation }}</div></div>
+                <div style="padding:14px;border-radius:14px;background:var(--color-accent-2-100)"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:5px">{{ ui.commonMistake }}</div><div style="font-size:13px;line-height:1.6">{{ grammar.lesson.pitfall }}</div></div>
               </div>
-              <div><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:8px">例句</div><div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ grammar.lesson.examples }}" as="x" hint-placeholder-count="3"><div style="padding:13px 15px;border-radius:14px;background:var(--color-neutral-100)"><div class="jp" style="font-size:16px;font-weight:650">{{ x.japanese }}</div><div style="font-size:13px;margin-top:3px">{{ x.translation }}</div><div style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 52%,transparent);margin-top:3px">{{ x.note }}</div></div></sc-for></div></div>
-              <details style="padding:14px 15px;border-radius:14px;background:var(--color-accent-100)"><summary style="cursor:pointer;font-weight:750">小测验：{{ grammar.lesson.quizPrompt }}</summary><div class="jp" style="font-size:15px;margin-top:10px"><b>答案：</b>{{ grammar.lesson.quizAnswer }}</div><div style="font-size:12.5px;line-height:1.6;margin-top:4px">{{ grammar.lesson.quizExplanation }}</div></details>
+              <div><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:8px">{{ ui.examples }}</div><div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ grammar.lesson.examples }}" as="x" hint-placeholder-count="3"><div style="padding:13px 15px;border-radius:14px;background:var(--color-neutral-100)"><div class="jp" style="font-size:16px;font-weight:650">{{ x.japanese }}</div><div style="font-size:13px;margin-top:3px">{{ x.translation }}</div><div style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 52%,transparent);margin-top:3px">{{ x.note }}</div></div></sc-for></div></div>
+              <details style="padding:14px 15px;border-radius:14px;background:var(--color-accent-100)"><summary style="cursor:pointer;font-weight:750">{{ ui.quiz }}{{ grammar.lesson.quizPrompt }}</summary><div class="jp" style="font-size:15px;margin-top:10px"><b>{{ ui.answer }}</b>{{ grammar.lesson.quizAnswer }}</div><div style="font-size:12.5px;line-height:1.6;margin-top:4px">{{ grammar.lesson.quizExplanation }}</div></details>
             </div>
           </sc-if>
 
@@ -741,7 +741,7 @@
               </button>
             </sc-for>
           </div>
-          <div style="font-size:11.5px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 48%,transparent);margin-top:18px">语法索引与参考例句来自 <a href="https://hanabira.org/" target="_blank" rel="noreferrer" style="color:var(--color-accent)">Hanabira</a> 的 Creative Commons 开放资料。JLPT 等级为学习参考，并非官方逐条大纲；中文讲解由 AI-Kotoba 按需生成。</div>
+          <div style="font-size:11.5px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 48%,transparent);margin-top:18px">{{ ui.grammarLicensePrefix }}<a href="https://hanabira.org/" target="_blank" rel="noreferrer" style="color:var(--color-accent)">Hanabira</a>{{ ui.grammarLicenseSuffix }}</div>
         </div>
       </sc-if>
 
@@ -753,17 +753,17 @@
           <div class="card elev-sm" style="padding:24px;gap:16px">
             <div class="jp" style="font-size:22px;line-height:1.6">きのう、友だちと映画を見に行きました。</div>
             <div style="display:flex;align-items:center;justify-content:center;gap:18px;padding:22px;border-radius:20px;background:var(--color-accent-100);border:1px dashed var(--color-accent-300)">
-              <button class="btn btn-primary" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px;border-radius:999px"><span style="width:11px;height:11px;border-radius:50%;background:var(--color-bg);display:inline-block"></span>开始录音</button>
+              <button class="btn btn-primary" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px;border-radius:999px"><span style="width:11px;height:11px;border-radius:50%;background:var(--color-bg);display:inline-block"></span>{{ ui.startRecording }}</button>
               <span style="font:700 16px ui-monospace,Menlo,monospace;color:color-mix(in srgb,var(--color-text) 55%,transparent)">00:00</span>
             </div>
           </div>
           <div class="card elev-sm" style="padding:24px;margin-top:16px;flex-direction:row;gap:24px;align-items:center">
-            <div style="position:relative;width:112px;height:112px;flex:none"><svg width="112" height="112" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent-200)" stroke-width="13"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent)" stroke-width="13" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="62" transform="rotate(-90 60 60)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:var(--font-heading);font-size:30px;color:var(--color-accent)">81</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">综合分</span></div></div>
+            <div style="position:relative;width:112px;height:112px;flex:none"><svg width="112" height="112" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent-200)" stroke-width="13"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent)" stroke-width="13" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="62" transform="rotate(-90 60 60)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:var(--font-heading);font-size:30px;color:var(--color-accent)">81</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ ui.overallScore }}</span></div></div>
             <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>可理解度</span><b style="color:var(--color-accent)">很好</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:88%;background:var(--color-accent)"></span></div></div>
-              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>长音促音</span><b style="color:var(--color-accent)">注意</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:64%;background:var(--color-accent)"></span></div></div>
-              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>拍节奏</span><b style="color:var(--color-accent)">良好</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:76%;background:var(--color-accent)"></span></div></div>
-              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>流畅度</span><b style="color:var(--color-accent)">良好</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:79%;background:var(--color-accent)"></span></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ ui.intelligibility }}</span><b style="color:var(--color-accent)">{{ ui.excellent }}</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:88%;background:var(--color-accent)"></span></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ ui.longSounds }}</span><b style="color:var(--color-accent)">{{ ui.attention }}</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:64%;background:var(--color-accent)"></span></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ ui.rhythm }}</span><b style="color:var(--color-accent)">{{ ui.good }}</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:76%;background:var(--color-accent)"></span></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>{{ ui.fluency }}</span><b style="color:var(--color-accent)">{{ ui.good }}</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:79%;background:var(--color-accent)"></span></div></div>
             </div>
           </div>
         </div>
@@ -792,10 +792,10 @@
       <!-- ============ THREE-LINE READING ============ -->
       <sc-if value="{{ nav.article }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:880px">
-          <button class="btn btn-ghost" onClick="{{ go.reading }}" style="font-family:var(--font-body);font-weight:600;margin-bottom:14px">← 返回文章</button>
+          <button class="btn btn-ghost" onClick="{{ go.reading }}" style="font-family:var(--font-body);font-weight:600;margin-bottom:14px">{{ ui.backArticles }}</button>
           <sc-if value="{{ shared.isArticle }}" hint-placeholder-val="{{ false }}">
             <div class="card elev-sm" style="padding:14px 16px;margin-bottom:16px;background:var(--color-accent-100);flex-direction:row;align-items:center;gap:12px">
-              <div style="flex:1"><b>{{ shared.title }}</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">你可以直接阅读；保存后会加入自己的文章库。</div></div>
+              <div style="flex:1"><b>{{ shared.title }}</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">{{ ui.sharedArticleHelp }}</div></div>
               <button class="btn btn-primary" onClick="{{ shared.onSave }}" disabled="{{ shared.saved }}">{{ shared.saveLabel }}</button>
             </div>
           </sc-if>
@@ -804,28 +804,28 @@
             <div style="display:flex;align-items:center;gap:8px"><button class="btn btn-secondary" onClick="{{ article.onShare }}" disabled="{{ article.shareDisabled }}" style="font-family:var(--font-body);font-weight:700">{{ article.shareLabel }}</button><span class="tag tag-accent">JLPT {{ article.current.level }}</span></div>
           </div>
           <div class="card" style="padding:15px 18px;background:var(--color-accent-100);margin-bottom:14px;flex-direction:row;align-items:center;gap:12px">
-            <div style="flex:1"><b>三行对译学习</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">原文注音 · 逐词语境释义 · 自然对译。点击原文中的词可加入生词本。</div><div style="font-size:11px;color:var(--color-accent-800);margin-top:3px">{{ article.analysisLabel }}</div></div>
+            <div style="flex:1"><b>{{ ui.threeLineTitle }}</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">{{ ui.threeLineDesc }}</div><div style="font-size:11px;color:var(--color-accent-800);margin-top:3px">{{ article.analysisLabel }}</div></div>
           </div>
           <div style="display:flex;flex-direction:column;gap:13px">
             <sc-for list="{{ article.current.paragraphs }}" as="p" hint-placeholder-count="4">
               <div class="card elev-sm three-line" style="padding:20px 22px;background:var(--color-neutral-100)">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-                  <div class="three-label" style="margin:0">原文</div>
+                  <div class="three-label" style="margin:0">{{ ui.original }}</div>
                   <button class="btn btn-ghost" onClick="{{ p.onPlay }}" style="font-family:var(--font-body);font-size:12px;padding:5px 9px">{{ p.playLabel }}</button>
                 </div>
                 <div class="jp" style="font-size:0;line-height:1.9">
                   <sc-for list="{{ p.tokens }}" as="t" hint-placeholder-count="12"><button class="reading-token" data-word="{{ t.wordLike }}" data-selected="{{ t.selected }}" onClick="{{ t.onSelect }}" title="{{ t.reading }}"><ruby>{{ t.surface }}<rt>{{ t.rubyReading }}</rt></ruby></button></sc-for>
                 </div>
-                <div class="three-label">逐词</div><div class="gloss-line"><sc-for list="{{ p.glosses }}" as="g" hint-placeholder-count="10"><span class="gloss-chip"><span class="jp">{{ g.surface }}</span><span>{{ g.gloss }}</span></span></sc-for></div>
-                <div class="three-label">对译</div><div style="font-size:14px;line-height:1.75;color:color-mix(in srgb,var(--color-text) 72%,transparent)">{{ p.translation }}</div>
+                <div class="three-label">{{ ui.wordGloss }}</div><div class="gloss-line"><sc-for list="{{ p.glosses }}" as="g" hint-placeholder-count="10"><span class="gloss-chip"><span class="jp">{{ g.surface }}</span><span>{{ g.gloss }}</span></span></sc-for></div>
+                <div class="three-label">{{ ui.translation }}</div><div style="font-size:14px;line-height:1.75;color:color-mix(in srgb,var(--color-text) 72%,transparent)">{{ p.translation }}</div>
               </div>
             </sc-for>
           </div>
           <sc-if value="{{ article.selection.visible }}" hint-placeholder-val="{{ false }}">
-            <div class="word-float card elev-lg" role="dialog" aria-label="加入生词本" style="left:{{ article.selection.left }};top:{{ article.selection.top }}">
+            <div class="word-float card elev-lg" role="dialog" aria-label="{{ ui.addVocabDialog }}" style="left:{{ article.selection.left }};top:{{ article.selection.top }}">
               <div style="display:flex;align-items:flex-start;gap:10px">
                 <div style="flex:1;min-width:0"><span class="jp" style="font-size:22px;font-weight:750">{{ article.selection.surface }}</span><span class="jp" style="font-size:13px;color:var(--color-accent);margin-left:9px">{{ article.selection.reading }}</span><div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent);margin-top:2px">{{ article.selection.grammar }}</div></div>
-                <button class="word-float-close" onClick="{{ article.selection.onClose }}" aria-label="关闭生词窗口">×</button>
+                <button class="word-float-close" onClick="{{ article.selection.onClose }}" aria-label="{{ ui.closeVocab }}">×</button>
               </div>
               <div style="font-size:14px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 78%,transparent)">{{ article.selection.meaning }}</div>
               <button class="btn btn-primary btn-block" onClick="{{ article.selection.onAdd }}" disabled="{{ article.selection.disabled }}" style="font-family:var(--font-body);font-weight:700;margin-top:1px">{{ article.selection.addLabel }}</button>
@@ -866,10 +866,10 @@
       <sc-if value="{{ nav.admin }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:980px">
           <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px">
-            <div><h1 style="font-size:34px;margin:0 0 4px">管理员用量</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">全站硬上限在服务端执行；达到上限后当天不再发起付费 API 请求。</p></div>
-            <button class="btn btn-secondary" onClick="{{ admin.onRefresh }}" disabled="{{ admin.loading }}">刷新</button>
+            <div><h1 style="font-size:34px;margin:0 0 4px">{{ ui.admin }}</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">{{ ui.adminDescription }}</p></div>
+            <button class="btn btn-secondary" onClick="{{ admin.onRefresh }}" disabled="{{ admin.loading }}">{{ ui.refresh }}</button>
           </div>
-          <sc-if value="{{ admin.loading }}" hint-placeholder-val="{{ false }}"><div class="card elev-sm" style="padding:28px">正在读取今天的用量…</div></sc-if>
+          <sc-if value="{{ admin.loading }}" hint-placeholder-val="{{ false }}"><div class="card elev-sm" style="padding:28px">{{ ui.loadingUsage }}</div></sc-if>
           <sc-if value="{{ admin.hasError }}" hint-placeholder-val="{{ false }}"><div class="card elev-sm" style="padding:20px;color:#a4472b">{{ admin.error }}</div></sc-if>
           <sc-if value="{{ admin.ready }}" hint-placeholder-val="{{ false }}">
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px">
@@ -883,15 +883,15 @@
               </sc-for>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-              <div class="card elev-sm" style="padding:18px"><div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">今日活跃用户</div><div style="font-family:var(--font-heading);font-size:26px;margin-top:3px">{{ admin.activeUsers }}</div></div>
-              <div class="card elev-sm" style="padding:18px"><div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">已同步用户总数</div><div style="font-family:var(--font-heading);font-size:26px;margin-top:3px">{{ admin.totalUsers }}</div></div>
+              <div class="card elev-sm" style="padding:18px"><div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">{{ ui.activeToday }}</div><div style="font-family:var(--font-heading);font-size:26px;margin-top:3px">{{ admin.activeUsers }}</div></div>
+              <div class="card elev-sm" style="padding:18px"><div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">{{ ui.syncedUsers }}</div><div style="font-family:var(--font-heading);font-size:26px;margin-top:3px">{{ admin.totalUsers }}</div></div>
             </div>
             <div class="card elev-sm" style="padding:20px;margin-bottom:16px">
-              <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px"><h3 style="font-size:17px;margin:0">今日用户明细</h3><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 48%,transparent)">{{ admin.dayLabel }}</span></div>
-              <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="text-align:left;color:color-mix(in srgb,var(--color-text) 52%,transparent)"><th style="padding:8px">用户</th><th style="padding:8px">文本 AI</th><th style="padding:8px">Realtime</th><th style="padding:8px">发音</th><th style="padding:8px">TTS</th><th style="padding:8px">合计</th></tr></thead><tbody><sc-for list="{{ admin.users }}" as="u" hint-placeholder-count="4"><tr style="border-top:1px solid var(--color-divider)"><td style="padding:9px 8px">{{ u.email }}</td><td style="padding:9px 8px">{{ u.ai }}</td><td style="padding:9px 8px">{{ u.realtime }}</td><td style="padding:9px 8px">{{ u.pronunciation }}</td><td style="padding:9px 8px">{{ u.tts }}</td><td style="padding:9px 8px;font-weight:700">{{ u.total }}</td></tr></sc-for></tbody></table></div>
-              <sc-if value="{{ admin.noUsers }}" hint-placeholder-val="{{ false }}"><div style="padding:18px 8px 4px;color:color-mix(in srgb,var(--color-text) 52%,transparent)">今天还没有付费 API 用量。</div></sc-if>
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px"><h3 style="font-size:17px;margin:0">{{ ui.todayDetails }}</h3><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 48%,transparent)">{{ admin.dayLabel }}</span></div>
+              <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="text-align:left;color:color-mix(in srgb,var(--color-text) 52%,transparent)"><th style="padding:8px">{{ ui.user }}</th><th style="padding:8px">{{ ui.textAI }}</th><th style="padding:8px">Realtime</th><th style="padding:8px">{{ ui.pronShort }}</th><th style="padding:8px">TTS</th><th style="padding:8px">{{ ui.total }}</th></tr></thead><tbody><sc-for list="{{ admin.users }}" as="u" hint-placeholder-count="4"><tr style="border-top:1px solid var(--color-divider)"><td style="padding:9px 8px">{{ u.email }}</td><td style="padding:9px 8px">{{ u.ai }}</td><td style="padding:9px 8px">{{ u.realtime }}</td><td style="padding:9px 8px">{{ u.pronunciation }}</td><td style="padding:9px 8px">{{ u.tts }}</td><td style="padding:9px 8px;font-weight:700">{{ u.total }}</td></tr></sc-for></tbody></table></div>
+              <sc-if value="{{ admin.noUsers }}" hint-placeholder-val="{{ false }}"><div style="padding:18px 8px 4px;color:color-mix(in srgb,var(--color-text) 52%,transparent)">{{ ui.noUsageToday }}</div></sc-if>
             </div>
-            <div class="card elev-sm" style="padding:20px"><h3 style="font-size:17px;margin:0 0 12px">近 7 天全站调用</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ admin.history }}" as="d" hint-placeholder-count="7"><div style="padding:10px 12px;border-radius:13px;background:var(--color-neutral-100);font-size:11.5px"><b>{{ d.day }}</b><div style="margin-top:3px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ d.summary }}</div></div></sc-for></div></div>
+            <div class="card elev-sm" style="padding:20px"><h3 style="font-size:17px;margin:0 0 12px">{{ ui.lastSevenDays }}</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ admin.history }}" as="d" hint-placeholder-count="7"><div style="padding:10px 12px;border-radius:13px;background:var(--color-neutral-100);font-size:11.5px"><b>{{ d.day }}</b><div style="margin-top:3px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ d.summary }}</div></div></sc-for></div></div>
           </sc-if>
         </div>
       </sc-if>
@@ -910,6 +910,19 @@ const UI_TEXT={
     vocabTitle:'生词本',vocabDescription:'收藏的词汇会进入 SM-2 间隔复习',reviewCards:'去复习',flashTitle:'闪卡复习',historyDescription:'自动保留最近 100 条会话，收藏的会话不受上限限制',favoritesDescription:'给会话加星，收藏后永不自动删除',
     abilityTitle:'听说读写能力地图',abilityDescription:'把每次练习变成能力证据；没有测过的项目会明确标记。',settingsTitle:'设置',learnerProfile:'学习者档案',yourLanguage:'你的语言',languageHelp:'界面、翻译、语法讲解、纠错与课后复盘都会使用这个语言。后端仍分别保存母语与解释语言。',data:'数据',exportData:'导出数据',importData:'导入数据',clearData:'清空数据',
     aiSource:'AI 来源',localCli:'本地 CLI',noApiKey:'免 API Key',readingTitle:'阅读文章',readingDescription:'两轮生成日语短文，支持注音、逐段翻译与朗读',grammarTitle:'逐语法点学习',grammarDescription:'从 N5 学到 N3，每一条都有中文讲解、例句和小测验。',pronunciationTitle:'发音诊断',pronunciationDescription:'朗读目标句，AI 从可理解度、长音促音、节奏、流畅度给出反馈。',
+    streakDays:'天连续打卡',checkedIn:'今天已打卡 · 保持下去 🔥',todayGoal:'今日目标',goalRemaining:'再学 3 个词完成今日目标',generateDialogue:'生成场景对话',generateDialogueDesc:'描述任意场景，AI 生成自然会话',reviewFlashcards:'复习闪卡',reviewFlashcardsDesc:'SM-2 间隔重复，到期待复习',continueLesson:'继续「はじめまして」',continueLessonDesc:'上次学到第 4 句 · 继续',
+    scenePlaceholder:'例如：在居酒屋点餐、和房东谈租房…',generatingDialogue:'正在生成自然会话…',back:'返回',sharedScenarioHelp:'这是只读副本；保存后会加入你自己的对话历史。',speechRate:'语速',verySlow:'很慢',slow:'慢速',normalSpeed:'原速',interactiveComing:'互动模式 · 开发中',vocabSuggestions:'生词建议',searchVocab:'搜索词汇…',
+    reviewDone:'今日复习完成！',reviewDoneDesc:'连续打卡 +1 天 · 明天还有新的到期卡片',reviewAgain:'再复习一遍',backToday:'回到今日',forgot:'忘了',again:'重来',hard:'困难',good:'良好',easy:'简单',day:'天',revealHint:'点击卡片查看读音与释义',noFavorites:'还没有收藏的会话',noFavoritesDesc:'在会话详情点击 ★ 即可收藏，随时回来温习最喜欢的场景。',firstScenario:'去生成第一个场景',
+    oralEvidenceNote:'语音测评根据对话转写与回答相关性评估听说；精细发音仍由“发音诊断”单独测量。',oralBreakdown:'口语能力拆解',oralBreakdownDesc:'让 Tutor 知道应该在哪一层提供挑战。',nextPractice:'接下来练什么',nextPracticeDesc:'按证据更新，不是一次测评定终身。',practiceSpeaking:'按当前水平练口语',
+    teachingStyle:'教学方式',styleBilingual:'双语入门（推荐 N5–N4）',styleImmersion:'日语沉浸',styleCorrection:'即时纠错',styleInterview:'口试训练',recentCalls:'最近通话',reviewGenerating:'正在生成课后复盘…通话记录已经保存，可以先离开。',reviewFailed:'复盘暂时生成失败，通话记录不受影响。',sessionReview:'课后复盘',strengths:'做得不错',moreNatural:'可以更自然',reviewVocab:'课后生词与表达',nextStep:'下一步：',naturalConversation:'自然会话',naturalConversationDesc:'更像会话伙伴，不会每轮都纠错、提问或要求复述。',instantCorrection:'即时纠错',instantCorrectionDesc:'说错立刻提示，课后自动沉淀为长期复习重点。',
+    grammarLoading:'正在为你生成这条语法的中文微课…',grammarLoadingDesc:'生成一次后会保存，下次可以直接打开。',formation:'接续',commonMistake:'常见错误',examples:'例句',quiz:'小测验：',answer:'答案：',startRecording:'开始录音',overallScore:'综合分',intelligibility:'可理解度',longSounds:'长音促音',rhythm:'拍节奏',fluency:'流畅度',excellent:'很好',attention:'注意',
+    newArticle:'生成新文章',backArticles:'← 返回文章',sharedArticleHelp:'你可以直接阅读；保存后会加入自己的文章库。',threeLineTitle:'三行对译学习',threeLineDesc:'原文注音 · 逐词语境释义 · 自然对译。点击原文中的词可加入生词本。',original:'原文',wordGloss:'逐词',translation:'对译',stop:'停止',readAloud:'朗读',
+    share:'分享',generatingLink:'生成链接…',added:'已加入 ✓',addVocab:'+ 加入生词本',dueToday:'今天到期',reviewLater:'稍后复习',emptyVocab:'暂无词汇',addWordsFirst:'请先加入生词',sourceAudio:'基于原始语音',sourceTranscript:'STT 文本备用分析',addShort:'+ 加入',allAdded:'已全部加入 ✓',addAll:'全部加入复习',turns:'轮',minutes:'分钟',mastered:'已掌握',studying:'学习中',notStarted:'未学习',openForLesson:'打开生成中文讲解',markMastered:'标记为已掌握',analyzing:'分析完成后可分享',newArticleGenerating:'生成中…',glossAnalyzing:'正在生成逐词语境释义…',meaningOnAdd:'加入时自动生成释义',meaningGenerating:'正在生成释义…',
+    aLearner:'一位学习者',sharedYou:'分享给你的',articleNoun:'文章',dialogueNoun:'对话',savedLibrary:'已保存到我的学习库 ✓',saveLibrary:'保存到我的学习库',
+    dictionaryForm:'词典形',closeVocab:'关闭生词窗口',addVocabDialog:'加入生词本',
+    grammarLicensePrefix:'语法索引与参考例句来自 ',grammarLicenseSuffix:' 的 Creative Commons 开放资料。JLPT 等级为学习参考，并非官方逐条大纲；讲解由 AI-Kotoba 按需生成。',dialogueSpeedLabel:'会话朗读语速',favorite:'收藏',tutorStyleLabel:'Tutor 教学方式',holdTalkLabel:'按住说话，松开发送',grammarSearch:'搜索语法点',grammarSearchPlaceholder:'搜索语法，例如 〜ながら',
+    adminDescription:'全站硬上限在服务端执行；达到上限后当天不再发起付费 API 请求。',refresh:'刷新',loadingUsage:'正在读取今天的用量…',activeToday:'今日活跃用户',syncedUsers:'已同步用户总数',todayDetails:'今日用户明细',user:'用户',textAI:'文本 AI',pronShort:'发音',total:'合计',noUsageToday:'今天还没有付费 API 用量。',lastSevenDays:'近 7 天全站调用',
+    stats:'统计',maxPerCall:'每次最多 12 分钟',maxToday:'今日最多',remaining:'剩余',
     onboardingWelcome:'欢迎来到 AI-Kotoba',onboardingIntro:'先告诉我们你希望用哪种语言学习日语。之后可以随时在设置里修改。',continue:'继续',back:'返回',
     selfTitle:'你觉得自己现在的日语水平如何？',selfIntro:'这只是起点，不会把你锁定在某个等级。Tutor 会随着真实表现调整。',levelBeginner:'刚开始学',levelUnsure:'不确定',goalTitle:'你最想用日语做什么？',goalConversation:'自然聊天',goalJlpt:'准备 JLPT',goalTravel:'旅行生活',goalWork:'工作学习',goalMedia:'动漫与内容',
     placementTitle:'要现在做一次听说分级吗？',placementIntro:'用 8–10 分钟自然对话分别估计听力、口语和表达组织。结果不是你的总日语等级。',startPlacement:'开始听说分级',skipPlacement:'暂时跳过，直接开始',placementOptional:'之后可以随时从能力地图重新测试。',
@@ -922,6 +935,19 @@ const UI_TEXT={
     vocabTitle:'Vocabulary',vocabDescription:'Saved words enter SM-2 spaced repetition',reviewCards:'Review',flashTitle:'Flashcard review',historyDescription:'Keeps the latest 100 conversations; favorites are never removed automatically.',favoritesDescription:'Star conversations to keep them permanently.',
     abilityTitle:'Listening, Speaking, Reading & Writing Map',abilityDescription:'Every activity becomes evidence. Unmeasured skills remain clearly marked.',settingsTitle:'Settings',learnerProfile:'Learner profile',yourLanguage:'Your language',languageHelp:'The interface, translations, grammar explanations, corrections, and session reviews will use this language. Native and explanation language remain separate in the backend.',data:'Data',exportData:'Export data',importData:'Import data',clearData:'Clear data',
     aiSource:'AI source',localCli:'Local CLI',noApiKey:'No API key required',readingTitle:'Reading',readingDescription:'Two-pass Japanese article generation with furigana, translations, and audio.',grammarTitle:'Grammar by point',grammarDescription:'Study N5–N3 grammar with explanations, examples, and quick checks.',pronunciationTitle:'Pronunciation diagnosis',pronunciationDescription:'Read the target sentence and get feedback on intelligibility, timing, rhythm, and fluency.',
+    streakDays:'day streak',checkedIn:'Checked in today · Keep it going 🔥',todayGoal:'Today’s goal',goalRemaining:'Learn 3 more words to finish today’s goal',generateDialogue:'Generate a scenario',generateDialogueDesc:'Describe any situation and generate natural dialogue',reviewFlashcards:'Review flashcards',reviewFlashcardsDesc:'SM-2 spaced repetition for cards due now',continueLesson:'Continue 「はじめまして」',continueLessonDesc:'Continue from line 4 of your last lesson',
+    scenePlaceholder:'For example: order at an izakaya, talk to a landlord…',generatingDialogue:'Generating natural dialogue…',back:'Back',sharedScenarioHelp:'This is a read-only copy. Save it to add it to your own history.',speechRate:'Speed',verySlow:'Very slow',slow:'Slow',normalSpeed:'Normal',interactiveComing:'Interactive mode · Coming soon',vocabSuggestions:'Suggested vocabulary',searchVocab:'Search vocabulary…',
+    reviewDone:'Today’s review is complete!',reviewDoneDesc:'Streak +1 day · More cards will be due tomorrow',reviewAgain:'Review again',backToday:'Back to Today',forgot:'Forgot',again:'Again',hard:'Hard',good:'Good',easy:'Easy',day:'day',revealHint:'Tap the card to see its reading and meaning',noFavorites:'No favorite conversations yet',noFavoritesDesc:'Select ★ in a conversation to keep it here for later review.',firstScenario:'Generate your first scenario',
+    oralEvidenceNote:'The oral assessment uses the conversation transcript and answer relevance. Detailed pronunciation is measured separately in Pronunciation.',oralBreakdown:'Speaking breakdown',oralBreakdownDesc:'Helps the Tutor choose the right level of challenge.',nextPractice:'What to practice next',nextPracticeDesc:'Updated from evidence, not fixed by one assessment.',practiceSpeaking:'Practice speaking at this level',
+    teachingStyle:'Teaching style',styleBilingual:'Bilingual support (N5–N4)',styleImmersion:'Japanese immersion',styleCorrection:'Immediate correction',styleInterview:'Oral interview',recentCalls:'Recent calls',reviewGenerating:'Generating the session review… The call is already saved, so you can leave this page.',reviewFailed:'The review could not be generated, but the call was saved.',sessionReview:'Session review',strengths:'What went well',moreNatural:'Make it more natural',reviewVocab:'Words and phrases to review',nextStep:'Next step: ',naturalConversation:'Natural conversation',naturalConversationDesc:'Acts more like a conversation partner without correcting, asking, or requesting repetition every turn.',instantCorrection:'Immediate correction',instantCorrectionDesc:'Highlights important mistakes and saves them as long-term review points.',
+    grammarLoading:'Generating this grammar mini-lesson…',grammarLoadingDesc:'It will be saved after the first generation for faster access next time.',formation:'Formation',commonMistake:'Common mistake',examples:'Examples',quiz:'Quick check: ',answer:'Answer: ',startRecording:'Start recording',overallScore:'Overall',intelligibility:'Intelligibility',longSounds:'Long and geminate sounds',rhythm:'Rhythm',fluency:'Fluency',excellent:'Great',attention:'Needs attention',
+    newArticle:'Generate article',backArticles:'← Back to articles',sharedArticleHelp:'You can read this copy now. Save it to add it to your own library.',threeLineTitle:'Three-line translation study',threeLineDesc:'Furigana text · contextual word glosses · natural translation. Select a word to save it.',original:'Original',wordGloss:'Word glosses',translation:'Translation',stop:'Stop',readAloud:'Read aloud',
+    share:'Share',generatingLink:'Creating link…',added:'Added ✓',addVocab:'+ Add to vocabulary',dueToday:'Due today',reviewLater:'Review later',emptyVocab:'No vocabulary yet',addWordsFirst:'Add some words first',sourceAudio:'Based on original audio',sourceTranscript:'STT transcript fallback',addShort:'+ Add',allAdded:'All added ✓',addAll:'Add all to review',turns:'turns',minutes:'min',mastered:'Mastered',studying:'Studying',notStarted:'Not started',openForLesson:'Open to generate an explanation',markMastered:'Mark as mastered',analyzing:'Share after analysis',newArticleGenerating:'Generating…',glossAnalyzing:'Generating contextual word glosses…',meaningOnAdd:'A meaning will be generated when added',meaningGenerating:'Generating meaning…',
+    aLearner:'A learner',sharedYou:'shared this',articleNoun:'article with you',dialogueNoun:'dialogue with you',savedLibrary:'Saved to my library ✓',saveLibrary:'Save to my library',
+    dictionaryForm:'Dictionary form',closeVocab:'Close vocabulary popup',addVocabDialog:'Add to vocabulary',
+    grammarLicensePrefix:'The grammar index and reference examples come from ',grammarLicenseSuffix:' under Creative Commons. JLPT levels are learning references rather than an official item-by-item syllabus; explanations are generated by AI-Kotoba on demand.',dialogueSpeedLabel:'Dialogue playback speed',favorite:'Favorite',tutorStyleLabel:'Tutor teaching style',holdTalkLabel:'Hold to speak and release to send',grammarSearch:'Search grammar',grammarSearchPlaceholder:'Search grammar, for example 〜ながら',
+    adminDescription:'Server-side hard limits stop paid API requests after the daily site budget is reached.',refresh:'Refresh',loadingUsage:'Loading today’s usage…',activeToday:'Active users today',syncedUsers:'Total synced users',todayDetails:'Today’s user details',user:'User',textAI:'Text AI',pronShort:'Pronunciation',total:'Total',noUsageToday:'No paid API usage today.',lastSevenDays:'Site calls in the last 7 days',
+    stats:'statistics',maxPerCall:'12 minutes per call',maxToday:'Daily maximum',remaining:'Remaining',
     onboardingWelcome:'Welcome to AI-Kotoba',onboardingIntro:'Choose the language you want to use while learning Japanese. You can change it later in Settings.',continue:'Continue',back:'Back',
     selfTitle:'How would you rate your Japanese right now?',selfIntro:'This is only a starting point. It will not lock you into a level, and the Tutor will adapt to your real performance.',levelBeginner:'Just starting',levelUnsure:'Not sure',goalTitle:'What do you most want to do in Japanese?',goalConversation:'Have natural conversations',goalJlpt:'Prepare for JLPT',goalTravel:'Travel and daily life',goalWork:'Work or study',goalMedia:'Anime and media',
     placementTitle:'Would you like a listening and speaking placement now?',placementIntro:'An 8–10 minute natural conversation estimates listening, speaking, and expression separately. It is not your overall Japanese level.',startPlacement:'Start placement conversation',skipPlacement:'Skip for now and start learning',placementOptional:'You can retake it anytime from the Ability Map.',
@@ -991,7 +1017,12 @@ class Component extends DCLogic {
   changeOnboardingLanguage(value){
     const language=value==='en'?'en':'zh-CN';
     document.documentElement.lang=language;
-    this.setState({onboardingLanguage:language});
+    const sceneInput=language==='en'&&this.state.sceneInput==='在便利店结账'
+      ? 'At a convenience store checkout'
+      : language==='zh-CN'&&this.state.sceneInput==='At a convenience store checkout'
+        ? '在便利店结账'
+        : this.state.sceneInput;
+    this.setState({onboardingLanguage:language,sceneInput});
   }
 
   nextOnboarding(){
@@ -1024,6 +1055,8 @@ class Component extends DCLogic {
     const language=value==='en'?'en':'zh-CN';
     const data=window.AIKotoba?.saveLearnerProfile?.({language});
     if(data) this.applyData(data);
+    if(language==='en'&&this.state.sceneInput==='在便利店结账') this.setState({sceneInput:'At a convenience store checkout'});
+    if(language==='zh-CN'&&this.state.sceneInput==='At a convenience store checkout') this.setState({sceneInput:'在便利店结账'});
   }
 
   reveal(){ this.setState({flashRevealed:true}); }
@@ -1430,7 +1463,8 @@ class Component extends DCLogic {
     if(!value) return;
     const item={role:role==='me'?'me':'tutor',text:value,at:Date.now()};
     this._tutorTranscript.push(item);
-    this.setState(s=>({tutorMessages:[...s.tutorMessages,{who:item.role==='me'?'你':'Tutor',text:value}]}));
+    const learnerLabel=this.settings?.uiLanguage==='en'?'You':'你';
+    this.setState(s=>({tutorMessages:[...s.tutorMessages,{who:item.role==='me'?learnerLabel:'Tutor',text:value}]}));
   }
 
   async finishTutor(limitReached=false){
@@ -1523,7 +1557,11 @@ class Component extends DCLogic {
     const active=this.activeScenario||{title:'はじめまして',localizedTitle:'初次见面 · 自我介绍',titleChinese:'初次见面 · 自我介绍',level:'N5',topic:'初次见面的自我介绍',vocabulary:this.V};
     const scenarios=this.scenarios?.length?this.scenarios:[];
     const recents=scenarios.slice(0,12).map(sc=>({glyph:(sc.title||'言').slice(0,1),title:sc.title||'会話',sub:(sc.localizedTitle||sc.titleChinese||sc.topic||(language==='en'?'Japanese dialogue':'日语会话'))+' · '+new Date(sc.createdAt||Date.now()).toLocaleDateString(locale),level:sc.level||'N4',onOpen:()=>this.openScenario(sc)}));
-    const actualRecents=recents.length?recents:this.recents.map(r=>({...r,onOpen:()=>this.openScenario(active)}));
+    const fallbackRecentSubs=language==='en'?['Ordering at a restaurant · 2 days ago','Hotel check-in · 3 days ago','First meeting · 5 days ago']:null;
+    const actualRecents=recents.length?recents:this.recents.map((r,index)=>({...r,sub:fallbackRecentSubs?.[index]||r.sub,onOpen:()=>this.openScenario(active)}));
+    const presetLabels=language==='en'
+      ? ['Convenience-store checkout','Talk to a landlord','Register at a clinic','Job interview introduction','Order at a restaurant','Ask for directions']
+      : this.presets;
     const dueCount=this.V.filter(x=>(x.nextReview||0)<=Date.now()).length;
     const streak=this._streak||{streak:7,week:['日','一','二','三','四','五','六'].map((day,i)=>({day,done:i<=3,date:''}))};
     const statusLabels=language==='en'
@@ -1531,30 +1569,31 @@ class Component extends DCLogic {
       : {idle:this.state.tutorActive?'按住“说话”按钮开始':'准备开始',saved:'通话与课后复盘已保存',reviewingVoice:'Tutor 正在根据原始语音与完整对话整理复盘…',reviewing:'通话已保存，正在校验课后复盘…',reviewError:'通话已保存；课后复盘暂时生成失败',placementReviewing:'测评通话已保存，正在生成能力地图…',placementSaved:'听说分级完成，能力地图已更新',placementError:'测评通话已保存；能力分析暂时失败',limitEnded:'已到 12 分钟上限，通话已结束',limitReviewing:'已到 12 分钟上限；通话已保存，正在生成复盘…',limitSaved:'已到 12 分钟上限；通话与复盘已保存',connecting:'正在连接 GPT Realtime…',listening:'正在听你说，松开发送…',thinking:'Tutor 正在思考…',speaking:'Tutor 正在说话；按住说话可打断',disconnected:'连接已断开，结束通话仍会保存已有记录'};
     const savedVocabWords=new Set((this.V||[]).map(item=>String(item.word||'').trim()).filter(Boolean));
     const tutorHistory=(this.tutorSessions||[]).filter(session=>session.mode!=='assessment').slice(0,12).map(session=>{
-      let messages=Array.isArray(session.messages)?session.messages.map(item=>({who:item.role==='me'?'你':'Tutor',text:String(item.text||'')})).filter(item=>item.text):[];
-      if(!messages.length&&session.transcript) messages=String(session.transcript).split('\n').map(line=>{const mine=/^(Learner|我|你)[:：]/.test(line);return{who:mine?'你':'Tutor',text:line.replace(/^[^:：]+[:：]\s*/,'')}}).filter(item=>item.text);
+      const learnerLabel=language==='en'?'You':'你';
+      let messages=Array.isArray(session.messages)?session.messages.map(item=>({who:item.role==='me'?learnerLabel:'Tutor',text:String(item.text||'')})).filter(item=>item.text):[];
+      if(!messages.length&&session.transcript) messages=String(session.transcript).split('\n').map(line=>{const mine=/^(Learner|我|你)[:：]/.test(line);return{who:mine?learnerLabel:'Tutor',text:line.replace(/^[^:：]+[:：]\s*/,'')}}).filter(item=>item.text);
       const mins=Math.max(1,Math.round((Number(session.durationMs)||0)/60000));
       const rawReview=session.review||{};
       const phrases=(rawReview.usefulPhrases||[]).map((item,index)=>{
         const japanese=String(item.japanese||item.word||'').trim();
         const added=savedVocabWords.has(japanese);
-        return{...item,japanese,reading:item.reading?`（${item.reading}）`:'',hasExample:!!item.example,added,addLabel:added?'已加入 ✓':'+ 加入',onAdd:()=>this.addTutorReviewPhrase(session.id,index)};
+        return{...item,japanese,reading:item.reading?`（${item.reading}）`:'',hasExample:!!item.example,added,addLabel:added?ui.added:ui.addShort,onAdd:()=>this.addTutorReviewPhrase(session.id,index)};
       }).filter(item=>item.japanese);
       const allAdded=phrases.length>0&&phrases.every(item=>item.added);
-      const review={ready:session.reviewStatus==='ready'&&!!rawReview.summary,generating:['pending','generating'].includes(session.reviewStatus),error:session.reviewStatus==='error',sourceLabel:rawReview.source==='realtime-audio'?'基于原始语音':'STT 文本备用分析',summary:rawReview.summary||'',strengths:(rawReview.strengths||[]).map(text=>({text})),improvements:rawReview.improvements||[],phrases,hasStrengths:(rawReview.strengths||[]).length>0,hasImprovements:(rawReview.improvements||[]).length>0,hasPhrases:phrases.length>0,nextStep:rawReview.nextStep||'',allAdded,allAddLabel:allAdded?'已全部加入 ✓':'全部加入复习',onAddAll:()=>this.addAllTutorReviewPhrases(session.id)};
-      return{scene:session.scene||'自由会話',level:session.level||'N4',meta:`${new Date(session.createdAt||Date.now()).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · ${session.userTurns||messages.filter(item=>item.who==='你').length} 轮 · ${mins} 分钟`,messages,review};
+      const review={ready:session.reviewStatus==='ready'&&!!rawReview.summary,generating:['pending','generating'].includes(session.reviewStatus),error:session.reviewStatus==='error',sourceLabel:rawReview.source==='realtime-audio'?ui.sourceAudio:ui.sourceTranscript,summary:rawReview.summary||'',strengths:(rawReview.strengths||[]).map(text=>({text})),improvements:rawReview.improvements||[],phrases,hasStrengths:(rawReview.strengths||[]).length>0,hasImprovements:(rawReview.improvements||[]).length>0,hasPhrases:phrases.length>0,nextStep:rawReview.nextStep||'',allAdded,allAddLabel:allAdded?ui.allAdded:ui.addAll,onAddAll:()=>this.addAllTutorReviewPhrases(session.id)};
+      return{scene:session.scene||'自由会話',level:session.level||'N4',meta:`${new Date(session.createdAt||Date.now()).toLocaleString(locale,{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · ${session.userTurns||messages.filter(item=>item.who===learnerLabel).length} ${ui.turns} · ${mins} ${ui.minutes}`,messages,review};
     });
     const progressById=new Map((this.grammarProgress||[]).map(item=>[item.id,item]));
     const grammarRows=(this.grammarCatalog||[]).filter(item=>item.level===this.state.grammarLevel);
     const grammarQuery=String(this.state.grammarQuery||'').trim().toLocaleLowerCase();
     const grammarItems=grammarRows.filter(item=>!grammarQuery||`${item.title} ${item.short_explanation||''} ${item.formation||''}`.toLocaleLowerCase().includes(grammarQuery)).map(item=>{
       const status=progressById.get(item.id)?.status||'unstarted';
-      return{...item,title:this.grammarTitle(item.title),short:item.short_explanation||item.formation||'打开生成中文讲解',statusLabel:status==='mastered'?'已掌握':status==='studying'?'学习中':'未学习',statusColor:status==='mastered'?'var(--color-accent)':status==='studying'?'var(--color-accent-2)':'color-mix(in srgb,var(--color-text) 42%,transparent)',onOpen:()=>this.openGrammar(item)};
+      return{...item,title:this.grammarTitle(item.title),short:item.short_explanation||item.formation||ui.openForLesson,statusLabel:status==='mastered'?ui.mastered:status==='studying'?ui.studying:ui.notStarted,statusColor:status==='mastered'?'var(--color-accent)':status==='studying'?'var(--color-accent-2)':'color-mix(in srgb,var(--color-text) 42%,transparent)',onOpen:()=>this.openGrammar(item)};
     });
     const grammarProgress=this.activeGrammarPoint?progressById.get(this.activeGrammarPoint.id):null;
     const grammarLesson=this.activeGrammarLesson;
     const selected=this.selectedToken;
-    const grammarParts=selected?[selected.dictionaryForm&&selected.dictionaryForm!==selected.surface?'词典形 '+selected.dictionaryForm:'',selected.pos,(selected.partOfSpeech||[])[5]].filter(x=>x&&x!=='*'):[];
+    const grammarParts=selected?[selected.dictionaryForm&&selected.dictionaryForm!==selected.surface?`${ui.dictionaryForm} ${selected.dictionaryForm}`:'',selected.pos,(selected.partOfSpeech||[])[5]].filter(x=>x&&x!=='*'):[];
     const current=this.currentArticle||{title:'',localizedTitle:'',level:'N4',paragraphs:[]};
     const usage=this.adminUsage;
     const shared=this.sharedContent;
@@ -1628,27 +1667,27 @@ class Component extends DCLogic {
       todayDate:new Date().toLocaleDateString(locale,{month:'long',day:'numeric',weekday:'long'}),streak:streak.streak,dueCount,
       week:(streak.week||[]).map((d,i)=>({label:d.day,mark:d.done?'✓':'',bg:d.done?'var(--color-accent)':'var(--color-neutral-200)',fg:d.done?'var(--color-bg)':'color-mix(in srgb,var(--color-text) 40%,transparent)',labelFg:i===(streak.week||[]).length-1?'var(--color-accent)':'color-mix(in srgb,var(--color-text) 50%,transparent)'})),
       recents:actualRecents,
-      presets:this.presets.map(label=>({label,onPick:()=>this.setState({sceneInput:label})})),
+      presets:presetLabels.map(label=>({label,onPick:()=>this.setState({sceneInput:label})})),
       sceneInput:this.state.sceneInput,sceneLevel:this.state.sceneLevel,onSceneInput:e=>this.setState({sceneInput:e.target.value}),onSceneLevel:e=>this.setState({sceneLevel:e.target.value}),
       generating:this.state.generating,genLabel:this.state.generating?ui.generating:ui.generate,onGenerate:()=>this.onGenerate(),
       sc:{
-        title:active.title||'はじめまして',titleCn:active.localizedTitle||active.titleChinese||'',level:active.level||'N4',topic:active.topic||'',date:new Date(active.createdAt||Date.now()).toLocaleDateString(),speechRate:String(this.state.speechRate),onSpeechRate:e=>this.changeSpeechRate(e.target.value),
-        onShare:()=>this.shareItem('scenario',active),shareDisabled:this.state.shareBusy,shareLabel:this.state.shareBusy?'生成链接…':(this.state.shareNotice||'分享'),
+        title:active.title||'はじめまして',titleCn:active.localizedTitle||active.titleChinese||'',level:active.level||'N4',topic:active.topic||'',date:new Date(active.createdAt||Date.now()).toLocaleDateString(locale),speechRate:String(this.state.speechRate),onSpeechRate:e=>this.changeSpeechRate(e.target.value),
+        onShare:()=>this.shareItem('scenario',active),shareDisabled:this.state.shareBusy,shareLabel:this.state.shareBusy?ui.generatingLink:(this.state.shareNotice||ui.share),
         lines:this.L.map((l,i)=>{const b=badge(i%2===0?'a':'b');return{sp:l.sp,cn:l.cn,segs:this.parseFuri(l.furi),playing:i===this.state.playing,onPlay:()=>this.play(i),badgeBg:b.bg,badgeFg:b.fg};}),
-        vocab:(active.vocabulary||this.V.slice(0,8)).map(x=>{const added=!!this.state.added[x.word]||this.V.some(v=>v.word===x.word);return{word:x.word,reading:x.reading,meaning:x.meaning,example:x.example,added,addLabel:added?'已加入 ✓':'+ 加入生词本',onAdd:()=>this.addVocabItem(x)};}),
+        vocab:(active.vocabulary||this.V.slice(0,8)).map(x=>{const added=!!this.state.added[x.word]||this.V.some(v=>v.word===x.word);return{word:x.word,reading:x.reading,meaning:x.meaning,example:x.example,added,addLabel:added?ui.added:ui.addVocab,onAdd:()=>this.addVocabItem(x)};}),
       },
-      vocabList:this.V.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?'今天到期':'稍后复习',dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
-      flash:(()=>{const cards=this.V.slice(0,Math.max(1,Math.min(20,this.V.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:'暂无词汇',reading:'',meaning:'请先加入生词',example:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
+      vocabList:this.V.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?ui.dueToday:ui.reviewLater,dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
+      flash:(()=>{const cards=this.V.slice(0,Math.max(1,Math.min(20,this.V.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:ui.emptyVocab,reading:'',meaning:ui.addWordsFirst,example:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
       ability:{overallLevel:ability.overallLevel||(language==='en'?'Not assessed':'待测'),summaryTitle:ability.overallLevel?(language==='en'?`Suggested level ${ability.overallLevel} · Confidence ${Math.round((Number(ability.confidence)||0)*100)}%`:`当前建议水平 ${ability.overallLevel} · 置信度 ${Math.round((Number(ability.confidence)||0)*100)}%`):(language==='en'?'Build your first ability map':'先建立你的第一张能力地图'),summary:ability.summary||(language==='en'?'A natural conversation estimates what you understand and can express. Reading and writing remain unassessed until relevant tasks provide evidence.':'用一段自然对话估计你能听懂什么、能表达什么。阅读和写作会保留为未测评，等对应任务提供真实证据。'),updatedLabel:ability.lastAssessmentAt?(language==='en'?`Updated ${new Date(ability.lastAssessmentAt).toLocaleDateString(locale)}`:`更新于 ${new Date(ability.lastAssessmentAt).toLocaleDateString(locale)}`):(language==='en'?'Not assessed yet':'尚未测评'),assessing:this.state.tutorStatus==='placementReviewing',assessLabel:this.state.tutorStatus==='placementReviewing'?(language==='en'?'Analyzing ability…':'正在分析能力…'):(ability.overallLevel?(language==='en'?'Retake oral placement':'重新进行听说分级'):(language==='en'?'Start 8–10 minute placement':'开始 8–10 分钟听说分级')),onAssess:()=>this.startOralAssessment(),skills:abilitySkills,oral:oralRows,priorities:abilityPriorities},
       tutor:{assessment:this.state.tutorMode==='assessment',showStyle:this.state.tutorMode!=='assessment',pageTitle:this.state.tutorMode==='assessment'?tutorCopy.assessmentTitle:tutorCopy.tutorTitle,pageDescription:this.state.tutorMode==='assessment'?tutorCopy.assessmentDescription:tutorCopy.tutorDescription,cardTitle:this.state.tutorMode==='assessment'?tutorCopy.assessmentCard:tutorCopy.tutorCard,cardDescription:this.state.tutorMode==='assessment'?tutorCopy.assessmentHelp:tutorCopy.tutorHelp,onToggle:()=>this.toggleTutor(this.state.tutorMode),active:this.state.tutorActive,finishing:this.state.tutorFinishing,buttonDisabled:this.state.tutorFinishing,talking:this.state.tutorTalking,onTalkStart:e=>this.startTutorTalking(e),onTalkEnd:e=>this.stopTutorTalking(e),talkLabel:this.state.tutorTalking?tutorCopy.talking:tutorCopy.hold,style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?(language==='en'?'Natural Japanese by default; brief English help only when you ask, get stuck, or answer in English.':'默认自然日语；只有你求助、没听懂或用中文回答时，才补一句中文，不强制复述。'):this.state.tutorStyle==='conversation'?(language==='en'?'Natural Japanese conversation with only gentle correction of important issues.':'尽量保持全日语自然会话，只温和纠正关键问题。'):this.state.tutorStyle==='correction'?(language==='en'?'Respond to the meaning first, then correct at most one high-value expression.':'回应内容后，每次最多纠正一个最值得改进的表达。'):(language==='en'?'Practice like a Japanese oral interview with brief feedback.':'像日语口试一样逐题练习并简短评价。'),buttonLabel:this.state.tutorFinishing?tutorCopy.finishing:(this.state.tutorActive?(this.state.tutorMode==='assessment'?tutorCopy.endAssessment:tutorCopy.endTutor):(this.state.tutorMode==='assessment'?tutorCopy.startAssessment:tutorCopy.startTutor)),statusLabel:statusLabels[this.state.tutorStatus]||'',timeLabel:`${tutorCopy.time} ${String(Math.floor(this.state.tutorRemainingSeconds/60)).padStart(2,'0')}:${String(this.state.tutorRemainingSeconds%60).padStart(2,'0')}`,hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages,hasHistory:tutorHistory.length>0,history:tutorHistory},
-      admin:{visible:!!this.account?.isAdmin,loading:this.state.adminLoading,hasError:!!this.state.adminError,error:this.state.adminError,ready:!!usage&&!this.state.adminLoading,onRefresh:()=>this.openAdmin(),dayLabel:usage?`${usage.day} · ${usage.timezone} 统计`:'' ,activeUsers:usage?.activeUsers||0,totalUsers:usage?.totalUsers||0,buckets:(usage?.buckets||[]).map(b=>({label:b.label,used:b.used,limit:b.globalLimit,percent:b.percent,width:`${b.percent}%`,color:b.percent>=90?'#b14c35':b.percent>=70?'var(--color-accent-2)':'var(--color-accent)',note:b.bucket==='realtime'?`每次最多 12 分钟 · 今日最多 ${b.globalLimit*12} 分钟`:`剩余 ${b.remaining} ${b.unit}`})),users:(usage?.users||[]).map(u=>({email:u.email,ai:u.usage?.ai_text||0,realtime:u.usage?.realtime||0,pronunciation:u.usage?.pronunciation||0,tts:u.usage?.tts||0,total:u.total||0})),noUsers:!!usage&&!(usage.users||[]).length,history:(usage?.history||[]).map(d=>({day:d.day.slice(5),summary:`AI ${d.usage?.ai_text||0} · RT ${d.usage?.realtime||0} · 发音 ${d.usage?.pronunciation||0} · TTS ${d.usage?.tts||0}`}))},
-      grammar:{isN5:this.state.grammarLevel==='N5',isN4:this.state.grammarLevel==='N4',isN3:this.state.grammarLevel==='N3',onN5:()=>this.setState({grammarLevel:'N5'}),onN4:()=>this.setState({grammarLevel:'N4'}),onN3:()=>this.setState({grammarLevel:'N3'}),query:this.state.grammarQuery,onSearch:e=>this.setState({grammarQuery:e.target.value}),items:grammarItems,count:grammarItems.length,total:(this.grammarCatalog||[]).length,mastered:(this.grammarProgress||[]).filter(item=>item.status==='mastered').length,loading:this.state.grammarLoading,hasLesson:!!grammarLesson&&!this.state.grammarLoading,lesson:grammarLesson?{level:this.activeGrammarPoint?.level||'',title:grammarLesson.title||this.grammarTitle(this.activeGrammarPoint?.title),meaning:grammarLesson.meaning||'',explanation:grammarLesson.explanation||'',formation:grammarLesson.formation||this.activeGrammarPoint?.formation||'',pitfall:grammarLesson.pitfall||'',examples:(grammarLesson.examples||[]).map(item=>({japanese:item.japanese||'',translation:item.translation||'',note:item.note||''})),quizPrompt:grammarLesson.quiz?.prompt||'',quizAnswer:grammarLesson.quiz?.answer||'',quizExplanation:grammarLesson.quiz?.explanation||'',masterLabel:grammarProgress?.status==='mastered'?'已掌握 ✓':'标记为已掌握',onMaster:()=>this.setGrammarProgress(grammarProgress?.status==='mastered'?'studying':'mastered')}:{examples:[]}},
-      articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))+' 分钟',onOpen:()=>this.openArticle(a)})),
+      admin:{visible:!!this.account?.isAdmin,loading:this.state.adminLoading,hasError:!!this.state.adminError,error:this.state.adminError,ready:!!usage&&!this.state.adminLoading,onRefresh:()=>this.openAdmin(),dayLabel:usage?`${usage.day} · ${usage.timezone} ${ui.stats}`:'' ,activeUsers:usage?.activeUsers||0,totalUsers:usage?.totalUsers||0,buckets:(usage?.buckets||[]).map(b=>({label:b.label,used:b.used,limit:b.globalLimit,percent:b.percent,width:`${b.percent}%`,color:b.percent>=90?'#b14c35':b.percent>=70?'var(--color-accent-2)':'var(--color-accent)',note:b.bucket==='realtime'?`${ui.maxPerCall} · ${ui.maxToday} ${b.globalLimit*12} ${ui.minutes}`:`${ui.remaining} ${b.remaining} ${b.unit}`})),users:(usage?.users||[]).map(u=>({email:u.email,ai:u.usage?.ai_text||0,realtime:u.usage?.realtime||0,pronunciation:u.usage?.pronunciation||0,tts:u.usage?.tts||0,total:u.total||0})),noUsers:!!usage&&!(usage.users||[]).length,history:(usage?.history||[]).map(d=>({day:d.day.slice(5),summary:`AI ${d.usage?.ai_text||0} · RT ${d.usage?.realtime||0} · ${ui.pronShort} ${d.usage?.pronunciation||0} · TTS ${d.usage?.tts||0}`}))},
+      grammar:{isN5:this.state.grammarLevel==='N5',isN4:this.state.grammarLevel==='N4',isN3:this.state.grammarLevel==='N3',onN5:()=>this.setState({grammarLevel:'N5'}),onN4:()=>this.setState({grammarLevel:'N4'}),onN3:()=>this.setState({grammarLevel:'N3'}),query:this.state.grammarQuery,onSearch:e=>this.setState({grammarQuery:e.target.value}),items:grammarItems,count:grammarItems.length,total:(this.grammarCatalog||[]).length,mastered:(this.grammarProgress||[]).filter(item=>item.status==='mastered').length,loading:this.state.grammarLoading,hasLesson:!!grammarLesson&&!this.state.grammarLoading,lesson:grammarLesson?{level:this.activeGrammarPoint?.level||'',title:grammarLesson.title||this.grammarTitle(this.activeGrammarPoint?.title),meaning:grammarLesson.meaning||'',explanation:grammarLesson.explanation||'',formation:grammarLesson.formation||this.activeGrammarPoint?.formation||'',pitfall:grammarLesson.pitfall||'',examples:(grammarLesson.examples||[]).map(item=>({japanese:item.japanese||'',translation:item.translation||'',note:item.note||''})),quizPrompt:grammarLesson.quiz?.prompt||'',quizAnswer:grammarLesson.quiz?.answer||'',quizExplanation:grammarLesson.quiz?.explanation||'',masterLabel:grammarProgress?.status==='mastered'?`${ui.mastered} ✓`:ui.markMastered,onMaster:()=>this.setGrammarProgress(grammarProgress?.status==='mastered'?'studying':'mastered')}:{examples:[]}},
+      articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:`${Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))} ${ui.minutes}`,onOpen:()=>this.openArticle(a)})),
       article:{
-        onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?'生成中…':'生成新文章',onShare:()=>this.shareItem('article',current),shareDisabled:this.state.shareBusy||this.state.articleAnalyzing,shareLabel:this.state.articleAnalyzing?'分析完成后可分享':this.state.shareBusy?'生成链接…':(this.state.shareNotice||'分享'),analysisLabel:this.state.articleAnalyzing?'正在生成逐词语境释义…':(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?'停止':'朗读',onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:event=>this.selectToken(t,event)}))}))},
-        selection:{visible:!!selected,left:this._selectionPosition?.left||'12px',top:this._selectionPosition?.top||'84px',surface:selected?.surface||'',reading:selected?.reading||'',grammar:grammarParts.join(' · '),meaning:selected?.gloss||selected?.meaning||'加入时自动生成释义',added:!!selected?.added,disabled:!!selected?.added||!!selected?.adding,addLabel:selected?.adding?'正在生成释义…':(selected?.added?'已加入 ✓':'+ 加入生词本'),onAdd:()=>this.addSelectedToken(),onClose:()=>this.closeSelectedToken()},
+        onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?ui.newArticleGenerating:ui.newArticle,onShare:()=>this.shareItem('article',current),shareDisabled:this.state.shareBusy||this.state.articleAnalyzing,shareLabel:this.state.articleAnalyzing?ui.analyzing:this.state.shareBusy?ui.generatingLink:(this.state.shareNotice||ui.share),analysisLabel:this.state.articleAnalyzing?ui.glossAnalyzing:(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?ui.stop:ui.readAloud,onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:event=>this.selectToken(t,event)}))}))},
+        selection:{visible:!!selected,left:this._selectionPosition?.left||'12px',top:this._selectionPosition?.top||'84px',surface:selected?.surface||'',reading:selected?.reading||'',grammar:grammarParts.join(' · '),meaning:selected?.gloss||selected?.meaning||ui.meaningOnAdd,added:!!selected?.added,disabled:!!selected?.added||!!selected?.adding,addLabel:selected?.adding?ui.meaningGenerating:(selected?.added?ui.added:ui.addVocab),onAdd:()=>this.addSelectedToken(),onClose:()=>this.closeSelectedToken()},
       },
-      shared:{isScenario:sharedActive&&shared?.type==='scenario',isArticle:sharedActive&&shared?.type==='article',title:`${shared?.sharedBy||'一位学习者'} 分享给你的${shared?.type==='article'?'文章':'对话'}`,saved:this.state.sharedSaved,saveLabel:this.state.sharedSaved?'已保存到我的学习库 ✓':'保存到我的学习库',onSave:()=>this.saveCurrentShared()},
+      shared:{isScenario:sharedActive&&shared?.type==='scenario',isArticle:sharedActive&&shared?.type==='article',title:`${shared?.sharedBy||ui.aLearner} ${ui.sharedYou}${language==='en'?' ':''}${shared?.type==='article'?ui.articleNoun:ui.dialogueNoun}`,saved:this.state.sharedSaved,saveLabel:this.state.sharedSaved?ui.savedLibrary:ui.saveLibrary,onSave:()=>this.saveCurrentShared()},
       backHome:()=>this.setState({view:'home'}),
     };
   }

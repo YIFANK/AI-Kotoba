@@ -36,13 +36,13 @@ test("ships the original UI with account, playback, and push-to-talk controls", 
     readFile(new URL("../app/api/realtime/session/route.ts", import.meta.url), "utf8"),
   ]);
   assert.match(html, /id="account-pill"/);
-  assert.match(html, /会话朗读语速/);
+  assert.match(html, /dialogueSpeedLabel:'会话朗读语速'/);
   assert.match(html, /data-dir="blue"/);
   assert.match(html, /\{\{ ui\.blue \}\}<\/button>/);
   assert.match(html, /ai-kotoba-palette/);
   assert.match(html, /class="word-float card elev-lg"/);
   assert.match(html, /tokenPopoverPosition/);
-  assert.match(html, /aria-label="关闭生词窗口"/);
+  assert.match(html, /aria-label="\{\{ ui\.closeVocab \}\}"/);
   assert.match(integration, /\/api\/account/);
   assert.match(integration, /playbackRate/);
   assert.match(html, /双语入门（推荐 N5–N4）/);
@@ -51,7 +51,7 @@ test("ships the original UI with account, playback, and push-to-talk controls", 
   assert.match(services, /Do not translate every sentence/);
   assert.match(integration, /teachingStyle === 'bilingual' \? 'auto' : 'ja'/);
   assert.match(realtime, /inputLanguage !== 'auto'/);
-  assert.match(html, /aria-label="按住说话，松开发送"/);
+  assert.match(html, /aria-label="\{\{ ui\.holdTalkLabel \}\}"/);
   assert.match(html, /最近通话/);
   assert.match(html, /结束并保存/);
   assert.match(integration, /function saveTutorSession/);
