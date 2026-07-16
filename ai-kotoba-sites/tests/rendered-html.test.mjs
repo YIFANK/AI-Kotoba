@@ -102,6 +102,29 @@ test("enforces global paid API caps and protects the admin usage dashboard", asy
   assert.match(integration, /\/api\/admin\/usage/);
 });
 
+test("shares conversations and articles through unlisted D1-backed links", async () => {
+  const [shareRoute, schema, migration, html, integration] = await Promise.all([
+    readFile(new URL("../app/api/share/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0001_unique_caretaker.sql", import.meta.url), "utf8"),
+    readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8"),
+  ]);
+  assert.match(shareRoute, /export async function GET/);
+  assert.match(shareRoute, /export async function POST/);
+  assert.match(shareRoute, /export async function DELETE/);
+  assert.match(shareRoute, /if \(!user\) return signInRequired\(\)/);
+  assert.match(shareRoute, /SHARE_ID_PATTERN = \/\^\[a-f0-9\]\{32\}\$\//);
+  assert.match(shareRoute, /created_by = \? AND content_hash = \?/);
+  assert.match(schema, /sharedContent = sqliteTable/);
+  assert.match(migration, /CREATE TABLE `shared_content`/);
+  assert.match(html, /保存到我的学习库/);
+  assert.match(html, /分析完成后可分享/);
+  assert.match(integration, /createShareLink/);
+  assert.match(integration, /loadSharedContentFromLocation/);
+  assert.match(integration, /saveSharedContent/);
+});
+
 test("includes licensed N5-N3 grammar catalogs", async () => {
   const levels = [["N5", 136], ["N4", 124], ["N3", 132]];
   for (const [level, expected] of levels) {

@@ -155,6 +155,18 @@ export async function ensureSchema(): Promise<Database> {
         count INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (user_email, bucket, day)
       )`),
+      db.prepare(`CREATE TABLE IF NOT EXISTS shared_content (
+        id TEXT PRIMARY KEY NOT NULL,
+        content_type TEXT NOT NULL,
+        data_json TEXT NOT NULL,
+        content_hash TEXT NOT NULL,
+        created_by TEXT NOT NULL,
+        created_by_name TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        revoked_at INTEGER
+      )`),
+      db.prepare(`CREATE INDEX IF NOT EXISTS shared_content_creator_hash_idx
+        ON shared_content (created_by, content_hash)`),
     ]);
   })();
   await schemaReady;

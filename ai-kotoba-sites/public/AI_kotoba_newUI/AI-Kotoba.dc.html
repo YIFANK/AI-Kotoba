@@ -291,6 +291,13 @@
         <div style="animation:fadeUp .35s ease both;max-width:820px">
           <button class="btn btn-ghost" onClick="{{ go.practice }}" style="font-family:var(--font-body);font-weight:600;margin-bottom:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>返回</button>
 
+          <sc-if value="{{ shared.isScenario }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-sm" style="padding:14px 16px;margin-bottom:16px;background:var(--color-accent-100);flex-direction:row;align-items:center;gap:12px">
+              <div style="flex:1"><b>{{ shared.title }}</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">这是只读副本；保存后会加入你自己的对话历史。</div></div>
+              <button class="btn btn-primary" onClick="{{ shared.onSave }}" disabled="{{ shared.saved }}">{{ shared.saveLabel }}</button>
+            </div>
+          </sc-if>
+
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px">
             <div>
               <h1 class="jp" style="font-size:32px;margin:0 0 4px">{{ sc.title }}</h1>
@@ -311,6 +318,7 @@
                   <option value="1">1.0× 原速</option>
                 </select>
               </label>
+              <button class="btn btn-secondary" onClick="{{ sc.onShare }}" disabled="{{ sc.shareDisabled }}" style="font-family:var(--font-body);font-weight:700">{{ sc.shareLabel }}</button>
               <button class="btn btn-secondary btn-icon" title="收藏"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg></button>
               <button class="btn btn-primary" style="font-family:var(--font-body);font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 8a3 3 0 1 0-6 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>互动模式</button>
             </div>
@@ -622,9 +630,15 @@
       <sc-if value="{{ nav.article }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:880px">
           <button class="btn btn-ghost" onClick="{{ go.reading }}" style="font-family:var(--font-body);font-weight:600;margin-bottom:14px">← 返回文章</button>
+          <sc-if value="{{ shared.isArticle }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-sm" style="padding:14px 16px;margin-bottom:16px;background:var(--color-accent-100);flex-direction:row;align-items:center;gap:12px">
+              <div style="flex:1"><b>{{ shared.title }}</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">你可以直接阅读；保存后会加入自己的文章库。</div></div>
+              <button class="btn btn-primary" onClick="{{ shared.onSave }}" disabled="{{ shared.saved }}">{{ shared.saveLabel }}</button>
+            </div>
+          </sc-if>
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px">
             <div><h1 class="jp" style="font-size:32px;margin:0 0 4px">{{ article.current.title }}</h1><div style="color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ article.current.localizedTitle }}</div></div>
-            <span class="tag tag-accent">JLPT {{ article.current.level }}</span>
+            <div style="display:flex;align-items:center;gap:8px"><button class="btn btn-secondary" onClick="{{ article.onShare }}" disabled="{{ article.shareDisabled }}" style="font-family:var(--font-body);font-weight:700">{{ article.shareLabel }}</button><span class="tag tag-accent">JLPT {{ article.current.level }}</span></div>
           </div>
           <div class="card" style="padding:15px 18px;background:var(--color-accent-100);margin-bottom:14px;flex-direction:row;align-items:center;gap:12px">
             <div style="flex:1"><b>三行对译学习</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">原文注音 · 逐词语境释义 · 自然对译。点击原文中的词可加入生词本。</div><div style="font-size:11px;color:var(--color-accent-800);margin-top:3px">{{ article.analysisLabel }}</div></div>
@@ -769,10 +783,11 @@ class Component extends DCLogic {
     this.activeGrammarLesson = null;
     this.account = {authenticated:false,isAdmin:false};
     this.adminUsage = null;
+    this.sharedContent = null;
     this._streak = null;
     let savedPalette='blue';
     try{ const saved=window.localStorage.getItem('ai-kotoba-palette'); if(['blue','terra','sage'].includes(saved)) savedPalette=saved; }catch(e){}
-    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorActive:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], tutorRemainingSeconds:720, grammarLevel:'N5', grammarQuery:'', grammarLoading:false, adminLoading:false, adminError:'' };
+    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorActive:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], tutorRemainingSeconds:720, grammarLevel:'N5', grammarQuery:'', grammarLoading:false, adminLoading:false, adminError:'', shareBusy:false, shareNotice:'', sharedSaved:false };
   }
 
   changePalette(dir){
@@ -922,8 +937,23 @@ class Component extends DCLogic {
       const [data,catalog]=await Promise.all([window.AIKotoba.init(),window.AIKotoba.loadGrammarCatalog?.()||[]]);
       this.grammarCatalog=Array.isArray(catalog)?catalog:[];
       this.applyData(data);
+      const shared=await window.AIKotoba.loadSharedContentFromLocation?.();
+      if(shared){
+        this.sharedContent=shared;
+        const alreadySaved=shared.type==='scenario'
+          ? this.scenarios.some(item=>item.sharedFrom===shared.id)
+          : this.articles.some(item=>item.sharedFrom===shared.id);
+        if(shared.type==='scenario'){
+          this.activeScenario=shared.content;
+          this.L=(shared.content.lines||[]).map((line,i)=>this.scenarioLine(line,i));
+          this.setState({view:'detail',sharedSaved:alreadySaved});
+        }else if(shared.type==='article'){
+          this.currentArticle=shared.content;
+          this.setState({view:'article',sharedSaved:alreadySaved});
+        }
+      }
     }
-    catch(e){ console.error(e); }
+    catch(e){ console.error(e); if(new URLSearchParams(window.location.search).has('share')) window.alert(e.message||'分享链接无法打开'); }
   }
 
   applyData(data){
@@ -958,18 +988,52 @@ class Component extends DCLogic {
     }
   }
 
+  async shareItem(type,content){
+    if(this.state.shareBusy) return;
+    if(!this.account?.authenticated){
+      window.location.href=this.account?.signinUrl||'/signin-with-chatgpt?return_to=%2FAI_kotoba_newUI%2FAI-Kotoba.dc.html';
+      return;
+    }
+    this.setState({shareBusy:true,shareNotice:''});
+    try{
+      const result=await window.AIKotoba.createShareLink(type,content);
+      const title=String(content?.title||'AI-Kotoba 学习内容');
+      if(navigator.share){
+        try{ await navigator.share({title,text:type==='scenario'?'和我一起练习这段日语对话':'和我一起读这篇日语文章',url:result.url}); }
+        catch(e){ if(e.name!=='AbortError') throw e; }
+        this.setState({shareBusy:false,shareNotice:'已打开分享'});
+      }else{
+        if(navigator.clipboard?.writeText) await navigator.clipboard.writeText(result.url);
+        else window.prompt('复制这个分享链接',result.url);
+        this.setState({shareBusy:false,shareNotice:'链接已复制 ✓'});
+      }
+    }catch(e){
+      this.setState({shareBusy:false,shareNotice:''});
+      window.alert(e.message||'分享失败');
+    }
+  }
+
+  saveCurrentShared(){
+    if(!this.sharedContent||this.state.sharedSaved) return;
+    try{
+      const result=window.AIKotoba.saveSharedContent(this.sharedContent);
+      this.applyData(result.data);
+      this.setState({sharedSaved:true});
+    }catch(e){ window.alert(e.message||'保存分享内容失败'); }
+  }
+
   openScenario(sc){
     if(!sc) return;
     this.activeScenario=sc;
     this.L=(sc.lines||[]).map((l,i)=>this.scenarioLine(l,i));
-    this.setState({view:'detail',playing:-1});
+    this.setState({view:'detail',playing:-1,shareNotice:''});
   }
 
   async openArticle(article){
     if(!article) return;
     this.currentArticle=article;
     this.selectedToken=null;
-    this.setState({view:'article',articleAnalyzing:true});
+    this.setState({view:'article',articleAnalyzing:true,shareNotice:''});
     try{
       this.currentArticle=await window.AIKotoba.prepareArticleForStudy(article);
       this.setState({articleTokenized:true,articleAnalyzing:false});
@@ -1186,6 +1250,8 @@ class Component extends DCLogic {
     const grammarParts=selected?[selected.dictionaryForm&&selected.dictionaryForm!==selected.surface?'词典形 '+selected.dictionaryForm:'',selected.pos,(selected.partOfSpeech||[])[5]].filter(x=>x&&x!=='*'):[];
     const current=this.currentArticle||{title:'',localizedTitle:'',level:'N4',paragraphs:[]};
     const usage=this.adminUsage;
+    const shared=this.sharedContent;
+    const sharedActive=!!shared&&((shared.type==='scenario'&&active===shared.content)||(shared.type==='article'&&current===shared.content));
     const selectedKey=selected?.surface+'|'+selected?.reading;
     return {
       nav,crumb:crumbs[v],dirAttr:dir,furiAttr:this.state.furi?'on':'off',
@@ -1204,6 +1270,7 @@ class Component extends DCLogic {
       generating:this.state.generating,genLabel:this.state.generating?'生成中…':'生成',onGenerate:()=>this.onGenerate(),
       sc:{
         title:active.title||'はじめまして',titleCn:active.localizedTitle||active.titleChinese||'',level:active.level||'N4',topic:active.topic||'',date:new Date(active.createdAt||Date.now()).toLocaleDateString(),speechRate:String(this.state.speechRate),onSpeechRate:e=>this.changeSpeechRate(e.target.value),
+        onShare:()=>this.shareItem('scenario',active),shareDisabled:this.state.shareBusy,shareLabel:this.state.shareBusy?'生成链接…':(this.state.shareNotice||'分享'),
         lines:this.L.map((l,i)=>{const b=badge(i%2===0?'a':'b');return{sp:l.sp,cn:l.cn,segs:this.parseFuri(l.furi),playing:i===this.state.playing,onPlay:()=>this.play(i),badgeBg:b.bg,badgeFg:b.fg};}),
         vocab:(active.vocabulary||this.V.slice(0,8)).map(x=>{const added=!!this.state.added[x.word]||this.V.some(v=>v.word===x.word);return{word:x.word,reading:x.reading,meaning:x.meaning,example:x.example,added,addLabel:added?'已加入 ✓':'+ 加入生词本',onAdd:()=>this.addVocabItem(x)};}),
       },
@@ -1214,9 +1281,10 @@ class Component extends DCLogic {
       grammar:{isN5:this.state.grammarLevel==='N5',isN4:this.state.grammarLevel==='N4',isN3:this.state.grammarLevel==='N3',onN5:()=>this.setState({grammarLevel:'N5'}),onN4:()=>this.setState({grammarLevel:'N4'}),onN3:()=>this.setState({grammarLevel:'N3'}),query:this.state.grammarQuery,onSearch:e=>this.setState({grammarQuery:e.target.value}),items:grammarItems,count:grammarItems.length,total:(this.grammarCatalog||[]).length,mastered:(this.grammarProgress||[]).filter(item=>item.status==='mastered').length,loading:this.state.grammarLoading,hasLesson:!!grammarLesson&&!this.state.grammarLoading,lesson:grammarLesson?{level:this.activeGrammarPoint?.level||'',title:grammarLesson.title||this.grammarTitle(this.activeGrammarPoint?.title),meaning:grammarLesson.meaning||'',explanation:grammarLesson.explanation||'',formation:grammarLesson.formation||this.activeGrammarPoint?.formation||'',pitfall:grammarLesson.pitfall||'',examples:(grammarLesson.examples||[]).map(item=>({japanese:item.japanese||'',translation:item.translation||'',note:item.note||''})),quizPrompt:grammarLesson.quiz?.prompt||'',quizAnswer:grammarLesson.quiz?.answer||'',quizExplanation:grammarLesson.quiz?.explanation||'',masterLabel:grammarProgress?.status==='mastered'?'已掌握 ✓':'标记为已掌握',onMaster:()=>this.setGrammarProgress(grammarProgress?.status==='mastered'?'studying':'mastered')}:{examples:[]}},
       articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))+' 分钟',onOpen:()=>this.openArticle(a)})),
       article:{
-        onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?'生成中…':'生成新文章',analysisLabel:this.state.articleAnalyzing?'正在生成逐词语境释义…':(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?'停止':'朗读',onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:event=>this.selectToken(t,event)}))}))},
+        onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?'生成中…':'生成新文章',onShare:()=>this.shareItem('article',current),shareDisabled:this.state.shareBusy||this.state.articleAnalyzing,shareLabel:this.state.articleAnalyzing?'分析完成后可分享':this.state.shareBusy?'生成链接…':(this.state.shareNotice||'分享'),analysisLabel:this.state.articleAnalyzing?'正在生成逐词语境释义…':(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?'停止':'朗读',onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:event=>this.selectToken(t,event)}))}))},
         selection:{visible:!!selected,left:this._selectionPosition?.left||'12px',top:this._selectionPosition?.top||'84px',surface:selected?.surface||'',reading:selected?.reading||'',grammar:grammarParts.join(' · '),meaning:selected?.gloss||selected?.meaning||'加入时自动生成释义',added:!!selected?.added,disabled:!!selected?.added||!!selected?.adding,addLabel:selected?.adding?'正在生成释义…':(selected?.added?'已加入 ✓':'+ 加入生词本'),onAdd:()=>this.addSelectedToken(),onClose:()=>this.closeSelectedToken()},
       },
+      shared:{isScenario:sharedActive&&shared?.type==='scenario',isArticle:sharedActive&&shared?.type==='article',title:`${shared?.sharedBy||'一位学习者'} 分享给你的${shared?.type==='article'?'文章':'对话'}`,saved:this.state.sharedSaved,saveLabel:this.state.sharedSaved?'已保存到我的学习库 ✓':'保存到我的学习库',onSave:()=>this.saveCurrentShared()},
       backHome:()=>this.setState({view:'home'}),
     };
   }

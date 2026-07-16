@@ -201,6 +201,48 @@ async function loadAdminUsage() {
   return data;
 }
 
+async function createShareLink(type, content) {
+  const response = await fetch('/api/share', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ type, content }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || '创建分享链接失败');
+  const url = new URL(window.location.pathname, window.location.origin);
+  url.searchParams.set('share', data.id);
+  return { ...data, url: url.toString() };
+}
+
+async function loadSharedContentFromLocation() {
+  const id = new URLSearchParams(window.location.search).get('share')?.trim();
+  if (!id) return null;
+  const response = await fetch(`/api/share?id=${encodeURIComponent(id)}`, { cache: 'no-store' });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || '读取分享内容失败');
+  return data;
+}
+
+function saveSharedContent(shared) {
+  if (!shared?.id || !shared?.content || !['scenario', 'article'].includes(shared.type)) {
+    throw new Error('分享内容格式无效');
+  }
+  const existing = shared.type === 'scenario'
+    ? db.getScenarios().find(item => item.sharedFrom === shared.id)
+    : db.getArticles().find(item => item.sharedFrom === shared.id);
+  if (existing) return { data: snapshot(), content: existing, alreadySaved: true };
+  const content = JSON.parse(JSON.stringify(shared.content));
+  content.id = crypto.randomUUID();
+  content.createdAt = Date.now();
+  content.sharedFrom = shared.id;
+  content.sharedBy = String(shared.sharedBy || 'AI-Kotoba 学习者');
+  content.favorite = false;
+  if (shared.type === 'scenario') db.saveScenario(content);
+  else db.saveArticle(content);
+  db.recordActivity();
+  return { data: snapshot(), content, alreadySaved: false };
+}
+
 async function init() {
   if (!initialized) {
     await updateAccountPill();
@@ -783,6 +825,9 @@ window.AIKotoba = {
   openGrammarLesson,
   setGrammarStatus,
   loadAdminUsage,
+  createShareLink,
+  loadSharedContentFromLocation,
+  saveSharedContent,
   cleanSpeechText,
   speakJapanese,
   stopJapaneseSpeech,
