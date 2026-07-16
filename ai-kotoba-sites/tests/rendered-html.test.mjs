@@ -38,7 +38,7 @@ test("ships the original UI with account, playback, and push-to-talk controls", 
   assert.match(html, /id="account-pill"/);
   assert.match(html, /会话朗读语速/);
   assert.match(html, /data-dir="blue"/);
-  assert.match(html, />蓝白<\/button>/);
+  assert.match(html, /\{\{ ui\.blue \}\}<\/button>/);
   assert.match(html, /ai-kotoba-palette/);
   assert.match(html, /class="word-float card elev-lg"/);
   assert.match(html, /tokenPopoverPosition/);
@@ -106,6 +106,31 @@ test("ships the original UI with account, playback, and push-to-talk controls", 
   assert.match(services, /reviewTutorConversation/);
   assert.match(services, /generateGrammarLesson/);
   assert.match(storage, /grammarProgress/);
+});
+
+test("supports Chinese and English learner onboarding with one frontend language selector", async () => {
+  const [html, integration, storage] = await Promise.all([
+    readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/ai-kotoba-web/js/storage.js", import.meta.url), "utf8"),
+  ]);
+  assert.match(html, /const UI_TEXT=\{/);
+  assert.match(html, /'zh-CN':\{/);
+  assert.match(html, /en:\{/);
+  assert.match(html, /id="onboarding-language"/);
+  assert.match(html, /id="settings-language"/);
+  assert.match(html, /selfAssessedLevel/);
+  assert.match(html, /learningGoal/);
+  assert.match(html, /onSkipPlacement/);
+  assert.doesNotMatch(html, /<label>母语<\/label>/);
+  assert.doesNotMatch(html, /<label>解释语言<\/label>/);
+  assert.match(integration, /const LEARNER_LANGUAGES = \[/);
+  assert.match(integration, /code: 'zh-CN'/);
+  assert.match(integration, /code: 'en'/);
+  assert.match(integration, /nativeLanguage: selected\.nativeLanguage/);
+  assert.match(integration, /explanationLanguage: selected\.explanationLanguage/);
+  assert.match(storage, /onboardingCompleted: false/);
+  assert.match(storage, /旧用户升级时不要强制重新走新手引导/);
 });
 
 test("adapts the full learning UI for mobile browsers", async () => {

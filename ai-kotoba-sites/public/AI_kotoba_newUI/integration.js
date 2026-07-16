@@ -19,10 +19,15 @@ let elevenLabsUnavailable = false;
 const speechAudioCache = new Map();
 let grammarCatalogPromise = null;
 let accountState = { authenticated: false, isAdmin: false };
+const LEARNER_LANGUAGES = [
+  { code: 'zh-CN', label: '简体中文', nativeLanguage: 'Chinese', explanationLanguage: 'Simplified Chinese' },
+  { code: 'en', label: 'English', nativeLanguage: 'English', explanationLanguage: 'English' },
+];
 
 async function updateAccountPill() {
   const pill = document.getElementById('account-pill');
   if (!pill) return;
+  const english = db.getSettings().uiLanguage === 'en';
   try {
     const response = await fetch('/api/account', { cache: 'no-store' });
     const account = await response.json();
@@ -34,21 +39,21 @@ async function updateAccountPill() {
     pill.dataset.auth = account.authenticated ? 'true' : 'false';
     if (account.authenticated) {
       const name = document.createElement('span');
-      name.textContent = `${account.displayName || '已登录'} · 云同步`;
+      name.textContent = `${account.displayName || (english ? 'Signed in' : '已登录')} · ${english ? 'Cloud sync' : '云同步'}`;
       const link = document.createElement('a');
       link.href = account.signoutUrl || '/signout-with-chatgpt';
-      link.textContent = '退出';
+      link.textContent = english ? 'Sign out' : '退出';
       link.style.opacity = '.58';
       pill.append(name, link);
     } else {
       const link = document.createElement('a');
       link.href = account.signinUrl || '/signin-with-chatgpt';
-      link.textContent = '用 ChatGPT 登录 · 开启 AI 与云同步';
+      link.textContent = english ? 'Sign in with ChatGPT · Enable AI and sync' : '用 ChatGPT 登录 · 开启 AI 与云同步';
       pill.append(link);
     }
   } catch {
     accountState = { authenticated: false, isAdmin: false };
-    pill.innerHTML = '<span class="account-dot"></span><span>游客演示模式</span>';
+    pill.innerHTML = `<span class="account-dot"></span><span>${english ? 'Guest demo' : '游客演示模式'}</span>`;
   }
   return accountState;
 }
@@ -170,9 +175,30 @@ function normalizeTranslation(value) {
 
 function preferredExplanationLanguage() {
   const settings = db.getSettings();
-  return String(settings.uiLanguage || '').toLowerCase().startsWith('zh')
-    ? 'Simplified Chinese'
-    : String(settings.explanationLanguage || settings.nativeLanguage || 'Simplified Chinese');
+  return String(settings.explanationLanguage || settings.nativeLanguage || 'Simplified Chinese');
+}
+
+function learnerLanguageOptions() {
+  return LEARNER_LANGUAGES.map(item => ({ ...item }));
+}
+
+function saveLearnerProfile(input = {}) {
+  const current = db.getSettings();
+  const selected = LEARNER_LANGUAGES.find(item => item.code === String(input.language || current.uiLanguage))
+    || LEARNER_LANGUAGES[0];
+  const next = {
+    ...current,
+    uiLanguage: selected.code,
+    nativeLanguage: selected.nativeLanguage,
+    explanationLanguage: selected.explanationLanguage,
+  };
+  if (input.selfAssessedLevel !== undefined) next.selfAssessedLevel = String(input.selfAssessedLevel);
+  if (input.learningGoal !== undefined) next.learningGoal = String(input.learningGoal);
+  if (input.onboardingCompleted !== undefined) next.onboardingCompleted = !!input.onboardingCompleted;
+  db.saveSettings(next);
+  document.documentElement.lang = selected.code;
+  void updateAccountPill();
+  return snapshot();
 }
 
 function usableMeaning(value, language) {
@@ -248,8 +274,9 @@ function saveSharedContent(shared) {
 
 async function init() {
   if (!initialized) {
-    await updateAccountPill();
     await db.initSync();
+    document.documentElement.lang = db.getSettings().uiLanguage === 'en' ? 'en' : 'zh-CN';
+    await updateAccountPill();
     await db.loadSeeds();
     initialized = true;
   }
@@ -968,5 +995,7 @@ window.AIKotoba = {
   setSpeechRate,
   getTutorStyle,
   setTutorStyle,
+  learnerLanguageOptions,
+  saveLearnerProfile,
 };
 window.dispatchEvent(new Event('ai-kotoba-ready'));

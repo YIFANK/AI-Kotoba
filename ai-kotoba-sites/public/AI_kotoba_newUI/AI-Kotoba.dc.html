@@ -70,6 +70,10 @@
   .tutor-history summary::-webkit-details-marker{display:none}
   .tutor-history summary::after{content:'⌄';margin-left:auto;color:color-mix(in srgb,var(--color-text) 45%,transparent)}
   .tutor-history[open] summary::after{transform:rotate(180deg)}
+  .onboarding-backdrop{position:fixed;inset:0;z-index:100;background:color-mix(in srgb,var(--color-text) 28%,transparent);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px}
+  .onboarding-card{width:min(680px,100%);max-height:calc(100dvh - 40px);overflow:auto;padding:30px;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:28px;box-shadow:var(--shadow-lg)}
+  .onboarding-choice{border:1.5px solid var(--color-divider);background:var(--color-neutral-100);color:inherit;border-radius:15px;padding:13px 14px;text-align:left;cursor:pointer;font:inherit}
+  .onboarding-choice[data-on="true"]{border-color:var(--color-accent);background:var(--color-accent-100);color:var(--color-accent-900)}
   @media (max-width:760px){
     html,body{height:100dvh;overflow:hidden;overscroll-behavior:none}
     .app-shell{display:block!important;height:100dvh!important;overflow:hidden!important}
@@ -119,6 +123,8 @@
     .word-float{left:12px!important;right:12px!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;top:auto!important;width:auto!important;max-height:55dvh;overflow:auto}
     .tutor-talk{width:100%;min-height:52px;padding:14px 18px}
     .tutor-history summary{align-items:flex-start;flex-wrap:wrap}
+    .onboarding-backdrop{padding:0;align-items:flex-end}
+    .onboarding-card{width:100%;max-height:92dvh;border-radius:26px 26px 0 0;padding:24px 18px calc(24px + env(safe-area-inset-bottom))}
   }
   @media (max-width:360px){
     .app-sidebar .navbtn{min-width:64px!important}
@@ -129,6 +135,55 @@
 </style>
 </helmet>
 
+<sc-if value="{{ onboarding.visible }}" hint-placeholder-val="{{ false }}">
+  <div class="onboarding-backdrop" role="dialog" aria-modal="true" aria-label="{{ ui.onboardingWelcome }}">
+    <div class="onboarding-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:11px">
+          <div class="jp" style="width:42px;height:42px;border-radius:14px;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-size:22px">言</div>
+          <div><div style="font-family:var(--font-heading);font-size:19px">AI-Kotoba</div><div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">{{ onboarding.progress }}</div></div>
+        </div>
+        <div style="display:flex;gap:5px"><sc-for list="{{ onboarding.dots }}" as="d" hint-placeholder-count="3"><span style="display:block;width:{{ d.width }};height:6px;border-radius:99px;background:{{ d.color }}"></span></sc-for></div>
+      </div>
+
+      <sc-if value="{{ onboarding.languageStep }}" hint-placeholder-val="{{ true }}">
+        <h1 style="font-size:32px;margin:0 0 8px">{{ ui.onboardingWelcome }}</h1>
+        <p style="font-size:14px;line-height:1.7;color:color-mix(in srgb,var(--color-text) 62%,transparent);margin:0 0 22px">{{ ui.onboardingIntro }}</p>
+        <div class="field">
+          <label for="onboarding-language">{{ ui.yourLanguage }}</label>
+          <select id="onboarding-language" class="input" value="{{ onboarding.language }}" onChange="{{ onboarding.onLanguage }}">
+            <sc-for list="{{ onboarding.languages }}" as="lang" hint-placeholder-count="2"><option value="{{ lang.code }}">{{ lang.label }}</option></sc-for>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-block" onClick="{{ onboarding.onNext }}" style="font-family:var(--font-body);font-weight:750;margin-top:22px">{{ ui.continue }}</button>
+      </sc-if>
+
+      <sc-if value="{{ onboarding.selfStep }}" hint-placeholder-val="{{ false }}">
+        <h1 style="font-size:29px;margin:0 0 8px">{{ ui.selfTitle }}</h1>
+        <p style="font-size:14px;line-height:1.7;color:color-mix(in srgb,var(--color-text) 62%,transparent);margin:0 0 19px">{{ ui.selfIntro }}</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:9px">
+          <sc-for list="{{ onboarding.levels }}" as="level" hint-placeholder-count="7"><button class="onboarding-choice" data-on="{{ level.selected }}" onClick="{{ level.onPick }}">{{ level.label }}</button></sc-for>
+        </div>
+        <h2 style="font-size:19px;margin:24px 0 11px">{{ ui.goalTitle }}</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px">
+          <sc-for list="{{ onboarding.goals }}" as="goal" hint-placeholder-count="5"><button class="onboarding-choice" data-on="{{ goal.selected }}" onClick="{{ goal.onPick }}">{{ goal.label }}</button></sc-for>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:24px"><button class="btn btn-secondary" onClick="{{ onboarding.onBack }}" style="font-family:var(--font-body);font-weight:700">{{ ui.back }}</button><button class="btn btn-primary" onClick="{{ onboarding.onNext }}" style="flex:1;font-family:var(--font-body);font-weight:750">{{ ui.continue }}</button></div>
+      </sc-if>
+
+      <sc-if value="{{ onboarding.placementStep }}" hint-placeholder-val="{{ false }}">
+        <div style="width:58px;height:58px;border-radius:19px;background:var(--color-accent-100);color:var(--color-accent);display:flex;align-items:center;justify-content:center;margin-bottom:18px">
+          <svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 19v3"/></svg>
+        </div>
+        <h1 style="font-size:29px;margin:0 0 8px">{{ ui.placementTitle }}</h1>
+        <p style="font-size:14px;line-height:1.7;color:color-mix(in srgb,var(--color-text) 62%,transparent);margin:0 0 8px">{{ ui.placementIntro }}</p>
+        <p style="font-size:12px;color:var(--color-accent-800);margin:0 0 23px">{{ ui.placementOptional }}</p>
+        <div style="display:flex;flex-direction:column;gap:10px"><button class="btn btn-primary btn-block" onClick="{{ onboarding.onStartPlacement }}" style="font-family:var(--font-body);font-weight:750">{{ ui.startPlacement }}</button><button class="btn btn-secondary btn-block" onClick="{{ onboarding.onSkipPlacement }}" style="font-family:var(--font-body);font-weight:700">{{ ui.skipPlacement }}</button><button class="btn btn-ghost" onClick="{{ onboarding.onBack }}" style="font-family:var(--font-body);font-weight:650">{{ ui.back }}</button></div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
 <div class="app-shell" style="display:flex;height:100vh;overflow:hidden;font-family:var(--font-body);color:var(--color-text);background:var(--color-bg)" data-dir="{{ dirAttr }}" data-furi="{{ furiAttr }}">
 
   <!-- ===================== SIDEBAR ===================== -->
@@ -137,59 +192,59 @@
       <div class="jp" style="width:46px;height:46px;border-radius:16px;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--shadow-sm)">言</div>
       <div>
         <div style="font-family:var(--font-heading);font-size:19px;line-height:1">AI-Kotoba</div>
-        <div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:3px">日语情景会话学习</div>
+        <div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:3px">{{ ui.tagline }}</div>
       </div>
     </div>
 
-    <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent);padding:0 10px;margin:6px 0 6px">学习</div>
+    <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent);padding:0 10px;margin:6px 0 6px">{{ ui.learn }}</div>
     <nav style="display:flex;flex-direction:column;gap:3px">
       <button class="navbtn" onClick="{{ go.home }}" data-on="{{ nav.home }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-        <span style="flex:1">今日</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+        <span style="flex:1">{{ ui.today }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
       <button class="navbtn" onClick="{{ go.practice }}" data-on="{{ nav.practice }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-        <span style="flex:1">练习</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+        <span style="flex:1">{{ ui.practice }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
       <button class="navbtn" onClick="{{ go.tutor }}" data-on="{{ nav.tutor }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 19v3"/></svg>
-        <span style="flex:1">AI 语音 Tutor</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+        <span style="flex:1">{{ ui.voiceTutor }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
       <button class="navbtn" onClick="{{ go.ability }}" data-on="{{ nav.ability }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19V2"/><path d="M2 19h22"/></svg>
-        <span style="flex:1">能力地图</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+        <span style="flex:1">{{ ui.ability }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
       <button class="navbtn" onClick="{{ go.pron }}" data-on="{{ nav.pron }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v-2M8 16V8M12 19V5M16 16V8M20 12v-2"/></svg>
-        <span style="flex:1">发音诊断</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+        <span style="flex:1">{{ ui.pronunciation }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
       <button class="navbtn" onClick="{{ go.reading }}" data-on="{{ nav.reading }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-4.5-2-8-2v14c3.5 0 6 .5 8 2 2-1.5 4.5-2 8-2V4c-3.5 0-6 .5-8 2z"/><path d="M12 6v14"/></svg>
-        <span style="flex:1">阅读文章</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+        <span style="flex:1">{{ ui.reading }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
       <button class="navbtn" onClick="{{ go.grammar }}" data-on="{{ nav.grammar }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <span class="jp" aria-hidden="true" style="width:19px;text-align:center;font-weight:800">文</span>
-        <span style="flex:1">语法课程</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+        <span style="flex:1">{{ ui.grammar }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
     </nav>
 
-    <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent);padding:0 10px;margin:16px 0 6px">词汇 · 记录</div>
+    <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent);padding:0 10px;margin:16px 0 6px">{{ ui.records }}</div>
     <nav style="display:flex;flex-direction:column;gap:3px">
       <button class="navbtn" onClick="{{ go.vocab }}" data-on="{{ nav.vocab }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z"/><path d="M5 17a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/></svg>
-        <span style="flex:1">生词本</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+        <span style="flex:1">{{ ui.vocabulary }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
       <button class="navbtn" onClick="{{ go.cards }}" data-on="{{ nav.cards }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/><path d="M7 12h5"/></svg>
-        <span style="flex:1">闪卡复习</span><span style="font-size:11px;background:var(--color-accent);color:var(--color-bg);padding:1px 8px;border-radius:99px">{{ dueCount }}</span>
+        <span style="flex:1">{{ ui.flashcards }}</span><span style="font-size:11px;background:var(--color-accent);color:var(--color-bg);padding:1px 8px;border-radius:99px">{{ dueCount }}</span>
       </button>
       <button class="navbtn" onClick="{{ go.history }}" data-on="{{ nav.history }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-        <span style="flex:1">历史</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+        <span style="flex:1">{{ ui.history }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
       <button class="navbtn" onClick="{{ go.fav }}" data-on="{{ nav.fav }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg>
-        <span style="flex:1">收藏</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+        <span style="flex:1">{{ ui.favorites }}</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
       </button>
     </nav>
 
@@ -197,12 +252,12 @@
       <sc-if value="{{ admin.visible }}" hint-placeholder-val="{{ false }}">
         <button class="navbtn" onClick="{{ go.admin }}" data-on="{{ nav.admin }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19V2"/><path d="M2 19h22"/></svg>
-          <span>管理员用量</span>
+          <span>{{ ui.admin }}</span>
         </button>
       </sc-if>
       <button class="navbtn" onClick="{{ go.settings }}" data-on="{{ nav.settings }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>
-        <span>设置</span>
+        <span>{{ ui.settings }}</span>
       </button>
     </div>
   </aside>
@@ -212,15 +267,15 @@
     <div class="app-topbar" style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:16px 40px;background:color-mix(in srgb,var(--color-bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--color-divider)">
       <div style="font-family:var(--font-heading);font-size:15px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ crumb }}</div>
       <div style="flex:1"></div>
-      <div id="account-pill" aria-live="polite"><span class="account-dot"></span><span>检查登录状态…</span></div>
+      <div id="account-pill" aria-live="polite"><span class="account-dot"></span><span>{{ ui.checkingAccount }}</span></div>
       <button onClick="{{ toggleFuri }}" class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
-        振り仮名 {{ furiLabel }}
+        {{ ui.furigana }} {{ furiLabel }}
       </button>
       <div class="app-palette" style="display:flex;align-items:center;gap:0;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:999px;padding:3px">
-        <button class="segdir" onClick="{{ dir.blue }}" data-on="{{ dirIsBlue }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ blueBg }};color:{{ blueFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#4f6bf5"></span>蓝白</button>
-        <button class="segdir" onClick="{{ dir.terra }}" data-on="{{ dirIsTerra }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ terraBg }};color:{{ terraFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#c67139"></span>陶土</button>
-        <button class="segdir" onClick="{{ dir.sage }}" data-on="{{ dirIsSage }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ sageBg }};color:{{ sageFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#7a8a5e"></span>苔绿</button>
+        <button class="segdir" onClick="{{ dir.blue }}" data-on="{{ dirIsBlue }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ blueBg }};color:{{ blueFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#4f6bf5"></span>{{ ui.blue }}</button>
+        <button class="segdir" onClick="{{ dir.terra }}" data-on="{{ dirIsTerra }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ terraBg }};color:{{ terraFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#c67139"></span>{{ ui.terra }}</button>
+        <button class="segdir" onClick="{{ dir.sage }}" data-on="{{ dirIsSage }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ sageBg }};color:{{ sageFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#7a8a5e"></span>{{ ui.sage }}</button>
       </div>
     </div>
 
@@ -232,9 +287,9 @@
           <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px">
             <div>
               <div style="font-size:13px;color:var(--color-accent);font-weight:700;letter-spacing:.02em;margin-bottom:4px">{{ todayDate }}</div>
-              <h1 style="font-size:38px;margin:0">こんにちは、继续加油 <span class="jp">👋</span></h1>
+              <h1 style="font-size:38px;margin:0">{{ ui.welcome }}</h1>
             </div>
-            <button class="btn btn-primary" onClick="{{ go.practice }}" style="font-size:14px;padding:11px 20px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>生成新场景</button>
+            <button class="btn btn-primary" onClick="{{ go.practice }}" style="font-size:14px;padding:11px 20px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>{{ ui.newScenario }}</button>
           </div>
 
           <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px">
@@ -284,8 +339,8 @@
           </div>
 
           <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
-            <h3 style="font-size:20px;margin:0">最近学习</h3>
-            <button class="btn btn-ghost" onClick="{{ go.history }}" style="font-family:var(--font-body);font-weight:600;font-size:13px">全部历史 ›</button>
+            <h3 style="font-size:20px;margin:0">{{ ui.recentLearning }}</h3>
+            <button class="btn btn-ghost" onClick="{{ go.history }}" style="font-family:var(--font-body);font-weight:600;font-size:13px">{{ ui.allHistory }}</button>
           </div>
           <div style="display:flex;flex-direction:column;gap:10px">
             <sc-for list="{{ recents }}" as="r" hint-placeholder-count="3">
@@ -306,11 +361,11 @@
       <!-- ============ PRACTICE ============ -->
       <sc-if value="{{ nav.practice }}" hint-placeholder-val="{{ true }}">
         <div style="animation:fadeUp .35s ease both;max-width:820px">
-          <h1 style="font-size:34px;margin:0 0 4px">练习场景对话</h1>
-          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 24px">描述任意现实场景，AI 用两轮策略生成自然日语会话 + 中文对照。</p>
+          <h1 style="font-size:34px;margin:0 0 4px">{{ ui.practiceTitle }}</h1>
+          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 24px">{{ ui.practiceDescription }}</p>
 
           <div class="card elev-sm" style="padding:24px;gap:0">
-            <div class="field" style="margin-bottom:14px"><label style="font-size:13px">场景主题</label>
+            <div class="field" style="margin-bottom:14px"><label style="font-size:13px">{{ ui.sceneTopic }}</label>
               <div style="display:flex;gap:10px">
                 <input class="input jp" value="{{ sceneInput }}" onInput="{{ onSceneInput }}" placeholder="例如：在居酒屋点餐、和房东谈租房…" style="flex:1"/>
                 <select class="input" value="{{ sceneLevel }}" onChange="{{ onSceneLevel }}" style="width:96px;flex:none;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23c67139%22 stroke-width=%222.5%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 12px center"><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
@@ -331,7 +386,7 @@
           </div>
 
           <div style="display:flex;align-items:baseline;justify-content:space-between;margin:28px 0 12px">
-            <h3 style="font-size:19px;margin:0">最近生成</h3>
+            <h3 style="font-size:19px;margin:0">{{ ui.recentGenerated }}</h3>
           </div>
           <div style="display:flex;flex-direction:column;gap:10px">
             <sc-for list="{{ recents }}" as="r" hint-placeholder-count="3">
@@ -416,8 +471,8 @@
       <sc-if value="{{ nav.vocab }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:820px">
           <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px">
-            <div><h1 style="font-size:34px;margin:0 0 4px">生词本</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">收藏的词汇会进入 SM-2 间隔复习</p></div>
-            <button class="btn btn-primary" onClick="{{ go.cards }}" style="font-family:var(--font-body);font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/></svg>去复习 {{ dueCount }} 张</button>
+            <div><h1 style="font-size:34px;margin:0 0 4px">{{ ui.vocabTitle }}</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">{{ ui.vocabDescription }}</p></div>
+            <button class="btn btn-primary" onClick="{{ go.cards }}" style="font-family:var(--font-body);font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/></svg>{{ ui.reviewCards }} {{ dueCount }}</button>
           </div>
           <div style="display:flex;gap:12px;margin-bottom:18px">
             <div style="position:relative;flex:1"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:color-mix(in srgb,var(--color-text) 45%,transparent);display:flex"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><input class="input" placeholder="搜索词汇…" style="padding-left:40px"/></div>
@@ -439,7 +494,7 @@
       <!-- ============ FLASHCARDS (闪卡) ============ -->
       <sc-if value="{{ nav.cards }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:560px;margin:0 auto">
-          <h1 style="font-size:34px;margin:0 0 4px;text-align:center">闪卡复习</h1>
+          <h1 style="font-size:34px;margin:0 0 4px;text-align:center">{{ ui.flashTitle }}</h1>
           <sc-if value="{{ flash.done }}" hint-placeholder-val="{{ false }}">
             <div class="card elev-md" style="align-items:center;text-align:center;padding:48px 32px;margin-top:20px;animation:pop .3s ease both">
               <div style="width:72px;height:72px;border-radius:50%;background:var(--color-accent-2-100);color:var(--color-accent-2-700);display:flex;align-items:center;justify-content:center;margin-bottom:8px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
@@ -482,8 +537,8 @@
       <!-- ============ HISTORY ============ -->
       <sc-if value="{{ nav.history }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:820px">
-          <h1 style="font-size:34px;margin:0 0 4px">历史</h1>
-          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">自动保留最近 100 条会话，收藏的会话不受上限限制</p>
+          <h1 style="font-size:34px;margin:0 0 4px">{{ ui.history }}</h1>
+          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">{{ ui.historyDescription }}</p>
           <div style="display:flex;flex-direction:column;gap:10px">
             <sc-for list="{{ recents }}" as="r" hint-placeholder-count="3">
               <button class="recentrow card elev-sm" onClick="{{ r.onOpen }}" style="flex-direction:row;align-items:center;gap:16px;cursor:pointer;border:none;font:inherit;color:inherit;text-align:left;padding:15px 18px">
@@ -500,8 +555,8 @@
       <!-- ============ FAVORITES (empty state) ============ -->
       <sc-if value="{{ nav.fav }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:820px">
-          <h1 style="font-size:34px;margin:0 0 4px">收藏</h1>
-          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">给会话加星，收藏后永不自动删除</p>
+          <h1 style="font-size:34px;margin:0 0 4px">{{ ui.favorites }}</h1>
+          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">{{ ui.favoritesDescription }}</p>
           <div class="card" style="align-items:center;text-align:center;padding:60px 32px;background:var(--color-neutral-100)">
             <div style="width:66px;height:66px;border-radius:50%;background:var(--color-accent-100);color:var(--color-accent);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg></div>
             <h3 style="font-size:20px;margin:0">还没有收藏的会话</h3>
@@ -515,7 +570,7 @@
       <sc-if value="{{ nav.ability }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:960px">
           <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:22px">
-            <div><div style="display:flex;align-items:center;gap:10px"><h1 style="font-size:34px;margin:0">听说读写能力地图</h1><span class="tag tag-accent">{{ ability.overallLevel }}</span></div><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:5px 0 0">把每次练习变成能力证据；没有测过的项目会明确标记，不会凭空打分。</p></div>
+            <div><div style="display:flex;align-items:center;gap:10px"><h1 style="font-size:34px;margin:0">{{ ui.abilityTitle }}</h1><span class="tag tag-accent">{{ ability.overallLevel }}</span></div><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:5px 0 0">{{ ui.abilityDescription }}</p></div>
             <button class="btn btn-primary" onClick="{{ ability.onAssess }}" disabled="{{ ability.assessing }}" style="font-family:var(--font-body);font-weight:750;padding:11px 18px">{{ ability.assessLabel }}</button>
           </div>
           <div class="card elev-sm" style="padding:20px 22px;margin-bottom:16px;background:var(--color-accent-100);gap:7px">
@@ -648,7 +703,7 @@
       <sc-if value="{{ nav.grammar }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:960px">
           <div style="display:flex;align-items:flex-end;gap:18px;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px">
-            <div><h1 style="font-size:34px;margin:0 0 4px">逐语法点学习</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">从 N5 学到 N3，每一条都有中文讲解、例句和小测验。</p></div>
+            <div><h1 style="font-size:34px;margin:0 0 4px">{{ ui.grammarTitle }}</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">{{ ui.grammarDescription }}</p></div>
             <div style="font-size:12.5px;color:var(--color-accent-800);background:var(--color-accent-100);padding:8px 12px;border-radius:999px">已掌握 {{ grammar.mastered }} / {{ grammar.total }}</div>
           </div>
           <div class="card elev-sm" style="padding:14px 16px;flex-direction:row;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
@@ -693,8 +748,8 @@
       <!-- ============ PRONUNCIATION ============ -->
       <sc-if value="{{ nav.pron }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:760px">
-          <h1 style="font-size:34px;margin:0 0 4px">发音诊断</h1>
-          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">朗读目标句，AI 从可理解度、长音促音、节奏、流畅度给出反馈。</p>
+          <h1 style="font-size:34px;margin:0 0 4px">{{ ui.pronunciationTitle }}</h1>
+          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">{{ ui.pronunciationDescription }}</p>
           <div class="card elev-sm" style="padding:24px;gap:16px">
             <div class="jp" style="font-size:22px;line-height:1.6">きのう、友だちと映画を見に行きました。</div>
             <div style="display:flex;align-items:center;justify-content:center;gap:18px;padding:22px;border-radius:20px;background:var(--color-accent-100);border:1px dashed var(--color-accent-300)">
@@ -718,7 +773,7 @@
       <sc-if value="{{ nav.reading }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:820px">
           <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px">
-            <div><h1 style="font-size:34px;margin:0 0 4px">阅读文章</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">两轮生成日语短文，支持注音、逐段翻译与朗读</p></div>
+            <div><h1 style="font-size:34px;margin:0 0 4px">{{ ui.readingTitle }}</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">{{ ui.readingDescription }}</p></div>
             <button class="btn btn-primary" onClick="{{ article.onGenerate }}" style="font-family:var(--font-body);font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>{{ article.generateLabel }}</button>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px">
@@ -782,28 +837,27 @@
       <!-- ============ SETTINGS ============ -->
       <sc-if value="{{ nav.settings }}" hint-placeholder-val="{{ false }}">
         <div style="animation:fadeUp .35s ease both;max-width:680px">
-          <h1 style="font-size:34px;margin:0 0 22px">设置</h1>
+          <h1 style="font-size:34px;margin:0 0 22px">{{ ui.settingsTitle }}</h1>
           <div class="card elev-sm" style="padding:24px;margin-bottom:16px">
-            <h3 style="font-size:17px;margin:0 0 14px">AI 来源</h3>
+            <h3 style="font-size:17px;margin:0 0 14px">{{ ui.aiSource }}</h3>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-              <div style="border:1.5px solid var(--color-accent);background:var(--color-accent-100);border-radius:16px;padding:14px"><div style="font-family:var(--font-heading);font-size:15px">本地 CLI</div><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">免 API Key</div></div>
+              <div style="border:1.5px solid var(--color-accent);background:var(--color-accent-100);border-radius:16px;padding:14px"><div style="font-family:var(--font-heading);font-size:15px">{{ ui.localCli }}</div><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">{{ ui.noApiKey }}</div></div>
               <div style="border:1.5px solid var(--color-divider);border-radius:16px;padding:14px"><div style="font-family:var(--font-heading);font-size:15px">Claude API</div><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">Anthropic</div></div>
               <div style="border:1.5px solid var(--color-divider);border-radius:16px;padding:14px"><div style="font-family:var(--font-heading);font-size:15px">OpenAI API</div><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">GPT</div></div>
             </div>
           </div>
           <div class="card elev-sm" style="padding:24px;margin-bottom:16px">
-            <h3 style="font-size:17px;margin:0 0 14px">学习者档案</h3>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-              <div class="field"><label>母语</label><input class="input" value="简体中文"/></div>
-              <div class="field"><label>解释语言</label><input class="input" value="简体中文"/></div>
-            </div>
-            <div class="field" style="margin-top:6px"><label>界面语言</label>
-              <div class="seg" style="margin-top:2px"><label class="seg-opt"><input type="radio" name="lang" checked/>简体中文</label><label class="seg-opt"><input type="radio" name="lang"/>English</label></div>
+            <h3 style="font-size:17px;margin:0 0 14px">{{ ui.learnerProfile }}</h3>
+            <div class="field"><label for="settings-language">{{ ui.yourLanguage }}</label>
+              <select id="settings-language" class="input" value="{{ settings.language }}" onChange="{{ settings.onLanguage }}">
+                <sc-for list="{{ settings.languages }}" as="lang" hint-placeholder-count="2"><option value="{{ lang.code }}">{{ lang.label }}</option></sc-for>
+              </select>
+              <div style="font-size:11.5px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 52%,transparent);margin-top:7px">{{ ui.languageHelp }}</div>
             </div>
           </div>
           <div class="card elev-sm" style="padding:24px">
-            <h3 style="font-size:17px;margin:0 0 14px">数据</h3>
-            <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600">导出数据</button><button class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600">导入数据</button><button class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600;color:#b2622d">清空数据</button></div>
+            <h3 style="font-size:17px;margin:0 0 14px">{{ ui.data }}</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600">{{ ui.exportData }}</button><button class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600">{{ ui.importData }}</button><button class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600;color:#b2622d">{{ ui.clearData }}</button></div>
           </div>
         </div>
       </sc-if>
@@ -848,6 +902,32 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
+const UI_TEXT={
+  'zh-CN':{
+    tagline:'日语情景会话学习',learn:'学习',records:'词汇 · 记录',today:'今日',practice:'练习',voiceTutor:'AI 语音 Tutor',ability:'能力地图',pronunciation:'发音诊断',reading:'阅读文章',grammar:'语法课程',vocabulary:'生词本',flashcards:'闪卡复习',history:'历史',favorites:'收藏',settings:'设置',admin:'管理员用量',
+    furigana:'振假名',on:'开',off:'关',blue:'蓝白',terra:'陶土',sage:'苔绿',checkingAccount:'检查登录状态…',welcome:'こんにちは，继续加油 👋',newScenario:'生成新场景',recentLearning:'最近学习',allHistory:'全部历史 ›',dialogueDetail:'会话详情',threeLine:'三行对译',
+    practiceTitle:'练习场景对话',practiceDescription:'描述任意现实场景，AI 生成自然日语会话和你的语言对照。',sceneTopic:'场景主题',generate:'生成',generating:'生成中…',recentGenerated:'最近生成',
+    vocabTitle:'生词本',vocabDescription:'收藏的词汇会进入 SM-2 间隔复习',reviewCards:'去复习',flashTitle:'闪卡复习',historyDescription:'自动保留最近 100 条会话，收藏的会话不受上限限制',favoritesDescription:'给会话加星，收藏后永不自动删除',
+    abilityTitle:'听说读写能力地图',abilityDescription:'把每次练习变成能力证据；没有测过的项目会明确标记。',settingsTitle:'设置',learnerProfile:'学习者档案',yourLanguage:'你的语言',languageHelp:'界面、翻译、语法讲解、纠错与课后复盘都会使用这个语言。后端仍分别保存母语与解释语言。',data:'数据',exportData:'导出数据',importData:'导入数据',clearData:'清空数据',
+    aiSource:'AI 来源',localCli:'本地 CLI',noApiKey:'免 API Key',readingTitle:'阅读文章',readingDescription:'两轮生成日语短文，支持注音、逐段翻译与朗读',grammarTitle:'逐语法点学习',grammarDescription:'从 N5 学到 N3，每一条都有中文讲解、例句和小测验。',pronunciationTitle:'发音诊断',pronunciationDescription:'朗读目标句，AI 从可理解度、长音促音、节奏、流畅度给出反馈。',
+    onboardingWelcome:'欢迎来到 AI-Kotoba',onboardingIntro:'先告诉我们你希望用哪种语言学习日语。之后可以随时在设置里修改。',continue:'继续',back:'返回',
+    selfTitle:'你觉得自己现在的日语水平如何？',selfIntro:'这只是起点，不会把你锁定在某个等级。Tutor 会随着真实表现调整。',levelBeginner:'刚开始学',levelUnsure:'不确定',goalTitle:'你最想用日语做什么？',goalConversation:'自然聊天',goalJlpt:'准备 JLPT',goalTravel:'旅行生活',goalWork:'工作学习',goalMedia:'动漫与内容',
+    placementTitle:'要现在做一次听说分级吗？',placementIntro:'用 8–10 分钟自然对话分别估计听力、口语和表达组织。结果不是你的总日语等级。',startPlacement:'开始听说分级',skipPlacement:'暂时跳过，直接开始',placementOptional:'之后可以随时从能力地图重新测试。',
+    saved:'已保存',languageChinese:'简体中文',languageEnglish:'English',step:'第 {current} / 3 步'
+  },
+  en:{
+    tagline:'Scenario-based Japanese learning',learn:'Learn',records:'Vocabulary · Records',today:'Today',practice:'Practice',voiceTutor:'AI Voice Tutor',ability:'Ability Map',pronunciation:'Pronunciation',reading:'Reading',grammar:'Grammar',vocabulary:'Vocabulary',flashcards:'Flashcards',history:'History',favorites:'Favorites',settings:'Settings',admin:'Admin Usage',
+    furigana:'Furigana',on:'On',off:'Off',blue:'Blue',terra:'Terra',sage:'Sage',checkingAccount:'Checking account…',welcome:'こんにちは, keep going 👋',newScenario:'New scenario',recentLearning:'Recent learning',allHistory:'All history ›',dialogueDetail:'Dialogue',threeLine:'Three-line reading',
+    practiceTitle:'Practice a scenario',practiceDescription:'Describe a real-life situation and AI will create natural Japanese dialogue with translations in your language.',sceneTopic:'Scenario',generate:'Generate',generating:'Generating…',recentGenerated:'Recently generated',
+    vocabTitle:'Vocabulary',vocabDescription:'Saved words enter SM-2 spaced repetition',reviewCards:'Review',flashTitle:'Flashcard review',historyDescription:'Keeps the latest 100 conversations; favorites are never removed automatically.',favoritesDescription:'Star conversations to keep them permanently.',
+    abilityTitle:'Listening, Speaking, Reading & Writing Map',abilityDescription:'Every activity becomes evidence. Unmeasured skills remain clearly marked.',settingsTitle:'Settings',learnerProfile:'Learner profile',yourLanguage:'Your language',languageHelp:'The interface, translations, grammar explanations, corrections, and session reviews will use this language. Native and explanation language remain separate in the backend.',data:'Data',exportData:'Export data',importData:'Import data',clearData:'Clear data',
+    aiSource:'AI source',localCli:'Local CLI',noApiKey:'No API key required',readingTitle:'Reading',readingDescription:'Two-pass Japanese article generation with furigana, translations, and audio.',grammarTitle:'Grammar by point',grammarDescription:'Study N5–N3 grammar with explanations, examples, and quick checks.',pronunciationTitle:'Pronunciation diagnosis',pronunciationDescription:'Read the target sentence and get feedback on intelligibility, timing, rhythm, and fluency.',
+    onboardingWelcome:'Welcome to AI-Kotoba',onboardingIntro:'Choose the language you want to use while learning Japanese. You can change it later in Settings.',continue:'Continue',back:'Back',
+    selfTitle:'How would you rate your Japanese right now?',selfIntro:'This is only a starting point. It will not lock you into a level, and the Tutor will adapt to your real performance.',levelBeginner:'Just starting',levelUnsure:'Not sure',goalTitle:'What do you most want to do in Japanese?',goalConversation:'Have natural conversations',goalJlpt:'Prepare for JLPT',goalTravel:'Travel and daily life',goalWork:'Work or study',goalMedia:'Anime and media',
+    placementTitle:'Would you like a listening and speaking placement now?',placementIntro:'An 8–10 minute natural conversation estimates listening, speaking, and expression separately. It is not your overall Japanese level.',startPlacement:'Start placement conversation',skipPlacement:'Skip for now and start learning',placementOptional:'You can retake it anytime from the Ability Map.',
+    saved:'Saved',languageChinese:'简体中文',languageEnglish:'English',step:'Step {current} of 3'
+  }
+};
 class Component extends DCLogic {
   constructor(props){
     super(props);
@@ -897,13 +977,53 @@ class Component extends DCLogic {
     this._streak = null;
     let savedPalette='blue';
     try{ const saved=window.localStorage.getItem('ai-kotoba-palette'); if(['blue','terra','sage'].includes(saved)) savedPalette=saved; }catch(e){}
-    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorMode:'tutor', tutorActive:false, tutorFinishing:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], tutorRemainingSeconds:720, grammarLevel:'N5', grammarQuery:'', grammarLoading:false, adminLoading:false, adminError:'', shareBusy:false, shareNotice:'', sharedSaved:false };
+    this.settings={uiLanguage:'zh-CN',onboardingCompleted:true,selfAssessedLevel:'unsure',learningGoal:'conversation'};
+    this.languageOptions=[{code:'zh-CN',label:'简体中文'},{code:'en',label:'English'}];
+    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorMode:'tutor', tutorActive:false, tutorFinishing:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], tutorRemainingSeconds:720, grammarLevel:'N5', grammarQuery:'', grammarLoading:false, adminLoading:false, adminError:'', shareBusy:false, shareNotice:'', sharedSaved:false, onboardingStep:1, onboardingLanguage:'zh-CN', onboardingLevel:'unsure', onboardingGoal:'conversation' };
   }
 
   changePalette(dir){
     if(!['blue','terra','sage'].includes(dir)) return;
     try{ window.localStorage.setItem('ai-kotoba-palette',dir); }catch(e){}
     this.setState({dir});
+  }
+
+  changeOnboardingLanguage(value){
+    const language=value==='en'?'en':'zh-CN';
+    document.documentElement.lang=language;
+    this.setState({onboardingLanguage:language});
+  }
+
+  nextOnboarding(){
+    if(this.state.onboardingStep===1){
+      window.AIKotoba?.saveLearnerProfile?.({language:this.state.onboardingLanguage,onboardingCompleted:false});
+      this.settings={...this.settings,uiLanguage:this.state.onboardingLanguage};
+      this.setState({onboardingStep:2});
+      return;
+    }
+    if(this.state.onboardingStep===2) this.setState({onboardingStep:3});
+  }
+
+  previousOnboarding(){
+    this.setState(s=>({onboardingStep:Math.max(1,s.onboardingStep-1)}));
+  }
+
+  completeOnboarding(startPlacement=false){
+    const data=window.AIKotoba?.saveLearnerProfile?.({
+      language:this.state.onboardingLanguage,
+      selfAssessedLevel:this.state.onboardingLevel,
+      learningGoal:this.state.onboardingGoal,
+      onboardingCompleted:true,
+    });
+    if(data) this.applyData(data);
+    if(startPlacement) setTimeout(()=>this.startOralAssessment(),0);
+    else this.setState({view:'home'});
+  }
+
+  changeUserLanguage(value){
+    const language=value==='en'?'en':'zh-CN';
+    const data=window.AIKotoba?.saveLearnerProfile?.({language});
+    if(data) this.applyData(data);
   }
 
   reveal(){ this.setState({flashRevealed:true}); }
@@ -1068,6 +1188,10 @@ class Component extends DCLogic {
 
   applyData(data){
     this.account=data.account||this.account;
+    this.settings=data.settings||this.settings;
+    this.languageOptions=window.AIKotoba?.learnerLanguageOptions?.()||this.languageOptions;
+    const language=this.settings.uiLanguage==='en'?'en':'zh-CN';
+    document.documentElement.lang=language;
     this.scenarios=Array.isArray(data.scenarios)?data.scenarios:[];
     if(this.scenarios.length && !this.activeScenario){
       this.activeScenario=this.scenarios[0];
@@ -1084,7 +1208,16 @@ class Component extends DCLogic {
     }
     const savedRate=Number(data.settings?.ttsRate);
     const savedTutorStyle=String(data.settings?.tutorStyle||'bilingual');
-    this.setState({dataReady:true,speechRate:Number.isFinite(savedRate)?savedRate:.75,tutorStyle:savedTutorStyle});
+    const assessedLevel=/^N[1-5]$/.test(String(this.settings.selfAssessedLevel))?this.settings.selfAssessedLevel:null;
+    this.setState({
+      dataReady:true,
+      speechRate:Number.isFinite(savedRate)?savedRate:.75,
+      tutorStyle:savedTutorStyle,
+      onboardingLanguage:language,
+      onboardingLevel:this.settings.selfAssessedLevel||'unsure',
+      onboardingGoal:this.settings.learningGoal||'conversation',
+      sceneLevel:this.abilityProfile?.overallLevel||assessedLevel||this.state.sceneLevel,
+    });
   }
 
   async openAdmin(){
@@ -1272,7 +1405,8 @@ class Component extends DCLogic {
     }
     const mode=requestedMode==='assessment'?'assessment':'tutor';
     const topic=mode==='assessment'?'自适应听说分级':'自由会話';
-    const level=mode==='assessment'?'N5':(this.abilityProfile?.overallLevel||this.state.sceneLevel);
+    const selfLevel=/^N[1-5]$/.test(String(this.settings?.selfAssessedLevel))?this.settings.selfAssessedLevel:null;
+    const level=mode==='assessment'?'N5':(this.abilityProfile?.overallLevel||selfLevel||this.state.sceneLevel);
     this._tutorTranscript=[];
     this._tutorMeta={scene:topic,level,style:this.state.tutorStyle,mode,createdAt:Date.now()};
     this.setState({tutorMode:mode,tutorStatus:'connecting',tutorMessages:[],tutorFinishing:false,tutorTalking:false,tutorRemainingSeconds:720});
@@ -1379,17 +1513,22 @@ class Component extends DCLogic {
 
   renderVals(){
     const v=this.state.view, dir=this.state.dir;
+    const language=(this.settings?.uiLanguage==='en'||this.state.onboardingLanguage==='en'&&!this.settings?.onboardingCompleted)?'en':'zh-CN';
+    const ui=UI_TEXT[language];
+    const locale=language==='en'?'en-US':'zh-CN';
     const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',ability:v==='ability',pron:v==='pron',reading:v==='reading',article:v==='article',grammar:v==='grammar',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings',admin:v==='admin'};
     const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); if(view!=='tutor'&&this._realtime) this.finishTutor(); this.setState({view,playing:-1}); this.scrollMainTop(); };
-    const crumbs={home:'今日',practice:'练习',detail:'练习 › 会话详情',tutor:'AI 语音 Tutor',ability:'能力地图',pron:'发音诊断',reading:'阅读文章',article:'阅读文章 › 三行对译',grammar:'语法课程',history:'历史',fav:'收藏',vocab:'生词本',cards:'闪卡复习',settings:'设置',admin:'管理员用量'};
+    const crumbs={home:ui.today,practice:ui.practice,detail:`${ui.practice} › ${ui.dialogueDetail}`,tutor:ui.voiceTutor,ability:ui.ability,pron:ui.pronunciation,reading:ui.reading,article:`${ui.reading} › ${ui.threeLine}`,grammar:ui.grammar,history:ui.history,fav:ui.favorites,vocab:ui.vocabulary,cards:ui.flashcards,settings:ui.settings,admin:ui.admin};
     const badge=(role)=>role==='a'?{bg:'var(--color-accent-100)',fg:'var(--color-accent-800)'}:{bg:'var(--color-accent-2-100)',fg:'var(--color-accent-2-800)'};
     const active=this.activeScenario||{title:'はじめまして',localizedTitle:'初次见面 · 自我介绍',titleChinese:'初次见面 · 自我介绍',level:'N5',topic:'初次见面的自我介绍',vocabulary:this.V};
     const scenarios=this.scenarios?.length?this.scenarios:[];
-    const recents=scenarios.slice(0,12).map(sc=>({glyph:(sc.title||'言').slice(0,1),title:sc.title||'会話',sub:(sc.localizedTitle||sc.titleChinese||sc.topic||'日语会话')+' · '+new Date(sc.createdAt||Date.now()).toLocaleDateString(),level:sc.level||'N4',onOpen:()=>this.openScenario(sc)}));
+    const recents=scenarios.slice(0,12).map(sc=>({glyph:(sc.title||'言').slice(0,1),title:sc.title||'会話',sub:(sc.localizedTitle||sc.titleChinese||sc.topic||(language==='en'?'Japanese dialogue':'日语会话'))+' · '+new Date(sc.createdAt||Date.now()).toLocaleDateString(locale),level:sc.level||'N4',onOpen:()=>this.openScenario(sc)}));
     const actualRecents=recents.length?recents:this.recents.map(r=>({...r,onOpen:()=>this.openScenario(active)}));
     const dueCount=this.V.filter(x=>(x.nextReview||0)<=Date.now()).length;
     const streak=this._streak||{streak:7,week:['日','一','二','三','四','五','六'].map((day,i)=>({day,done:i<=3,date:''}))};
-    const statusLabels={idle:this.state.tutorActive?'按住“说话”按钮开始':'准备开始',saved:'通话与课后复盘已保存',reviewingVoice:'Tutor 正在根据原始语音与完整对话整理复盘…',reviewing:'通话已保存，正在校验课后复盘…',reviewError:'通话已保存；课后复盘暂时生成失败',placementReviewing:'测评通话已保存，正在生成能力地图…',placementSaved:'听说分级完成，能力地图已更新',placementError:'测评通话已保存；能力分析暂时失败',limitEnded:'已到 12 分钟上限，通话已结束',limitReviewing:'已到 12 分钟上限；通话已保存，正在生成复盘…',limitSaved:'已到 12 分钟上限；通话与复盘已保存',connecting:'正在连接 GPT Realtime…',listening:'正在听你说，松开发送…',thinking:'Tutor 正在思考…',speaking:'Tutor 正在说话；按住说话可打断',disconnected:'连接已断开，结束通话仍会保存已有记录'};
+    const statusLabels=language==='en'
+      ? {idle:this.state.tutorActive?'Hold the Talk button to begin':'Ready',saved:'Call and review saved',reviewingVoice:'Tutor is reviewing the original audio and full conversation…',reviewing:'Call saved; checking the session review…',reviewError:'Call saved; review generation failed for now',placementReviewing:'Assessment saved; building your ability map…',placementSaved:'Placement complete; ability map updated',placementError:'Assessment saved; ability analysis failed for now',limitEnded:'The 12-minute limit was reached',limitReviewing:'Time limit reached; call saved and review is being generated…',limitSaved:'Time limit reached; call and review saved',connecting:'Connecting to GPT Realtime…',listening:'Listening — release to send…',thinking:'Tutor is thinking…',speaking:'Tutor is speaking; hold Talk to interrupt',disconnected:'Connection lost; ending the call will still save the transcript'}
+      : {idle:this.state.tutorActive?'按住“说话”按钮开始':'准备开始',saved:'通话与课后复盘已保存',reviewingVoice:'Tutor 正在根据原始语音与完整对话整理复盘…',reviewing:'通话已保存，正在校验课后复盘…',reviewError:'通话已保存；课后复盘暂时生成失败',placementReviewing:'测评通话已保存，正在生成能力地图…',placementSaved:'听说分级完成，能力地图已更新',placementError:'测评通话已保存；能力分析暂时失败',limitEnded:'已到 12 分钟上限，通话已结束',limitReviewing:'已到 12 分钟上限；通话已保存，正在生成复盘…',limitSaved:'已到 12 分钟上限；通话与复盘已保存',connecting:'正在连接 GPT Realtime…',listening:'正在听你说，松开发送…',thinking:'Tutor 正在思考…',speaking:'Tutor 正在说话；按住说话可打断',disconnected:'连接已断开，结束通话仍会保存已有记录'};
     const savedVocabWords=new Set((this.V||[]).map(item=>String(item.word||'').trim()).filter(Boolean));
     const tutorHistory=(this.tutorSessions||[]).filter(session=>session.mode!=='assessment').slice(0,12).map(session=>{
       let messages=Array.isArray(session.messages)?session.messages.map(item=>({who:item.role==='me'?'你':'Tutor',text:String(item.text||'')})).filter(item=>item.text):[];
@@ -1422,31 +1561,76 @@ class Component extends DCLogic {
     const sharedActive=!!shared&&((shared.type==='scenario'&&active===shared.content)||(shared.type==='article'&&current===shared.content));
     const selectedKey=selected?.surface+'|'+selected?.reading;
     const ability=this.abilityProfile||{};
-    const skillMeta=[['listening','听力'],['speaking','口语'],['reading','阅读'],['writing','写作']];
+    const skillMeta=language==='en'?[['listening','Listening'],['speaking','Speaking'],['reading','Reading'],['writing','Writing']]:[['listening','听力'],['speaking','口语'],['reading','阅读'],['writing','写作']];
     const abilitySkills=skillMeta.map(([key,label])=>{
       const item=ability.dimensions?.[key]||{};
       const measured=item.status==='assessed'&&Number.isFinite(Number(item.score));
       const score=measured?Math.max(0,Math.min(100,Number(item.score))):0;
-      return{label,level:measured?(item.level||'—'):'未测评',width:`${score}%`,color:measured?'var(--color-accent)':'var(--color-neutral-300)',bg:measured?'var(--color-surface)':'var(--color-neutral-100)',note:measured?`${Math.round(score)} 分 · 证据置信度 ${Math.round((Number(item.confidence)||0)*100)}%`:'等待对应任务提供证据',nextStep:item.nextStep||(key==='reading'?'完成一次分级阅读任务后更新':key==='writing'?'完成一次短文写作任务后更新':'完成听说分级测评后更新')};
+      return{label,level:measured?(item.level||'—'):(language==='en'?'Not assessed':'未测评'),width:`${score}%`,color:measured?'var(--color-accent)':'var(--color-neutral-300)',bg:measured?'var(--color-surface)':'var(--color-neutral-100)',note:measured?(language==='en'?`${Math.round(score)} · Evidence confidence ${Math.round((Number(item.confidence)||0)*100)}%`:`${Math.round(score)} 分 · 证据置信度 ${Math.round((Number(item.confidence)||0)*100)}%`):(language==='en'?'Waiting for relevant learning evidence':'等待对应任务提供证据'),nextStep:item.nextStep||(language==='en'?(key==='reading'?'Complete a leveled reading task':key==='writing'?'Complete a short writing task':'Complete the listening and speaking placement'):(key==='reading'?'完成一次分级阅读任务后更新':key==='writing'?'完成一次短文写作任务后更新':'完成听说分级测评后更新'))};
     });
-    const oralMeta=[['fluency','流畅度'],['vocabulary','词汇调用'],['grammar','语法控制'],['interaction','互动应对'],['organization','表达组织'],['pronunciation','发音']];
-    const oralRows=oralMeta.map(([key,label])=>{const item=ability.oralDimensions?.[key]||{};const measured=item.status==='assessed'&&Number.isFinite(Number(item.score));const score=measured?Math.max(0,Math.min(100,Number(item.score))):0;return{label,value:measured?`${Math.round(score)} · ${item.level||''}`:'未测评',width:`${score}%`};});
-    const abilityPriorities=(ability.priorities?.length?ability.priorities:['先完成 8–10 分钟听说分级，建立第一批能力证据。','之后用分级阅读任务补全阅读能力。','写一段 80–150 字短文，补全写作能力。']).slice(0,3).map((text,index)=>({index:index+1,text}));
+    const oralMeta=language==='en'?[['fluency','Fluency'],['vocabulary','Vocabulary access'],['grammar','Grammar control'],['interaction','Interaction'],['organization','Organization'],['pronunciation','Pronunciation']]:[['fluency','流畅度'],['vocabulary','词汇调用'],['grammar','语法控制'],['interaction','互动应对'],['organization','表达组织'],['pronunciation','发音']];
+    const oralRows=oralMeta.map(([key,label])=>{const item=ability.oralDimensions?.[key]||{};const measured=item.status==='assessed'&&Number.isFinite(Number(item.score));const score=measured?Math.max(0,Math.min(100,Number(item.score))):0;return{label,value:measured?`${Math.round(score)} · ${item.level||''}`:(language==='en'?'Not assessed':'未测评'),width:`${score}%`};});
+    const defaultPriorities=language==='en'?['Complete an 8–10 minute oral placement to establish initial evidence.','Use a leveled reading task to add reading evidence.','Write an 80–150 character passage to add writing evidence.']:['先完成 8–10 分钟听说分级，建立第一批能力证据。','之后用分级阅读任务补全阅读能力。','写一段 80–150 字短文，补全写作能力。'];
+    const abilityPriorities=(ability.priorities?.length?ability.priorities:defaultPriorities).slice(0,3).map((text,index)=>({index:index+1,text}));
+    const levelLabels=language==='en'
+      ? [['beginner',ui.levelBeginner],['N5','N5 · Basic'],['N4','N4 · Elementary'],['N3','N3 · Intermediate'],['N2','N2 · Advanced'],['N1','N1 · Proficient'],['unsure',ui.levelUnsure]]
+      : [['beginner',ui.levelBeginner],['N5','N5 · 基础'],['N4','N4 · 初级'],['N3','N3 · 中级'],['N2','N2 · 高级'],['N1','N1 · 熟练'],['unsure',ui.levelUnsure]];
+    const goalLabels=[['conversation',ui.goalConversation],['jlpt',ui.goalJlpt],['travel',ui.goalTravel],['work',ui.goalWork],['media',ui.goalMedia]];
+    const tutorCopy=language==='en'
+      ? {
+          assessmentTitle:'Adaptive listening and speaking placement',tutorTitle:'AI Voice Tutor',
+          assessmentDescription:'Hold to speak and release to send. The interview starts with easy daily questions and adapts naturally.',
+          tutorDescription:'Hold to speak and release to send. The Tutor starts by asking about your day and follows your answers naturally.',
+          assessmentCard:'Answer as you would in a normal conversation',tutorCard:'Ready to start talking?',
+          assessmentHelp:'No preparation is needed and corrections are saved until the end. Aim for 8–10 minutes.',
+          tutorHelp:'There is no fixed convenience-store scenario. Your review will include useful words and phrases for flashcards.',
+          talking:'Speaking… release to send',hold:'Hold to talk',finishing:'Reviewing audio…',endAssessment:'End and build ability map',endTutor:'End and save',startAssessment:'Start placement',startTutor:'Start call',
+          time:'Maximum 12 minutes · Remaining',
+        }
+      : {
+          assessmentTitle:'自适应听说分级',tutorTitle:'AI 语音 Tutor',
+          assessmentDescription:'按住说话、松开发送。面试会从简单日常问题开始，根据你的回答自然升降难度。',
+          tutorDescription:'按住说话，松开发送；Tutor 会先聊聊你今天过得怎么样，再从你的回答自然深入。',
+          assessmentCard:'像平常聊天一样回答即可',tutorCard:'准备好开始对话了吗？',
+          assessmentHelp:'不需要准备，也不会边聊边纠错；建议完成 8–10 分钟后结束。',
+          tutorHelp:'没有预设便利店场景。结束后会根据语音生成复盘和可加入闪卡的生词。',
+          talking:'正在说话…松开发送',hold:'按住说话',finishing:'正在整理语音…',endAssessment:'结束并生成能力地图',endTutor:'结束并保存',startAssessment:'开始分级',startTutor:'开始通话',
+          time:'本次最多 12 分钟 · 剩余',
+        };
     return {
+      ui,
+      onboarding:{
+        visible:!!this.state.dataReady&&!this.settings?.onboardingCompleted,
+        languageStep:this.state.onboardingStep===1,
+        selfStep:this.state.onboardingStep===2,
+        placementStep:this.state.onboardingStep===3,
+        progress:ui.step.replace('{current}',String(this.state.onboardingStep)),
+        dots:[1,2,3].map(step=>({width:step===this.state.onboardingStep?'24px':'7px',color:step<=this.state.onboardingStep?'var(--color-accent)':'var(--color-neutral-300)'})),
+        language:this.state.onboardingLanguage,
+        languages:this.languageOptions,
+        onLanguage:e=>this.changeOnboardingLanguage(e.target.value),
+        levels:levelLabels.map(([value,label])=>({value,label,selected:this.state.onboardingLevel===value,onPick:()=>this.setState({onboardingLevel:value})})),
+        goals:goalLabels.map(([value,label])=>({value,label,selected:this.state.onboardingGoal===value,onPick:()=>this.setState({onboardingGoal:value})})),
+        onNext:()=>this.nextOnboarding(),
+        onBack:()=>this.previousOnboarding(),
+        onStartPlacement:()=>this.completeOnboarding(true),
+        onSkipPlacement:()=>this.completeOnboarding(false),
+      },
+      settings:{language, languages:this.languageOptions,onLanguage:e=>this.changeUserLanguage(e.target.value)},
       nav,crumb:crumbs[v],dirAttr:dir,furiAttr:this.state.furi?'on':'off',
-      furiLabel:this.state.furi?'开':'关',toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
+      furiLabel:this.state.furi?ui.on:ui.off,toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
       go:{home:set('home'),practice:set('practice'),tutor:()=>{if(this._realtime)return;this.setState({view:'tutor',tutorMode:'tutor',playing:-1});this.scrollMainTop();},ability:set('ability'),pron:set('pron'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings'),admin:()=>this.openAdmin()},
       openDetail:()=>this.openScenario(active),
       dir:{blue:()=>this.changePalette('blue'),terra:()=>this.changePalette('terra'),sage:()=>this.changePalette('sage')},dirIsBlue:dir==='blue',dirIsTerra:dir==='terra',dirIsSage:dir==='sage',
       blueBg:dir==='blue'?'var(--color-bg)':'transparent',blueFg:dir==='blue'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
       terraBg:dir==='terra'?'var(--color-bg)':'transparent',terraFg:dir==='terra'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
       sageBg:dir==='sage'?'var(--color-bg)':'transparent',sageFg:dir==='sage'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
-      todayDate:new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'}),streak:streak.streak,dueCount,
+      todayDate:new Date().toLocaleDateString(locale,{month:'long',day:'numeric',weekday:'long'}),streak:streak.streak,dueCount,
       week:(streak.week||[]).map((d,i)=>({label:d.day,mark:d.done?'✓':'',bg:d.done?'var(--color-accent)':'var(--color-neutral-200)',fg:d.done?'var(--color-bg)':'color-mix(in srgb,var(--color-text) 40%,transparent)',labelFg:i===(streak.week||[]).length-1?'var(--color-accent)':'color-mix(in srgb,var(--color-text) 50%,transparent)'})),
       recents:actualRecents,
       presets:this.presets.map(label=>({label,onPick:()=>this.setState({sceneInput:label})})),
       sceneInput:this.state.sceneInput,sceneLevel:this.state.sceneLevel,onSceneInput:e=>this.setState({sceneInput:e.target.value}),onSceneLevel:e=>this.setState({sceneLevel:e.target.value}),
-      generating:this.state.generating,genLabel:this.state.generating?'生成中…':'生成',onGenerate:()=>this.onGenerate(),
+      generating:this.state.generating,genLabel:this.state.generating?ui.generating:ui.generate,onGenerate:()=>this.onGenerate(),
       sc:{
         title:active.title||'はじめまして',titleCn:active.localizedTitle||active.titleChinese||'',level:active.level||'N4',topic:active.topic||'',date:new Date(active.createdAt||Date.now()).toLocaleDateString(),speechRate:String(this.state.speechRate),onSpeechRate:e=>this.changeSpeechRate(e.target.value),
         onShare:()=>this.shareItem('scenario',active),shareDisabled:this.state.shareBusy,shareLabel:this.state.shareBusy?'生成链接…':(this.state.shareNotice||'分享'),
@@ -1455,8 +1639,8 @@ class Component extends DCLogic {
       },
       vocabList:this.V.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?'今天到期':'稍后复习',dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
       flash:(()=>{const cards=this.V.slice(0,Math.max(1,Math.min(20,this.V.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:'暂无词汇',reading:'',meaning:'请先加入生词',example:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
-      ability:{overallLevel:ability.overallLevel||'待测',summaryTitle:ability.overallLevel?`当前建议水平 ${ability.overallLevel} · 置信度 ${Math.round((Number(ability.confidence)||0)*100)}%`:'先建立你的第一张能力地图',summary:ability.summary||'用一段自然对话估计你能听懂什么、能表达什么。阅读和写作会保留为未测评，等对应任务提供真实证据。',updatedLabel:ability.lastAssessmentAt?`更新于 ${new Date(ability.lastAssessmentAt).toLocaleDateString('zh-CN')}`:'尚未测评',assessing:this.state.tutorStatus==='placementReviewing',assessLabel:this.state.tutorStatus==='placementReviewing'?'正在分析能力…':(ability.overallLevel?'重新进行听说分级':'开始 8–10 分钟听说分级'),onAssess:()=>this.startOralAssessment(),skills:abilitySkills,oral:oralRows,priorities:abilityPriorities},
-      tutor:{assessment:this.state.tutorMode==='assessment',showStyle:this.state.tutorMode!=='assessment',pageTitle:this.state.tutorMode==='assessment'?'自适应听说分级':'AI 语音 Tutor',pageDescription:this.state.tutorMode==='assessment'?'按住说话、松开发送。面试会从简单日常问题开始，根据你的回答自然升降难度。':'按住说话，松开发送；Tutor 会先聊聊你今天过得怎么样，再从你的回答自然深入。',cardTitle:this.state.tutorMode==='assessment'?'像平常聊天一样回答即可':'准备好开始对话了吗？',cardDescription:this.state.tutorMode==='assessment'?'不需要准备，也不会边聊边纠错；建议完成 8–10 分钟后结束。':'没有预设便利店场景。结束后会根据语音生成复盘和可加入闪卡的生词。',onToggle:()=>this.toggleTutor(this.state.tutorMode),active:this.state.tutorActive,finishing:this.state.tutorFinishing,buttonDisabled:this.state.tutorFinishing,talking:this.state.tutorTalking,onTalkStart:e=>this.startTutorTalking(e),onTalkEnd:e=>this.stopTutorTalking(e),talkLabel:this.state.tutorTalking?'正在说话…松开发送':'按住说话',style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?'默认自然日语；只有你求助、没听懂或用中文回答时，才补一句中文，不强制复述。':this.state.tutorStyle==='conversation'?'尽量保持全日语自然会话，只温和纠正关键问题。':this.state.tutorStyle==='correction'?'回应内容后，每次最多纠正一个最值得改进的表达。':'像日语口试一样逐题练习并简短评价。',buttonLabel:this.state.tutorFinishing?'正在整理语音…':(this.state.tutorActive?(this.state.tutorMode==='assessment'?'结束并生成能力地图':'结束并保存'):(this.state.tutorMode==='assessment'?'开始分级':'开始通话')),statusLabel:statusLabels[this.state.tutorStatus]||'',timeLabel:`本次最多 12 分钟 · 剩余 ${String(Math.floor(this.state.tutorRemainingSeconds/60)).padStart(2,'0')}:${String(this.state.tutorRemainingSeconds%60).padStart(2,'0')}`,hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages,hasHistory:tutorHistory.length>0,history:tutorHistory},
+      ability:{overallLevel:ability.overallLevel||(language==='en'?'Not assessed':'待测'),summaryTitle:ability.overallLevel?(language==='en'?`Suggested level ${ability.overallLevel} · Confidence ${Math.round((Number(ability.confidence)||0)*100)}%`:`当前建议水平 ${ability.overallLevel} · 置信度 ${Math.round((Number(ability.confidence)||0)*100)}%`):(language==='en'?'Build your first ability map':'先建立你的第一张能力地图'),summary:ability.summary||(language==='en'?'A natural conversation estimates what you understand and can express. Reading and writing remain unassessed until relevant tasks provide evidence.':'用一段自然对话估计你能听懂什么、能表达什么。阅读和写作会保留为未测评，等对应任务提供真实证据。'),updatedLabel:ability.lastAssessmentAt?(language==='en'?`Updated ${new Date(ability.lastAssessmentAt).toLocaleDateString(locale)}`:`更新于 ${new Date(ability.lastAssessmentAt).toLocaleDateString(locale)}`):(language==='en'?'Not assessed yet':'尚未测评'),assessing:this.state.tutorStatus==='placementReviewing',assessLabel:this.state.tutorStatus==='placementReviewing'?(language==='en'?'Analyzing ability…':'正在分析能力…'):(ability.overallLevel?(language==='en'?'Retake oral placement':'重新进行听说分级'):(language==='en'?'Start 8–10 minute placement':'开始 8–10 分钟听说分级')),onAssess:()=>this.startOralAssessment(),skills:abilitySkills,oral:oralRows,priorities:abilityPriorities},
+      tutor:{assessment:this.state.tutorMode==='assessment',showStyle:this.state.tutorMode!=='assessment',pageTitle:this.state.tutorMode==='assessment'?tutorCopy.assessmentTitle:tutorCopy.tutorTitle,pageDescription:this.state.tutorMode==='assessment'?tutorCopy.assessmentDescription:tutorCopy.tutorDescription,cardTitle:this.state.tutorMode==='assessment'?tutorCopy.assessmentCard:tutorCopy.tutorCard,cardDescription:this.state.tutorMode==='assessment'?tutorCopy.assessmentHelp:tutorCopy.tutorHelp,onToggle:()=>this.toggleTutor(this.state.tutorMode),active:this.state.tutorActive,finishing:this.state.tutorFinishing,buttonDisabled:this.state.tutorFinishing,talking:this.state.tutorTalking,onTalkStart:e=>this.startTutorTalking(e),onTalkEnd:e=>this.stopTutorTalking(e),talkLabel:this.state.tutorTalking?tutorCopy.talking:tutorCopy.hold,style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?(language==='en'?'Natural Japanese by default; brief English help only when you ask, get stuck, or answer in English.':'默认自然日语；只有你求助、没听懂或用中文回答时，才补一句中文，不强制复述。'):this.state.tutorStyle==='conversation'?(language==='en'?'Natural Japanese conversation with only gentle correction of important issues.':'尽量保持全日语自然会话，只温和纠正关键问题。'):this.state.tutorStyle==='correction'?(language==='en'?'Respond to the meaning first, then correct at most one high-value expression.':'回应内容后，每次最多纠正一个最值得改进的表达。'):(language==='en'?'Practice like a Japanese oral interview with brief feedback.':'像日语口试一样逐题练习并简短评价。'),buttonLabel:this.state.tutorFinishing?tutorCopy.finishing:(this.state.tutorActive?(this.state.tutorMode==='assessment'?tutorCopy.endAssessment:tutorCopy.endTutor):(this.state.tutorMode==='assessment'?tutorCopy.startAssessment:tutorCopy.startTutor)),statusLabel:statusLabels[this.state.tutorStatus]||'',timeLabel:`${tutorCopy.time} ${String(Math.floor(this.state.tutorRemainingSeconds/60)).padStart(2,'0')}:${String(this.state.tutorRemainingSeconds%60).padStart(2,'0')}`,hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages,hasHistory:tutorHistory.length>0,history:tutorHistory},
       admin:{visible:!!this.account?.isAdmin,loading:this.state.adminLoading,hasError:!!this.state.adminError,error:this.state.adminError,ready:!!usage&&!this.state.adminLoading,onRefresh:()=>this.openAdmin(),dayLabel:usage?`${usage.day} · ${usage.timezone} 统计`:'' ,activeUsers:usage?.activeUsers||0,totalUsers:usage?.totalUsers||0,buckets:(usage?.buckets||[]).map(b=>({label:b.label,used:b.used,limit:b.globalLimit,percent:b.percent,width:`${b.percent}%`,color:b.percent>=90?'#b14c35':b.percent>=70?'var(--color-accent-2)':'var(--color-accent)',note:b.bucket==='realtime'?`每次最多 12 分钟 · 今日最多 ${b.globalLimit*12} 分钟`:`剩余 ${b.remaining} ${b.unit}`})),users:(usage?.users||[]).map(u=>({email:u.email,ai:u.usage?.ai_text||0,realtime:u.usage?.realtime||0,pronunciation:u.usage?.pronunciation||0,tts:u.usage?.tts||0,total:u.total||0})),noUsers:!!usage&&!(usage.users||[]).length,history:(usage?.history||[]).map(d=>({day:d.day.slice(5),summary:`AI ${d.usage?.ai_text||0} · RT ${d.usage?.realtime||0} · 发音 ${d.usage?.pronunciation||0} · TTS ${d.usage?.tts||0}`}))},
       grammar:{isN5:this.state.grammarLevel==='N5',isN4:this.state.grammarLevel==='N4',isN3:this.state.grammarLevel==='N3',onN5:()=>this.setState({grammarLevel:'N5'}),onN4:()=>this.setState({grammarLevel:'N4'}),onN3:()=>this.setState({grammarLevel:'N3'}),query:this.state.grammarQuery,onSearch:e=>this.setState({grammarQuery:e.target.value}),items:grammarItems,count:grammarItems.length,total:(this.grammarCatalog||[]).length,mastered:(this.grammarProgress||[]).filter(item=>item.status==='mastered').length,loading:this.state.grammarLoading,hasLesson:!!grammarLesson&&!this.state.grammarLoading,lesson:grammarLesson?{level:this.activeGrammarPoint?.level||'',title:grammarLesson.title||this.grammarTitle(this.activeGrammarPoint?.title),meaning:grammarLesson.meaning||'',explanation:grammarLesson.explanation||'',formation:grammarLesson.formation||this.activeGrammarPoint?.formation||'',pitfall:grammarLesson.pitfall||'',examples:(grammarLesson.examples||[]).map(item=>({japanese:item.japanese||'',translation:item.translation||'',note:item.note||''})),quizPrompt:grammarLesson.quiz?.prompt||'',quizAnswer:grammarLesson.quiz?.answer||'',quizExplanation:grammarLesson.quiz?.explanation||'',masterLabel:grammarProgress?.status==='mastered'?'已掌握 ✓':'标记为已掌握',onMaster:()=>this.setGrammarProgress(grammarProgress?.status==='mastered'?'studying':'mastered')}:{examples:[]}},
       articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))+' 分钟',onOpen:()=>this.openArticle(a)})),

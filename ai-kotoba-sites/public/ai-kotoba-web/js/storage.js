@@ -94,6 +94,7 @@ export async function initSync() {
 }
 
 export function getSettings() {
+  const stored = load(KEYS.settings, {});
   const s = Object.assign(
     {
       // 公网版的模型密钥只存在服务端；浏览器统一走 /api/ai。
@@ -110,18 +111,37 @@ export function getSettings() {
       realtimeVoice: 'marin',
       tutorStyle: 'bilingual',
       showFurigana: true,
-      // UI 首版中英双语；内容解释语言与母语允许自由填写。
+      // 前端使用一个语言选择；后端仍分别保存母语与解释语言。
       uiLanguage: 'zh-CN',
       nativeLanguage: 'Chinese',
       explanationLanguage: 'Simplified Chinese',
+      onboardingCompleted: false,
+      selfAssessedLevel: 'unsure',
+      learningGoal: 'conversation',
       targetLanguage: 'Japanese',
       targetLocale: 'ja-JP',
       levelFramework: 'JLPT',
     },
-    load(KEYS.settings, {})
+    stored
   );
+  // 旧用户升级时不要强制重新走新手引导；只有完全没有设置和学习记录的用户才视为新用户。
+  if (typeof stored.onboardingCompleted !== 'boolean') {
+    const legacySettingKeys = Object.keys(stored).filter(key => key !== 'seedsLoaded');
+    const hasLearningData = [
+      KEYS.scenarios,
+      KEYS.vocab,
+      KEYS.articles,
+      KEYS.tutorSessions,
+      KEYS.grammarProgress,
+      KEYS.abilityProfiles,
+    ].some(key => {
+      const value = load(key, []);
+      return Array.isArray(value) && value.some(item => item && item.builtin !== true);
+    });
+    s.onboardingCompleted = legacySettingKeys.length > 0 || hasLearningData;
+  }
   // 迁移：旧版单一 elevenVoiceId → 音色 A
-  if (s.elevenVoiceId && !load(KEYS.settings, {}).elevenVoiceA) s.elevenVoiceA = s.elevenVoiceId;
+  if (s.elevenVoiceId && !stored.elevenVoiceA) s.elevenVoiceA = s.elevenVoiceId;
   return s;
 }
 export function saveSettings(s) {
@@ -131,6 +151,13 @@ export function saveSettings(s) {
   s.elevenKey = (s.elevenKey || '').trim();
   s.nativeLanguage = (s.nativeLanguage || 'Chinese').trim();
   s.explanationLanguage = (s.explanationLanguage || s.nativeLanguage || 'Simplified Chinese').trim();
+  s.onboardingCompleted = !!s.onboardingCompleted;
+  s.selfAssessedLevel = /^(N[1-5]|beginner|unsure)$/.test(String(s.selfAssessedLevel))
+    ? String(s.selfAssessedLevel)
+    : 'unsure';
+  s.learningGoal = ['conversation', 'jlpt', 'travel', 'work', 'media'].includes(String(s.learningGoal))
+    ? String(s.learningGoal)
+    : 'conversation';
   s.targetLanguage = 'Japanese';
   s.targetLocale = 'ja-JP';
   s.levelFramework = 'JLPT';
