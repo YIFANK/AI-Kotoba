@@ -68,12 +68,18 @@ const tutorReviewSchema = {
     },
     usefulPhrases: {
       type: "array",
-      maxItems: 3,
+      maxItems: 6,
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["japanese", "meaning"],
-        properties: { japanese: { type: "string" }, meaning: { type: "string" } },
+        required: ["japanese", "reading", "meaning", "example", "exampleTranslation"],
+        properties: {
+          japanese: { type: "string" },
+          reading: { type: "string" },
+          meaning: { type: "string" },
+          example: { type: "string" },
+          exampleTranslation: { type: "string" },
+        },
       },
     },
     grammarEvidence: {

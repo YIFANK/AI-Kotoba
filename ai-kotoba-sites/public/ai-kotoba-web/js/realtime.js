@@ -40,6 +40,72 @@ const TUTOR_TOOLS = [
     },
   },
 ];
+const SESSION_REVIEW_TOOL = {
+  type: 'function',
+  name: 'submit_session_review',
+  description: 'Submit the final structured Japanese-learning review for this voice session. Base it on the original audio, the learner’s responses, and the complete conversation context rather than trusting automatic transcription word-for-word.',
+  parameters: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      summary: { type: 'string', description: 'A concise overall review in the learner’s configured explanation language.' },
+      strengths: {
+        type: 'array',
+        maxItems: 3,
+        items: { type: 'string' },
+        description: 'Up to three concrete strengths supported by the session.',
+      },
+      improvements: {
+        type: 'array',
+        maxItems: 3,
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            original: { type: 'string', description: 'The learner wording only when confidently heard; otherwise an empty string.' },
+            better: { type: 'string', description: 'A more natural Japanese expression.' },
+            explanation: { type: 'string', description: 'A short explanation in the configured explanation language.' },
+          },
+          required: ['original', 'better', 'explanation'],
+        },
+      },
+      usefulPhrases: {
+        type: 'array',
+        minItems: 3,
+        maxItems: 6,
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            japanese: { type: 'string', description: 'A useful Japanese word or expression from, or directly useful for, this conversation.' },
+            reading: { type: 'string', description: 'Kana reading.' },
+            meaning: { type: 'string', description: 'Meaning in the configured explanation language.' },
+            example: { type: 'string', description: 'A natural Japanese example sentence.' },
+            exampleTranslation: { type: 'string', description: 'Example translation in the configured explanation language.' },
+          },
+          required: ['japanese', 'reading', 'meaning', 'example', 'exampleTranslation'],
+        },
+      },
+      grammarEvidence: {
+        type: 'array',
+        maxItems: 3,
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            pattern: { type: 'string' },
+            level: { type: 'string', enum: ['N5', 'N4', 'N3', 'unknown'] },
+            result: { type: 'string', enum: ['used-well', 'needs-work'] },
+            note: { type: 'string' },
+          },
+          required: ['pattern', 'level', 'result', 'note'],
+        },
+      },
+      nextStep: { type: 'string', description: 'One specific next practice task in the configured explanation language.' },
+    },
+    required: ['summary', 'strengths', 'improvements', 'usefulPhrases', 'grammarEvidence', 'nextStep'],
+  },
+};
 
 export async function startRealtimeSession({
   apiKey,
@@ -54,6 +120,7 @@ export async function startRealtimeSession({
   onToolCall,
   onTimeRemaining,
   onTimeLimit,
+  reviewLanguage = 'Simplified Chinese',
   maxDurationMs = REALTIME_MAX_DURATION_MS,
 }) {
   const selectedVoice = ALLOWED_VOICES.has(voice) ? voice : 'marin';
@@ -104,6 +171,7 @@ export async function startRealtimeSession({
   let commitTimer = null;
   let durationTimer = null;
   let durationDeadline = 0;
+  let reviewRequest = null;
   const dc = pc.createDataChannel('oai-events');
   dc.addEventListener('open', () => {
     dc.send(JSON.stringify({ type: 'session.update', session: sessionConfig }));
@@ -130,12 +198,29 @@ export async function startRealtimeSession({
         break;
       case 'response.created':
         responseActive = true;
-        onStatus?.('speaking');
+        if (ev.response?.metadata?.topic !== 'session_review') onStatus?.('speaking');
         break;
       case 'response.done':
         {
           responseActive = false;
           const calls = (ev.response?.output || []).filter(item => item.type === 'function_call');
+          const reviewCall = calls.find(item => item.name === SESSION_REVIEW_TOOL.name);
+          if (ev.response?.metadata?.topic === 'session_review' || (reviewRequest && reviewCall)) {
+            if (!reviewRequest) break;
+            const pending = reviewRequest;
+            reviewRequest = null;
+            clearTimeout(pending.timer);
+            if (!reviewCall) {
+              pending.reject(new Error('Realtime Tutor 没有返回结构化复盘'));
+              break;
+            }
+            try {
+              pending.resolve(JSON.parse(reviewCall.arguments || '{}'));
+            } catch {
+              pending.reject(new Error('Realtime Tutor 的复盘格式无法解析'));
+            }
+            break;
+          }
           if (calls.length) {
             onStatus?.('thinking');
             handleFunctionCalls(calls).catch(error => onError?.(error.message || 'Tutor 工具执行失败'));
@@ -146,7 +231,7 @@ export async function startRealtimeSession({
         break;
       case 'response.cancelled':
         responseActive = false;
-        onStatus?.('idle');
+        if (!reviewRequest) onStatus?.('idle');
         break;
       case 'conversation.item.input_audio_transcription.completed':
         if (ev.transcript?.trim()) onUserText?.(ev.transcript.trim());
@@ -158,6 +243,12 @@ export async function startRealtimeSession({
         onAIDone?.((ev.transcript || '').trim());
         break;
       case 'error':
+        if (reviewRequest) {
+          const pending = reviewRequest;
+          reviewRequest = null;
+          clearTimeout(pending.timer);
+          pending.reject(new Error(ev.error?.message || 'Realtime 语音复盘失败'));
+        }
         onError?.(ev.error?.message || '实时连接出错');
         break;
       default:
@@ -221,8 +312,10 @@ export async function startRealtimeSession({
       const seconds = Math.max(0, Math.ceil((durationDeadline - Date.now()) / 1000));
       onTimeRemaining?.(seconds);
       if (seconds <= 0) {
-        stop();
-        onTimeLimit?.();
+        clearInterval(durationTimer);
+        durationTimer = null;
+        if (onTimeLimit) onTimeLimit();
+        else stop();
       }
     }, 1000);
   } catch (error) {
@@ -278,6 +371,49 @@ export async function startRealtimeSession({
     return true;
   }
 
+  function requestSessionReview({ timeoutMs = 12_000 } = {}) {
+    if (stopped || dc.readyState !== 'open') return Promise.reject(new Error('Realtime 会话已经结束'));
+    if (reviewRequest) return reviewRequest.promise;
+    talking = false;
+    setMuted(true);
+    if (commitTimer) clearTimeout(commitTimer);
+    commitTimer = null;
+    sendEvent({ type: 'input_audio_buffer.clear' });
+    if (responseActive) sendEvent({ type: 'response.cancel' });
+    sendEvent({ type: 'output_audio_buffer.clear' });
+    onStatus?.('reviewingVoice');
+
+    let resolveRequest;
+    let rejectRequest;
+    const promise = new Promise((resolve, reject) => {
+      resolveRequest = resolve;
+      rejectRequest = reject;
+    });
+    const timer = setTimeout(() => {
+      if (!reviewRequest) return;
+      reviewRequest = null;
+      rejectRequest(new Error('Realtime 语音复盘超时'));
+    }, Math.max(4_000, Number(timeoutMs) || 12_000));
+    reviewRequest = { promise, resolve: resolveRequest, reject: rejectRequest, timer };
+    const sent = sendEvent({
+      type: 'response.create',
+      response: {
+        conversation: 'none',
+        metadata: { topic: 'session_review' },
+        output_modalities: ['text'],
+        instructions: `Review the Japanese tutoring session that just ended. You directly heard the learner's audio and have the full conversation context. Use that audio understanding as primary evidence; automatic transcription may be inaccurate, so do not quote uncertain wording or manufacture exact pronunciation claims. Evaluate communication, listening responses, fluency, vocabulary, grammar, and naturalness. Write every explanation and meaning in ${reviewLanguage}; keep Japanese examples in Japanese. Select 3-6 useful words or expressions that the learner can add to spaced repetition. Call submit_session_review exactly once and produce no ordinary chat reply.`,
+        tools: [SESSION_REVIEW_TOOL],
+        tool_choice: 'required',
+      },
+    });
+    if (!sent) {
+      clearTimeout(timer);
+      reviewRequest = null;
+      rejectRequest(new Error('无法向 Realtime Tutor 请求复盘'));
+    }
+    return promise;
+  }
+
   function stop() {
     if (stopped) return;
     stopped = true;
@@ -285,6 +421,12 @@ export async function startRealtimeSession({
     commitTimer = null;
     if (durationTimer) clearInterval(durationTimer);
     durationTimer = null;
+    if (reviewRequest) {
+      const pending = reviewRequest;
+      reviewRequest = null;
+      clearTimeout(pending.timer);
+      pending.reject(new Error('Realtime 会话已关闭'));
+    }
     setMuted(true);
     try { dc.close(); } catch { /* noop */ }
     try { pc.close(); } catch { /* noop */ }
@@ -294,7 +436,7 @@ export async function startRealtimeSession({
     audioEl.remove();
   }
 
-  return { stop, setMuted, startTalking, stopTalking, isTalking: () => talking, maxDurationMs };
+  return { stop, setMuted, startTalking, stopTalking, requestSessionReview, isTalking: () => talking, maxDurationMs };
 }
 
 async function createRealtimeCall({ sdp, apiKey, instructions, voice, inputLanguage }) {

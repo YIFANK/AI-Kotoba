@@ -185,12 +185,12 @@ Return JSON only in this exact shape:
   "summary": "2-3 sentence overall review in ${explanationLanguage}",
   "strengths": ["up to 3 concrete strengths in ${explanationLanguage}"],
   "improvements": [{"original":"learner wording", "better":"natural Japanese correction", "explanation":"short explanation in ${explanationLanguage}"}],
-  "usefulPhrases": [{"japanese":"useful Japanese sentence", "meaning":"meaning in ${explanationLanguage}"}],
+  "usefulPhrases": [{"japanese":"useful Japanese word or expression", "reading":"kana reading", "meaning":"meaning in ${explanationLanguage}", "example":"natural Japanese example", "exampleTranslation":"translation in ${explanationLanguage}"}],
   "grammarEvidence": [{"pattern":"Japanese grammar pattern", "level":"N5|N4|N3|unknown", "result":"used-well|needs-work", "note":"short evidence in ${explanationLanguage}"}],
   "nextStep": "one specific next practice task in ${explanationLanguage}"
 }
 
-Keep each array to at most 3 items. If there is too little learner Japanese, say so honestly and return fewer items.
+Keep strengths, improvements, and grammarEvidence to at most 3 items. Select 3-6 useful phrases that appeared in the conversation or would have helped the learner express the same ideas more naturally. If there is too little learner Japanese, say so honestly and avoid quoting uncertain speech-to-text wording.
 
 Transcript:
 ${transcript}`;
@@ -622,6 +622,20 @@ function abilityAdaptationBlock(abilityProfile) {
 export function freeTalkInstructions(scene, level, style = 'conversation', learningNotes = [], abilityProfile = null) {
   const { nativeLanguage, explanationLanguage } = learnerProfile();
   const bilingual = style === 'bilingual';
+  const cleanScene = String(scene || '').trim();
+  const isOpenConversation = !cleanScene || ['自由会話', '自由会话', '日常会話', '日常会话', 'free conversation'].includes(cleanScene.toLocaleLowerCase());
+  const topicIntroduction = isOpenConversation
+    ? `固定された練習場面はありません。学習者の日常から自然に話題を見つけ、少しずつ深めてください。`
+    : `学習者が明確に選んだ最初の場面は「${cleanScene}」です。ただし、これは会話を始めるきっかけであり、守り続けるべき授業範囲ではありません。`;
+  const topicRules = isOpenConversation
+    ? `- 最初からコンビニ、買い物、会計などのロールプレイを提案しない
+- 最初の発話は短く挨拶し、「今日はどんな一日でしたか」または「最近どうですか」のような開かれた質問を一つだけする
+- 学習者が出した具体的な出来事・人・感情・興味から次の話題を選ぶ。二、三ターンかけて「何があったか → どう感じたか → なぜそう思うか」のように自然に深める
+- 質問を連発せず、会話相手として自分の短い反応や関連する一言も返す`
+    : `- 「${cleanScene}」は会話を始めるための最初の場面であり、守り続けるべき授業範囲ではない
+- 学習者が別の話題を出したり場面変更を求めたりしたら、許可を求めさせず、その話題へ自然に移る
+- 「今のテーマを終えてから」「まず元の練習を続けましょう」などと言って話題変更を拒否しない
+- 学習者が望まない限り、元の話題へ無理に戻さない`;
   const styleRule = {
     bilingual: `自然な日本語会話を基本にする。学習者が明確に助けを求めた時、理解できないと言った時、または ${explanationLanguage} だけで答えて橋渡しが必要な時に限り、${explanationLanguage} で短く補助する`,
     conversation: '会話の流れを最優先し、小さな間違いは止めすぎない。重要な間違いだけ自然な言い換えで示す',
@@ -639,13 +653,10 @@ export function freeTalkInstructions(scene, level, style = 'conversation', learn
 ` : '';
   return `最重要の言語規則：日本語と「${explanationLanguage}」だけを使用してください。「${explanationLanguage}」が英語でない限り、英語は絶対に使用しないでください。この規則は長い会話で古い発言が省略された後も変わりません。
 
-あなたは、母語が「${nativeLanguage}」の学習者のための、自然に会話できる日本語音声チューターです。「${scene}」というテーマで、JLPT ${level} 相当の学習者と話してください。説明が本当に必要な場合だけ「${explanationLanguage}」を使ってください。
+あなたは、母語が「${nativeLanguage}」の学習者のための、自然に会話できる日本語音声チューターです。JLPT ${level} 相当を目安にし、説明が本当に必要な場合だけ「${explanationLanguage}」を使ってください。${topicIntroduction}
 
 話題の扱い：
-- 「${scene}」は会話を始めるための最初の場面であり、守り続けるべき授業範囲ではない
-- 学習者が別の話題を出したり場面変更を求めたりしたら、許可を求めさせず、その話題へ自然に移る
-- 「今のテーマを終えてから」「まず元の練習を続けましょう」などと言って話題変更を拒否しない
-- 学習者が望まない限り、元の話題へ無理に戻さない
+${topicRules}
 
 指導方針：${styleRule}。
 ${languageRule}
@@ -660,7 +671,7 @@ ${languageRule}
 - 教師として常に主導せず、会話相手として沈黙や話題転換も受け入れる。教科書的な進行、毎回の称賛、復唱の強制を避ける
 - 長い会話で文脈が不足した場合は、日本語で短く確認する。英語や第三の言語へ切り替えない
 - 学習者が表現の保存や弱点の記録を明確に頼んだ場合だけ、利用可能な保存ツールを使う
-- セッション開始時は短く挨拶し、今日のテーマに合う最初の質問を一つだけする${abilityAdaptationBlock(abilityProfile)}${learningMemoryBlock(learningNotes)}`;
+- セッション開始時に「今日のテーマは〜です」と授業の枠を宣言しない${abilityAdaptationBlock(abilityProfile)}${learningMemoryBlock(learningNotes)}`;
 }
 
 export function oralPlacementInstructions() {
@@ -690,6 +701,8 @@ export function oralPlacementInstructions() {
 export async function freeTalkReply(scene, level, history, userMsg, style = 'conversation', learningNotes = []) {
   const { nativeLanguage, explanationLanguage } = learnerProfile();
   const bilingual = style === 'bilingual';
+  const cleanScene = String(scene || '').trim();
+  const isOpenConversation = !cleanScene || ['自由会話', '自由会话', '日常会話', '日常会话', 'free conversation'].includes(cleanScene.toLocaleLowerCase());
   const lines = history.map(h => `${h.role === 'me' ? 'Learner' : 'Tutor'}: ${h.text}`).join('\n');
   const styleRule = {
     bilingual: `自然な日本語会話を基本にし、学習者が助けを求めた時だけ ${explanationLanguage} を一文以内で使う`,
@@ -697,12 +710,12 @@ export async function freeTalkReply(scene, level, history, userMsg, style = 'con
     correction: '先回应内容，再用「より自然には〜」只纠正一个最重要的问题',
     interview: '像日语口试考官一样，简短评价回答后一次只问一个新问题',
   }[style] || '保持自然对话';
-  const prompt = `You are a Japanese conversation tutor speaking with a JLPT ${level} learner whose native language is ${nativeLanguage}. Topic: 「${scene}」.
+  const prompt = `You are a Japanese conversation tutor speaking with a JLPT ${level} learner whose native language is ${nativeLanguage}.${isOpenConversation ? ' This is an open conversation grounded in the learner’s real day and interests.' : ` The learner chose 「${cleanScene}」 only as a possible starting setting.`}
 
 Rules:
 - Use only Japanese and ${explanationLanguage}. Never switch to English unless ${explanationLanguage} is English, even when older context is truncated.
 - Reply mainly in Japanese at ${level} level, usually in 1-3 sentences. Ask at most one question, but do not end every turn with a question.
-- Treat 「${scene}」 only as the starting setting, never as a required curriculum boundary. If the learner changes the subject or requests another setting, follow immediately and naturally. Never insist on finishing the current topic first or pull the conversation back unless the learner asks.
+- ${isOpenConversation ? 'Do not introduce a convenience-store or other role-play topic. Follow a concrete detail from the learner and gradually deepen from events to feelings, reasons, comparisons, or opinions.' : `Treat 「${cleanScene}」 only as the starting setting, never as a required curriculum boundary. If the learner changes the subject or requests another setting, follow immediately and naturally.`}
 - Teaching style: ${styleRule}
 - ${bilingual ? `Use ${explanationLanguage} only when the learner explicitly asks for help, says they do not understand, or answers entirely in ${explanationLanguage} and needs a bridge. Do not translate every sentence, force repetition, praise every answer, or follow a fixed teaching pattern.` : `Only when the learner asks for help, explain in one sentence of ${explanationLanguage}, then return to Japanese.`}
 - Correct only when requested, when meaning is unclear, or when an important error repeats. Otherwise respond to the meaning and keep the conversation natural.

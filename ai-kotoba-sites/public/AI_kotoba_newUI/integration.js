@@ -601,7 +601,7 @@ async function addVocabulary(item) {
     meaningLanguage: language,
     example: String(item?.example || '').trim(),
     exampleTranslation: String(item?.exampleTranslation || '').trim(),
-    source: 'three-line-reading',
+    source: String(item?.source || 'three-line-reading').trim().slice(0, 40),
   };
   const existing = db.getVocab().find(entry => entry.word === word);
   let added;
@@ -750,35 +750,51 @@ async function assessTutorPlacement(sessionId) {
   return snapshot();
 }
 
-async function reviewTutorSession(sessionId) {
+function normalizeTutorReview(raw, source) {
+  const cleanList = (value, limit = 3) => (Array.isArray(value) ? value : []).slice(0, limit);
+  return {
+    source,
+    summary: String(raw?.summary || '').trim(),
+    strengths: cleanList(raw?.strengths).map(value => String(value || '').trim()).filter(Boolean),
+    improvements: cleanList(raw?.improvements).map(item => ({
+      original: String(item?.original || '').trim(),
+      better: String(item?.better || '').trim(),
+      explanation: String(item?.explanation || '').trim(),
+    })).filter(item => item.original || item.better),
+    usefulPhrases: cleanList(raw?.usefulPhrases, 6).map(item => ({
+      japanese: String(item?.japanese || item?.word || '').trim(),
+      reading: String(item?.reading || '').trim(),
+      meaning: String(item?.meaning || '').trim(),
+      example: String(item?.example || '').trim(),
+      exampleTranslation: String(item?.exampleTranslation || '').trim(),
+    })).filter(item => item.japanese && item.meaning),
+    grammarEvidence: cleanList(raw?.grammarEvidence).map(item => ({
+      pattern: String(item?.pattern || '').trim(),
+      level: ['N5', 'N4', 'N3', 'unknown'].includes(String(item?.level)) ? String(item.level) : 'unknown',
+      result: item?.result === 'used-well' ? 'used-well' : 'needs-work',
+      note: String(item?.note || '').trim(),
+    })).filter(item => item.pattern),
+    nextStep: String(raw?.nextStep || '').trim(),
+    generatedAt: Date.now(),
+  };
+}
+
+function usableRealtimeReview(raw) {
+  return !!String(raw?.summary || '').trim()
+    && Array.isArray(raw?.strengths)
+    && Array.isArray(raw?.improvements)
+    && Array.isArray(raw?.usefulPhrases);
+}
+
+async function reviewTutorSession(sessionId, realtimeReview = null) {
   const session = db.getTutorSessions().find(item => item.id === sessionId);
   if (!session) throw new Error('找不到这次通话');
   if (session.review) return snapshot();
   db.updateTutorSession(sessionId, { reviewStatus: 'generating', reviewError: '' });
   try {
-    const raw = await reviewTutorConversation(session);
-    const cleanList = (value, limit = 3) => (Array.isArray(value) ? value : []).slice(0, limit);
-    const review = {
-      summary: String(raw?.summary || '').trim(),
-      strengths: cleanList(raw?.strengths).map(value => String(value || '').trim()).filter(Boolean),
-      improvements: cleanList(raw?.improvements).map(item => ({
-        original: String(item?.original || '').trim(),
-        better: String(item?.better || '').trim(),
-        explanation: String(item?.explanation || '').trim(),
-      })).filter(item => item.original || item.better),
-      usefulPhrases: cleanList(raw?.usefulPhrases).map(item => ({
-        japanese: String(item?.japanese || '').trim(),
-        meaning: String(item?.meaning || '').trim(),
-      })).filter(item => item.japanese),
-      grammarEvidence: cleanList(raw?.grammarEvidence).map(item => ({
-        pattern: String(item?.pattern || '').trim(),
-        level: String(item?.level || 'unknown'),
-        result: item?.result === 'used-well' ? 'used-well' : 'needs-work',
-        note: String(item?.note || '').trim(),
-      })).filter(item => item.pattern),
-      nextStep: String(raw?.nextStep || '').trim(),
-      generatedAt: Date.now(),
-    };
+    const fromRealtime = usableRealtimeReview(realtimeReview);
+    const raw = fromRealtime ? realtimeReview : await reviewTutorConversation(session);
+    const review = normalizeTutorReview(raw, fromRealtime ? 'realtime-audio' : 'transcript-fallback');
     db.updateTutorSession(sessionId, { review, reviewStatus: 'ready', reviewError: '' });
     review.grammarEvidence.forEach(item => db.addLearningNote({
       category: `语法 · ${item.level}`,
@@ -793,6 +809,29 @@ async function reviewTutorSession(sessionId) {
       reviewError: String(error?.message || '复盘生成失败').slice(0, 240),
     });
     throw error;
+  }
+  return snapshot();
+}
+
+async function addTutorReviewVocabulary(sessionId, index) {
+  const session = db.getTutorSessions().find(item => item.id === sessionId);
+  const item = session?.review?.usefulPhrases?.[Number(index)];
+  if (!item) throw new Error('找不到这条课后生词');
+  return addVocabulary({
+    word: item.japanese,
+    reading: item.reading,
+    meaning: item.meaning,
+    example: item.example,
+    exampleTranslation: item.exampleTranslation,
+    source: 'tutor-review',
+  });
+}
+
+async function addAllTutorReviewVocabulary(sessionId) {
+  const session = db.getTutorSessions().find(item => item.id === sessionId);
+  const phrases = Array.isArray(session?.review?.usefulPhrases) ? session.review.usefulPhrases : [];
+  for (let index = 0; index < phrases.length; index += 1) {
+    await addTutorReviewVocabulary(sessionId, index);
   }
   return snapshot();
 }
@@ -875,7 +914,7 @@ function setGrammarStatus(id, status) {
   return snapshot();
 }
 
-async function startTutor({ topic = '日常会話', level = 'N4', style, mode = 'tutor', onUserText, onAIDelta, onAIDone, onStatus, onError, onTimeRemaining, onTimeLimit }) {
+async function startTutor({ topic = '自由会話', level = 'N4', style, mode = 'tutor', onUserText, onAIDelta, onAIDone, onStatus, onError, onTimeRemaining, onTimeLimit }) {
   const settings = db.getSettings();
   const teachingStyle = normalizeTutorStyle(style || settings.tutorStyle);
   return startRealtimeSession({
@@ -892,6 +931,7 @@ async function startTutor({ topic = '日常会話', level = 'N4', style, mode = 
     onError,
     onTimeRemaining,
     onTimeLimit,
+    reviewLanguage: preferredExplanationLanguage(),
     onToolCall: async ({ name, args }) => {
       if (name === 'save_vocabulary') return addVocabulary(args);
       if (name === 'remember_learning_point') return db.addLearningNote({ ...args, source: 'realtime-tutor' });
@@ -910,6 +950,8 @@ window.AIKotoba = {
   createScenario,
   saveTutorSession,
   reviewTutorSession,
+  addTutorReviewVocabulary,
+  addAllTutorReviewVocabulary,
   assessTutorPlacement,
   startTutor,
   loadGrammarCatalog,

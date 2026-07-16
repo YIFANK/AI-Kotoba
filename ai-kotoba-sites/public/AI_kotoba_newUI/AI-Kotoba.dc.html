@@ -572,7 +572,7 @@
               <span style="max-width:320px;text-align:left;font-size:11.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ tutor.styleHelp }}</span>
             </div></sc-if>
             <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
-              <button class="btn btn-primary" onClick="{{ tutor.onToggle }}" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px">{{ tutor.buttonLabel }}</button>
+              <button class="btn btn-primary" disabled="{{ tutor.buttonDisabled }}" onClick="{{ tutor.onToggle }}" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px">{{ tutor.buttonLabel }}</button>
               <sc-if value="{{ tutor.active }}" hint-placeholder-val="{{ false }}">
                 <button class="tutor-talk" data-talking="{{ tutor.talking }}" aria-label="按住说话，松开发送" onPointerDown="{{ tutor.onTalkStart }}" onPointerUp="{{ tutor.onTalkEnd }}" onPointerCancel="{{ tutor.onTalkEnd }}" onKeyDown="{{ tutor.onTalkStart }}" onKeyUp="{{ tutor.onTalkEnd }}">{{ tutor.talkLabel }}</button>
               </sc-if>
@@ -609,7 +609,7 @@
                     </sc-if>
                     <sc-if value="{{ h.review.ready }}" hint-placeholder-val="{{ false }}">
                       <div style="padding:15px;border-radius:16px;background:var(--color-accent-100);display:flex;flex-direction:column;gap:12px">
-                        <div><div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--color-accent-800);margin-bottom:4px">课后复盘</div><div style="font-size:13px;line-height:1.65">{{ h.review.summary }}</div></div>
+                        <div><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:4px"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--color-accent-800)">课后复盘</div><span class="tag" style="font-size:10.5px">{{ h.review.sourceLabel }}</span></div><div style="font-size:13px;line-height:1.65">{{ h.review.summary }}</div></div>
                         <sc-if value="{{ h.review.hasStrengths }}" hint-placeholder-val="{{ true }}">
                           <div><b style="font-size:12.5px">做得不错</b><div style="display:flex;flex-direction:column;gap:4px;margin-top:4px"><sc-for list="{{ h.review.strengths }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px;line-height:1.5">✓ {{ x.text }}</div></sc-for></div></div>
                         </sc-if>
@@ -617,7 +617,17 @@
                           <div><b style="font-size:12.5px">可以更自然</b><div style="display:flex;flex-direction:column;gap:7px;margin-top:5px"><sc-for list="{{ h.review.improvements }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px;line-height:1.5"><span class="jp" style="color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ x.original }}</span> → <b class="jp" style="color:var(--color-accent)">{{ x.better }}</b><div style="color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ x.explanation }}</div></div></sc-for></div></div>
                         </sc-if>
                         <sc-if value="{{ h.review.hasPhrases }}" hint-placeholder-val="{{ true }}">
-                          <div><b style="font-size:12.5px">带走这些表达</b><div style="display:flex;flex-direction:column;gap:4px;margin-top:4px"><sc-for list="{{ h.review.phrases }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px"><b class="jp">{{ x.japanese }}</b> · {{ x.meaning }}</div></sc-for></div></div>
+                          <div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:12.5px">课后生词与表达</b><button class="btn btn-secondary" disabled="{{ h.review.allAdded }}" onClick="{{ h.review.onAddAll }}" style="padding:6px 10px;font-size:11px;font-family:var(--font-body);font-weight:700">{{ h.review.allAddLabel }}</button></div>
+                            <div style="display:flex;flex-direction:column;gap:8px;margin-top:7px">
+                              <sc-for list="{{ h.review.phrases }}" as="x" hint-placeholder-count="3">
+                                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:9px 10px;border-radius:12px;background:color-mix(in srgb,var(--color-bg) 72%,transparent)">
+                                  <div style="min-width:0;font-size:12.5px;line-height:1.5"><b class="jp">{{ x.japanese }}</b><span style="color:color-mix(in srgb,var(--color-text) 50%,transparent)"> {{ x.reading }}</span><div>{{ x.meaning }}</div><sc-if value="{{ x.hasExample }}" hint-placeholder-val="{{ true }}"><div class="jp" style="margin-top:2px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">{{ x.example }}</div></sc-if></div>
+                                  <button class="btn btn-secondary" disabled="{{ x.added }}" onClick="{{ x.onAdd }}" style="flex:0 0 auto;padding:6px 9px;font-size:11px;font-family:var(--font-body);font-weight:700">{{ x.addLabel }}</button>
+                                </div>
+                              </sc-for>
+                            </div>
+                          </div>
                         </sc-if>
                         <div style="font-size:12.5px;padding-top:9px;border-top:1px solid color-mix(in srgb,var(--color-accent) 20%,transparent)"><b>下一步：</b>{{ h.review.nextStep }}</div>
                       </div>
@@ -872,6 +882,7 @@ class Component extends DCLogic {
     this.currentArticle = {title:'',localizedTitle:'',level:'N4',paragraphs:[]};
     this.selectedToken = null;
     this._realtime = null;
+    this._finishingTutor = false;
     this._tutorTranscript = [];
     this._tutorMeta = null;
     this.tutorSessions = [];
@@ -886,7 +897,7 @@ class Component extends DCLogic {
     this._streak = null;
     let savedPalette='blue';
     try{ const saved=window.localStorage.getItem('ai-kotoba-palette'); if(['blue','terra','sage'].includes(saved)) savedPalette=saved; }catch(e){}
-    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorMode:'tutor', tutorActive:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], tutorRemainingSeconds:720, grammarLevel:'N5', grammarQuery:'', grammarLoading:false, adminLoading:false, adminError:'', shareBusy:false, shareNotice:'', sharedSaved:false };
+    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorMode:'tutor', tutorActive:false, tutorFinishing:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], tutorRemainingSeconds:720, grammarLevel:'N5', grammarQuery:'', grammarLoading:false, adminLoading:false, adminError:'', shareBusy:false, shareNotice:'', sharedSaved:false };
   }
 
   changePalette(dir){
@@ -1255,15 +1266,16 @@ class Component extends DCLogic {
   }
 
   async toggleTutor(requestedMode){
+    if(this._finishingTutor||this.state.tutorFinishing) return;
     if(this._realtime){
-      this.finishTutor(); return;
+      void this.finishTutor(); return;
     }
     const mode=requestedMode==='assessment'?'assessment':'tutor';
-    const topic=mode==='assessment'?'自适应听说分级':(this.state.sceneInput||'日常会話');
+    const topic=mode==='assessment'?'自适应听说分级':'自由会話';
     const level=mode==='assessment'?'N5':(this.abilityProfile?.overallLevel||this.state.sceneLevel);
     this._tutorTranscript=[];
     this._tutorMeta={scene:topic,level,style:this.state.tutorStyle,mode,createdAt:Date.now()};
-    this.setState({tutorMode:mode,tutorStatus:'connecting',tutorMessages:[],tutorTalking:false,tutorRemainingSeconds:720});
+    this.setState({tutorMode:mode,tutorStatus:'connecting',tutorMessages:[],tutorFinishing:false,tutorTalking:false,tutorRemainingSeconds:720});
     try{
       this._realtime=await window.AIKotoba.startTutor({
         topic,level,style:this.state.tutorStyle,mode,
@@ -1273,7 +1285,7 @@ class Component extends DCLogic {
         onStatus:status=>this.setState({tutorStatus:status}),
         onError:message=>{ this.setState({tutorStatus:'disconnected'}); console.error(message); },
         onTimeRemaining:seconds=>this.setState({tutorRemainingSeconds:seconds}),
-        onTimeLimit:()=>this.finishTutor(true),
+        onTimeLimit:()=>void this.finishTutor(true),
       });
       this.setState({tutorActive:true,tutorStatus:'idle'});
     }catch(e){ this._realtime=null; this._tutorMeta=null; this._tutorTranscript=[]; this.setState({tutorActive:false,tutorTalking:false,tutorStatus:'idle'}); window.alert(e.message||'Tutor 连接失败'); }
@@ -1287,26 +1299,41 @@ class Component extends DCLogic {
     this.setState(s=>({tutorMessages:[...s.tutorMessages,{who:item.role==='me'?'你':'Tutor',text:value}]}));
   }
 
-  finishTutor(limitReached=false){
+  async finishTutor(limitReached=false){
+    if(this._finishingTutor) return;
     const realtime=this._realtime;
     if(!realtime) return;
+    this._finishingTutor=true;
+    const meta=this._tutorMeta||{};
+    const assessment=meta.mode==='assessment';
+    this.setState({tutorActive:false,tutorFinishing:true,tutorTalking:false,tutorStatus:assessment?'placementReviewing':'reviewingVoice'});
+    const wasTalking=!!realtime.isTalking?.();
     realtime.stopTalking?.();
+    if(wasTalking) await new Promise(resolve=>setTimeout(resolve,180));
+    let realtimeReview=null;
+    if(!assessment&&realtime.requestSessionReview){
+      try{
+        realtimeReview=await realtime.requestSessionReview();
+      }catch(error){
+        console.info('Realtime audio review unavailable; falling back to transcript review.',error);
+      }
+    }
     realtime.stop();
     this._realtime=null;
     const messages=[...this._tutorTranscript];
-    const meta=this._tutorMeta||{};
     let status=limitReached?'limitEnded':'idle';
     if(messages.length&&window.AIKotoba?.saveTutorSession){
       const data=window.AIKotoba.saveTutorSession({...meta,endedAt:Date.now(),messages});
       this.applyData(data);
-      const assessment=meta.mode==='assessment';
       status=assessment?'placementReviewing':(limitReached?'limitReviewing':'reviewing');
       const sessionId=data.savedTutorSessionId;
       const analyze=assessment?window.AIKotoba.assessTutorPlacement:window.AIKotoba.reviewTutorSession;
       if(sessionId&&analyze){
-        analyze(sessionId).then(next=>{
+        analyze(sessionId,realtimeReview).then(next=>{
           this.applyData(next);
-          if(!this.state.tutorActive) this.setState({view:assessment?'ability':'tutor',tutorMode:'tutor',tutorStatus:assessment?'placementSaved':(limitReached?'limitSaved':'saved')});
+          if(!this.state.tutorActive) this.setState(assessment
+            ? {view:'ability',tutorMode:'tutor',tutorStatus:'placementSaved'}
+            : {tutorMode:'tutor',tutorStatus:limitReached?'limitSaved':'saved'});
         }).catch(error=>{
           this.applyData(window.AIKotoba.snapshot());
           if(!this.state.tutorActive) this.setState({tutorStatus:assessment?'placementError':'reviewError'});
@@ -1316,7 +1343,22 @@ class Component extends DCLogic {
     }
     this._tutorTranscript=[];
     this._tutorMeta=null;
-    this.setState({tutorActive:false,tutorTalking:false,tutorStatus:status});
+    this._finishingTutor=false;
+    this.setState({tutorActive:false,tutorFinishing:false,tutorTalking:false,tutorStatus:status});
+  }
+
+  async addTutorReviewPhrase(sessionId,index){
+    try{
+      const result=await window.AIKotoba.addTutorReviewVocabulary(sessionId,index);
+      this.applyData(result.data||result);
+    }catch(error){ window.alert(error.message||'加入生词本失败'); }
+  }
+
+  async addAllTutorReviewPhrases(sessionId){
+    try{
+      const result=await window.AIKotoba.addAllTutorReviewVocabulary(sessionId);
+      this.applyData(result.data||result);
+    }catch(error){ window.alert(error.message||'加入课后生词失败'); }
   }
 
   startTutorTalking(event){
@@ -1347,14 +1389,21 @@ class Component extends DCLogic {
     const actualRecents=recents.length?recents:this.recents.map(r=>({...r,onOpen:()=>this.openScenario(active)}));
     const dueCount=this.V.filter(x=>(x.nextReview||0)<=Date.now()).length;
     const streak=this._streak||{streak:7,week:['日','一','二','三','四','五','六'].map((day,i)=>({day,done:i<=3,date:''}))};
-    const statusLabels={idle:this.state.tutorActive?'按住“说话”按钮开始':'准备开始',saved:'通话与课后复盘已保存',reviewing:'通话已保存，正在生成课后复盘…',reviewError:'通话已保存；课后复盘暂时生成失败',placementReviewing:'测评通话已保存，正在生成能力地图…',placementSaved:'听说分级完成，能力地图已更新',placementError:'测评通话已保存；能力分析暂时失败',limitEnded:'已到 12 分钟上限，通话已结束',limitReviewing:'已到 12 分钟上限；通话已保存，正在生成复盘…',limitSaved:'已到 12 分钟上限；通话与复盘已保存',connecting:'正在连接 GPT Realtime…',listening:'正在听你说，松开发送…',thinking:'Tutor 正在思考…',speaking:'Tutor 正在说话；按住说话可打断',disconnected:'连接已断开，结束通话仍会保存已有记录'};
+    const statusLabels={idle:this.state.tutorActive?'按住“说话”按钮开始':'准备开始',saved:'通话与课后复盘已保存',reviewingVoice:'Tutor 正在根据原始语音与完整对话整理复盘…',reviewing:'通话已保存，正在校验课后复盘…',reviewError:'通话已保存；课后复盘暂时生成失败',placementReviewing:'测评通话已保存，正在生成能力地图…',placementSaved:'听说分级完成，能力地图已更新',placementError:'测评通话已保存；能力分析暂时失败',limitEnded:'已到 12 分钟上限，通话已结束',limitReviewing:'已到 12 分钟上限；通话已保存，正在生成复盘…',limitSaved:'已到 12 分钟上限；通话与复盘已保存',connecting:'正在连接 GPT Realtime…',listening:'正在听你说，松开发送…',thinking:'Tutor 正在思考…',speaking:'Tutor 正在说话；按住说话可打断',disconnected:'连接已断开，结束通话仍会保存已有记录'};
+    const savedVocabWords=new Set((this.V||[]).map(item=>String(item.word||'').trim()).filter(Boolean));
     const tutorHistory=(this.tutorSessions||[]).filter(session=>session.mode!=='assessment').slice(0,12).map(session=>{
       let messages=Array.isArray(session.messages)?session.messages.map(item=>({who:item.role==='me'?'你':'Tutor',text:String(item.text||'')})).filter(item=>item.text):[];
       if(!messages.length&&session.transcript) messages=String(session.transcript).split('\n').map(line=>{const mine=/^(Learner|我|你)[:：]/.test(line);return{who:mine?'你':'Tutor',text:line.replace(/^[^:：]+[:：]\s*/,'')}}).filter(item=>item.text);
       const mins=Math.max(1,Math.round((Number(session.durationMs)||0)/60000));
       const rawReview=session.review||{};
-      const review={ready:session.reviewStatus==='ready'&&!!rawReview.summary,generating:['pending','generating'].includes(session.reviewStatus),error:session.reviewStatus==='error',summary:rawReview.summary||'',strengths:(rawReview.strengths||[]).map(text=>({text})),improvements:rawReview.improvements||[],phrases:rawReview.usefulPhrases||[],hasStrengths:(rawReview.strengths||[]).length>0,hasImprovements:(rawReview.improvements||[]).length>0,hasPhrases:(rawReview.usefulPhrases||[]).length>0,nextStep:rawReview.nextStep||''};
-      return{scene:session.scene||'日常会話',level:session.level||'N4',meta:`${new Date(session.createdAt||Date.now()).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · ${session.userTurns||messages.filter(item=>item.who==='你').length} 轮 · ${mins} 分钟`,messages,review};
+      const phrases=(rawReview.usefulPhrases||[]).map((item,index)=>{
+        const japanese=String(item.japanese||item.word||'').trim();
+        const added=savedVocabWords.has(japanese);
+        return{...item,japanese,reading:item.reading?`（${item.reading}）`:'',hasExample:!!item.example,added,addLabel:added?'已加入 ✓':'+ 加入',onAdd:()=>this.addTutorReviewPhrase(session.id,index)};
+      }).filter(item=>item.japanese);
+      const allAdded=phrases.length>0&&phrases.every(item=>item.added);
+      const review={ready:session.reviewStatus==='ready'&&!!rawReview.summary,generating:['pending','generating'].includes(session.reviewStatus),error:session.reviewStatus==='error',sourceLabel:rawReview.source==='realtime-audio'?'基于原始语音':'STT 文本备用分析',summary:rawReview.summary||'',strengths:(rawReview.strengths||[]).map(text=>({text})),improvements:rawReview.improvements||[],phrases,hasStrengths:(rawReview.strengths||[]).length>0,hasImprovements:(rawReview.improvements||[]).length>0,hasPhrases:phrases.length>0,nextStep:rawReview.nextStep||'',allAdded,allAddLabel:allAdded?'已全部加入 ✓':'全部加入复习',onAddAll:()=>this.addAllTutorReviewPhrases(session.id)};
+      return{scene:session.scene||'自由会話',level:session.level||'N4',meta:`${new Date(session.createdAt||Date.now()).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · ${session.userTurns||messages.filter(item=>item.who==='你').length} 轮 · ${mins} 分钟`,messages,review};
     });
     const progressById=new Map((this.grammarProgress||[]).map(item=>[item.id,item]));
     const grammarRows=(this.grammarCatalog||[]).filter(item=>item.level===this.state.grammarLevel);
@@ -1407,7 +1456,7 @@ class Component extends DCLogic {
       vocabList:this.V.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?'今天到期':'稍后复习',dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
       flash:(()=>{const cards=this.V.slice(0,Math.max(1,Math.min(20,this.V.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:'暂无词汇',reading:'',meaning:'请先加入生词',example:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
       ability:{overallLevel:ability.overallLevel||'待测',summaryTitle:ability.overallLevel?`当前建议水平 ${ability.overallLevel} · 置信度 ${Math.round((Number(ability.confidence)||0)*100)}%`:'先建立你的第一张能力地图',summary:ability.summary||'用一段自然对话估计你能听懂什么、能表达什么。阅读和写作会保留为未测评，等对应任务提供真实证据。',updatedLabel:ability.lastAssessmentAt?`更新于 ${new Date(ability.lastAssessmentAt).toLocaleDateString('zh-CN')}`:'尚未测评',assessing:this.state.tutorStatus==='placementReviewing',assessLabel:this.state.tutorStatus==='placementReviewing'?'正在分析能力…':(ability.overallLevel?'重新进行听说分级':'开始 8–10 分钟听说分级'),onAssess:()=>this.startOralAssessment(),skills:abilitySkills,oral:oralRows,priorities:abilityPriorities},
-      tutor:{assessment:this.state.tutorMode==='assessment',showStyle:this.state.tutorMode!=='assessment',pageTitle:this.state.tutorMode==='assessment'?'自适应听说分级':'AI 语音 Tutor',pageDescription:this.state.tutorMode==='assessment'?'按住说话、松开发送。面试会从简单日常问题开始，根据你的回答自然升降难度。':'按住说话，松开发送；结束后自动保存完整对话记录。',cardTitle:this.state.tutorMode==='assessment'?'像平常聊天一样回答即可':'准备好开始对话了吗？',cardDescription:this.state.tutorMode==='assessment'?'不需要准备，也不会边聊边纠错；建议完成 8–10 分钟后结束。':'选择教学方式，用麦克风直接和 Tutor 练习。',onToggle:()=>this.toggleTutor(this.state.tutorMode),active:this.state.tutorActive,talking:this.state.tutorTalking,onTalkStart:e=>this.startTutorTalking(e),onTalkEnd:e=>this.stopTutorTalking(e),talkLabel:this.state.tutorTalking?'正在说话…松开发送':'按住说话',style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?'默认自然日语；只有你求助、没听懂或用中文回答时，才补一句中文，不强制复述。':this.state.tutorStyle==='conversation'?'尽量保持全日语自然会话，只温和纠正关键问题。':this.state.tutorStyle==='correction'?'回应内容后，每次最多纠正一个最值得改进的表达。':'像日语口试一样逐题练习并简短评价。',buttonLabel:this.state.tutorActive?(this.state.tutorMode==='assessment'?'结束并生成能力地图':'结束并保存'):(this.state.tutorMode==='assessment'?'开始分级':'开始通话'),statusLabel:statusLabels[this.state.tutorStatus]||'',timeLabel:`本次最多 12 分钟 · 剩余 ${String(Math.floor(this.state.tutorRemainingSeconds/60)).padStart(2,'0')}:${String(this.state.tutorRemainingSeconds%60).padStart(2,'0')}`,hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages,hasHistory:tutorHistory.length>0,history:tutorHistory},
+      tutor:{assessment:this.state.tutorMode==='assessment',showStyle:this.state.tutorMode!=='assessment',pageTitle:this.state.tutorMode==='assessment'?'自适应听说分级':'AI 语音 Tutor',pageDescription:this.state.tutorMode==='assessment'?'按住说话、松开发送。面试会从简单日常问题开始，根据你的回答自然升降难度。':'按住说话，松开发送；Tutor 会先聊聊你今天过得怎么样，再从你的回答自然深入。',cardTitle:this.state.tutorMode==='assessment'?'像平常聊天一样回答即可':'准备好开始对话了吗？',cardDescription:this.state.tutorMode==='assessment'?'不需要准备，也不会边聊边纠错；建议完成 8–10 分钟后结束。':'没有预设便利店场景。结束后会根据语音生成复盘和可加入闪卡的生词。',onToggle:()=>this.toggleTutor(this.state.tutorMode),active:this.state.tutorActive,finishing:this.state.tutorFinishing,buttonDisabled:this.state.tutorFinishing,talking:this.state.tutorTalking,onTalkStart:e=>this.startTutorTalking(e),onTalkEnd:e=>this.stopTutorTalking(e),talkLabel:this.state.tutorTalking?'正在说话…松开发送':'按住说话',style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?'默认自然日语；只有你求助、没听懂或用中文回答时，才补一句中文，不强制复述。':this.state.tutorStyle==='conversation'?'尽量保持全日语自然会话，只温和纠正关键问题。':this.state.tutorStyle==='correction'?'回应内容后，每次最多纠正一个最值得改进的表达。':'像日语口试一样逐题练习并简短评价。',buttonLabel:this.state.tutorFinishing?'正在整理语音…':(this.state.tutorActive?(this.state.tutorMode==='assessment'?'结束并生成能力地图':'结束并保存'):(this.state.tutorMode==='assessment'?'开始分级':'开始通话')),statusLabel:statusLabels[this.state.tutorStatus]||'',timeLabel:`本次最多 12 分钟 · 剩余 ${String(Math.floor(this.state.tutorRemainingSeconds/60)).padStart(2,'0')}:${String(this.state.tutorRemainingSeconds%60).padStart(2,'0')}`,hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages,hasHistory:tutorHistory.length>0,history:tutorHistory},
       admin:{visible:!!this.account?.isAdmin,loading:this.state.adminLoading,hasError:!!this.state.adminError,error:this.state.adminError,ready:!!usage&&!this.state.adminLoading,onRefresh:()=>this.openAdmin(),dayLabel:usage?`${usage.day} · ${usage.timezone} 统计`:'' ,activeUsers:usage?.activeUsers||0,totalUsers:usage?.totalUsers||0,buckets:(usage?.buckets||[]).map(b=>({label:b.label,used:b.used,limit:b.globalLimit,percent:b.percent,width:`${b.percent}%`,color:b.percent>=90?'#b14c35':b.percent>=70?'var(--color-accent-2)':'var(--color-accent)',note:b.bucket==='realtime'?`每次最多 12 分钟 · 今日最多 ${b.globalLimit*12} 分钟`:`剩余 ${b.remaining} ${b.unit}`})),users:(usage?.users||[]).map(u=>({email:u.email,ai:u.usage?.ai_text||0,realtime:u.usage?.realtime||0,pronunciation:u.usage?.pronunciation||0,tts:u.usage?.tts||0,total:u.total||0})),noUsers:!!usage&&!(usage.users||[]).length,history:(usage?.history||[]).map(d=>({day:d.day.slice(5),summary:`AI ${d.usage?.ai_text||0} · RT ${d.usage?.realtime||0} · 发音 ${d.usage?.pronunciation||0} · TTS ${d.usage?.tts||0}`}))},
       grammar:{isN5:this.state.grammarLevel==='N5',isN4:this.state.grammarLevel==='N4',isN3:this.state.grammarLevel==='N3',onN5:()=>this.setState({grammarLevel:'N5'}),onN4:()=>this.setState({grammarLevel:'N4'}),onN3:()=>this.setState({grammarLevel:'N3'}),query:this.state.grammarQuery,onSearch:e=>this.setState({grammarQuery:e.target.value}),items:grammarItems,count:grammarItems.length,total:(this.grammarCatalog||[]).length,mastered:(this.grammarProgress||[]).filter(item=>item.status==='mastered').length,loading:this.state.grammarLoading,hasLesson:!!grammarLesson&&!this.state.grammarLoading,lesson:grammarLesson?{level:this.activeGrammarPoint?.level||'',title:grammarLesson.title||this.grammarTitle(this.activeGrammarPoint?.title),meaning:grammarLesson.meaning||'',explanation:grammarLesson.explanation||'',formation:grammarLesson.formation||this.activeGrammarPoint?.formation||'',pitfall:grammarLesson.pitfall||'',examples:(grammarLesson.examples||[]).map(item=>({japanese:item.japanese||'',translation:item.translation||'',note:item.note||''})),quizPrompt:grammarLesson.quiz?.prompt||'',quizAnswer:grammarLesson.quiz?.answer||'',quizExplanation:grammarLesson.quiz?.explanation||'',masterLabel:grammarProgress?.status==='mastered'?'已掌握 ✓':'标记为已掌握',onMaster:()=>this.setGrammarProgress(grammarProgress?.status==='mastered'?'studying':'mastered')}:{examples:[]}},
       articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))+' 分钟',onOpen:()=>this.openArticle(a)})),
