@@ -297,6 +297,11 @@ test("shares conversations and articles through unlisted D1-backed links", async
   assert.match(migration, /CREATE TABLE `shared_content`/);
   assert.match(html, /保存到我的学习库/);
   assert.match(html, /分析完成后可分享/);
+  assert.match(html, /async copyShareLink\(url\)/);
+  assert.match(html, /navigator\.clipboard\?\.writeText/);
+  assert.match(html, /document\.execCommand\('copy'\)/);
+  assert.match(html, /shareNotice:copied\?ui\.linkCopied:ui\.copyManually/);
+  assert.doesNotMatch(html, /if\(navigator\.share\)/);
   assert.match(integration, /createShareLink/);
   assert.match(integration, /loadSharedContentFromLocation/);
   assert.match(integration, /saveSharedContent/);
