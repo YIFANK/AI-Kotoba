@@ -260,6 +260,23 @@ test("adapts the full learning UI for mobile browsers", async () => {
   assert.match(html, /scroll-padding-bottom:100px/);
 });
 
+test("adds an adaptive reading placement without changing oral ability", async () => {
+  const [html, integration] = await Promise.all([
+    readFile(new URL("../public/AI_kotoba_newUI/AI-Kotoba.dc.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/AI_kotoba_newUI/integration.js", import.meta.url), "utf8"),
+  ]);
+  assert.equal([...html.matchAll(/id:'n[1-5]-[12]'/g)].length, 10);
+  assert.match(html, /const READING_LEVELS=\['N5','N4','N3','N2','N1'\]/);
+  assert.match(html, /startReadingAssessment\(\)/);
+  assert.match(html, /answerReadingQuestion\(choice\)/);
+  assert.match(html, /this\._readingAnswers\.length>=5/);
+  assert.match(html, /This result updates reading only|本结果只更新阅读能力/);
+  assert.match(integration, /function saveReadingAssessment\(input = \{\}\)/);
+  assert.match(integration, /\.\.\.\(previous\.dimensions \|\| \{\}\),\s*reading,/);
+  assert.match(integration, /readingAssessmentHistory/);
+  assert.match(integration, /saveReadingAssessment,/);
+});
+
 test("enforces global paid API caps and protects the admin usage dashboard", async () => {
   const [server, adminRoute, html, integration] = await Promise.all([
     readFile(new URL("../lib/server.ts", import.meta.url), "utf8"),

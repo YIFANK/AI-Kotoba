@@ -987,6 +987,62 @@ function setGrammarStatus(id, status) {
   return snapshot();
 }
 
+function saveReadingAssessment(input = {}) {
+  const level = /^N[1-5]$/.test(String(input.level)) ? String(input.level) : 'N5';
+  const score = Math.max(0, Math.min(100, Math.round(Number(input.score) || 0)));
+  const confidence = Math.max(0, Math.min(1, Number(input.confidence) || 0));
+  const completedAt = Number(input.completedAt) || Date.now();
+  const accuracy = Math.max(0, Math.min(100, Math.round(Number(input.accuracy) || 0)));
+  const pace = Math.max(0, Math.min(100, Math.round(Number(input.pace) || 0)));
+  const rawDimensions = input.dimensions || {};
+  const normalizeSubdimension = key => ({
+    status: 'assessed',
+    score: Math.max(0, Math.min(100, Math.round(Number(rawDimensions[key]) || 0))),
+  });
+  const previous = db.getAbilityProfile() || {};
+  const reading = {
+    status: 'assessed',
+    score,
+    level,
+    confidence,
+    evidence: [
+      `5 题自适应阅读正确率 ${accuracy}%`,
+      `阅读节奏指标 ${pace}%`,
+      `覆盖 ${Array.isArray(input.levelsSeen) ? input.levelsSeen.join('、') : level}`,
+    ],
+    nextStep: score >= 82 ? '继续阅读 N1–N2 长文并练习观点推断' : score >= 66 ? '多读 N2–N3 短文，重点练习推断与段落主旨' : score >= 50 ? '巩固 N3–N4 词汇和长句信息定位' : '从 N5–N4 短文开始，提高基础理解准确率',
+    nextStepEnglish: score >= 82 ? 'Keep reading longer N1–N2 texts and practice inference' : score >= 66 ? 'Read more N2–N3 texts with a focus on inference and main ideas' : score >= 50 ? 'Strengthen N3–N4 vocabulary and information tracking in longer sentences' : 'Build accuracy with short N5–N4 texts first',
+  };
+  const history = [{
+    id: crypto.randomUUID(),
+    level,
+    score,
+    confidence,
+    accuracy,
+    pace,
+    completedAt,
+  }, ...(Array.isArray(previous.readingAssessmentHistory) ? previous.readingAssessmentHistory : [])].slice(0, 12);
+  db.saveAbilityProfile({
+    ...previous,
+    dimensions: {
+      ...(previous.dimensions || {}),
+      reading,
+      writing: previous.dimensions?.writing || { status: 'unmeasured', score: null, level: null, confidence: 0, evidence: [], nextStep: '完成一次短文写作任务后更新', nextStepEnglish: 'Complete a short writing task' },
+    },
+    readingDimensions: {
+      accuracy: normalizeSubdimension('accuracy'),
+      information: normalizeSubdimension('information'),
+      inference: normalizeSubdimension('inference'),
+      vocabulary: normalizeSubdimension('vocabulary'),
+      pace: { status: 'assessed', score: pace },
+    },
+    readingAssessmentHistory: history,
+    lastReadingAssessmentAt: completedAt,
+  });
+  db.recordActivity();
+  return snapshot();
+}
+
 async function startTutor({ topic = '自由会話', level = 'N4', style, mode = 'tutor', onUserText, onAIDelta, onAIDone, onStatus, onError, onTimeRemaining, onTimeLimit }) {
   const settings = db.getSettings();
   const teachingStyle = normalizeTutorStyle(style || settings.tutorStyle);
@@ -1026,6 +1082,7 @@ window.AIKotoba = {
   addTutorReviewVocabulary,
   addAllTutorReviewVocabulary,
   assessTutorPlacement,
+  saveReadingAssessment,
   startTutor,
   loadGrammarCatalog,
   openGrammarLesson,

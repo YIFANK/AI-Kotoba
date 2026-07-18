@@ -44,6 +44,8 @@
   .presetchip{ transition:all .15s; }
   .presetchip:hover{ background:var(--color-accent); color:var(--color-bg); }
   .article-generator-controls{display:flex;gap:10px}
+  .reading-option{width:100%;padding:12px 14px;border:1.5px solid var(--color-divider);border-radius:13px;background:var(--color-neutral-100);color:var(--color-text);font:650 13px var(--font-body);text-align:left;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+  .reading-option:hover{border-color:var(--color-accent);background:var(--color-accent-100);transform:translateY(-1px)}
   .recentrow:hover{ background:var(--color-accent-100); }
   .recentrow:hover .rchev{ transform:translateX(3px); }
   .ratebtn{ transition:transform .12s,box-shadow .12s; }
@@ -576,13 +578,37 @@
         <div style="animation:fadeUp .35s ease both;max-width:960px">
           <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:22px">
             <div><div style="display:flex;align-items:center;gap:10px"><h1 style="font-size:34px;margin:0">{{ ui.abilityTitle }}</h1><span class="tag tag-accent">{{ ability.overallLevel }}</span></div><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:5px 0 0">{{ ui.abilityDescription }}</p></div>
-            <button class="btn btn-primary" onClick="{{ ability.onAssess }}" disabled="{{ ability.assessing }}" style="font-family:var(--font-body);font-weight:750;padding:11px 18px">{{ ability.assessLabel }}</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-secondary" onClick="{{ ability.onReadingAssess }}" disabled="{{ ability.testingReading }}" style="font-family:var(--font-body);font-weight:750;padding:11px 18px">{{ ability.readingAssessLabel }}</button>
+              <button class="btn btn-primary" onClick="{{ ability.onAssess }}" disabled="{{ ability.assessing }}" style="font-family:var(--font-body);font-weight:750;padding:11px 18px">{{ ability.assessLabel }}</button>
+            </div>
           </div>
           <div class="card elev-sm" style="padding:20px 22px;margin-bottom:16px;background:var(--color-accent-100);gap:7px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><b style="font-size:15px">{{ ability.summaryTitle }}</b><span style="font-size:12px;color:var(--color-accent-800)">{{ ability.updatedLabel }}</span></div>
             <div style="font-size:13px;line-height:1.65;color:color-mix(in srgb,var(--color-text) 72%,transparent)">{{ ability.summary }}</div>
             <div style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 54%,transparent)">{{ ui.oralEvidenceNote }}</div>
           </div>
+          <sc-if value="{{ readingTest.visible }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-md" style="padding:22px;margin-bottom:16px;gap:17px;border:1px solid color-mix(in srgb,var(--color-accent) 28%,var(--color-divider))">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                <div><span class="tag tag-accent">{{ readingTest.level }}</span><b style="font-size:15px;margin-left:8px">{{ readingTest.progress }}</b></div>
+                <button class="btn btn-ghost" onClick="{{ readingTest.onCancel }}" style="font-size:12px">{{ ui.cancelTest }}</button>
+              </div>
+              <p class="jp" style="font-size:17px;line-height:2;margin:0;padding:18px;border-radius:15px;background:var(--color-neutral-100)">{{ readingTest.passage }}</p>
+              <div style="font-size:14px;font-weight:750;line-height:1.6">{{ readingTest.question }}</div>
+              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px">
+                <sc-for list="{{ readingTest.options }}" as="o" hint-placeholder-count="4"><button class="reading-option" onClick="{{ o.onPick }}">{{ o.label }}</button></sc-for>
+              </div>
+              <div style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">{{ ui.readingAssessmentNote }}</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ readingResult.visible }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-md" style="padding:22px;margin-bottom:16px;gap:13px;background:var(--color-accent-100);border:1px solid color-mix(in srgb,var(--color-accent) 28%,var(--color-divider))">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div style="font-size:12px;color:var(--color-accent-800);font-weight:800">{{ ui.readingResultTitle }}</div><div style="display:flex;align-items:baseline;gap:10px;margin-top:4px"><span style="font-family:var(--font-heading);font-size:34px;color:var(--color-accent)">{{ readingResult.level }}</span><span style="font-size:13px">{{ readingResult.confidence }}</span></div></div><button class="btn btn-secondary" onClick="{{ readingResult.onRetake }}">{{ ui.retakeReadingAssessment }}</button></div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="tag tag-neutral">{{ readingResult.score }}</span><span class="tag tag-neutral">{{ readingResult.accuracy }}</span><span class="tag tag-neutral">{{ readingResult.pace }}</span></div>
+              <div style="font-size:13px;line-height:1.65">{{ readingResult.summary }}</div>
+            </div>
+          </sc-if>
           <div class="ability-skills" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px">
             <sc-for list="{{ ability.skills }}" as="s" hint-placeholder-count="4">
               <div class="card elev-sm" style="padding:17px;gap:9px;background:{{ s.bg }}">
@@ -605,6 +631,10 @@
               <sc-for list="{{ ability.priorities }}" as="p" hint-placeholder-count="3"><div style="display:flex;gap:9px;font-size:13px;line-height:1.55"><span style="color:var(--color-accent);font-weight:800">{{ p.index }}</span><span>{{ p.text }}</span></div></sc-for>
               <button class="btn btn-secondary" onClick="{{ go.tutor }}" style="font-family:var(--font-body);font-weight:700;align-self:flex-start">{{ ui.practiceSpeaking }}</button>
             </div>
+            <sc-if value="{{ ability.hasReading }}" hint-placeholder-val="{{ false }}"><div class="card elev-sm" style="padding:21px;gap:14px;grid-column:1/-1">
+              <div><h3 style="font-size:19px;margin:0">{{ ui.readingBreakdown }}</h3><p style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 56%,transparent);margin:3px 0 0">{{ ui.readingBreakdownDesc }}</p></div>
+              <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px"><sc-for list="{{ ability.reading }}" as="r" hint-placeholder-count="5"><div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><b>{{ r.label }}</b><span>{{ r.value }}</span></div><div style="height:7px;border-radius:99px;background:var(--color-neutral-200);overflow:hidden"><span style="display:block;height:100%;width:{{ r.width }};border-radius:99px;background:var(--color-accent-2)"></span></div></div></sc-for></div>
+            </div></sc-if>
           </div>
         </div>
       </sc-if>
@@ -913,7 +943,7 @@ const UI_TEXT={
     streakDays:'天连续打卡',checkedIn:'今天已打卡 · 保持下去 🔥',todayGoal:'今日目标',goalRemaining:'再学 3 个词完成今日目标',generateDialogue:'生成场景对话',generateDialogueDesc:'描述任意场景，AI 生成自然会话',reviewFlashcards:'复习闪卡',reviewFlashcardsDesc:'SM-2 间隔重复，到期待复习',continueLesson:'继续「はじめまして」',continueLessonDesc:'上次学到第 4 句 · 继续',
     scenePlaceholder:'例如：在居酒屋点餐、和房东谈租房…',generatingDialogue:'正在生成自然会话…',back:'返回',sharedScenarioHelp:'这是只读副本；保存后会加入你自己的对话历史。',speechRate:'语速',verySlow:'很慢',slow:'慢速',normalSpeed:'原速',interactiveComing:'互动模式 · 开发中',vocabSuggestions:'生词建议',searchVocab:'搜索词汇…',
     reviewDone:'今日复习完成！',reviewDoneDesc:'连续打卡 +1 天 · 明天还有新的到期卡片',reviewAgain:'再复习一遍',backToday:'回到今日',forgot:'忘了',again:'重来',hard:'困难',good:'良好',easy:'简单',day:'天',revealHint:'点击卡片查看读音与释义',noFavorites:'还没有收藏的会话',noFavoritesDesc:'在会话详情点击 ★ 即可收藏，随时回来温习最喜欢的场景。',firstScenario:'去生成第一个场景',
-    oralEvidenceNote:'听说能力根据真实对话中的理解、回应与表达评估；课后复盘只在原始语音证据清楚时提示发音或节奏问题。',oralBreakdown:'口语能力拆解',oralBreakdownDesc:'让 Tutor 知道应该在哪一层提供挑战。',nextPractice:'接下来练什么',nextPracticeDesc:'按证据更新，不是一次测评定终身。',practiceSpeaking:'按当前水平练口语',
+    oralEvidenceNote:'听说能力根据真实对话中的理解、回应与表达评估；课后复盘只在原始语音证据清楚时提示发音或节奏问题。',oralBreakdown:'口语能力拆解',oralBreakdownDesc:'让 Tutor 知道应该在哪一层提供挑战。',nextPractice:'接下来练什么',nextPracticeDesc:'按证据更新，不是一次测评定终身。',practiceSpeaking:'按当前水平练口语',startReadingAssessment:'开始阅读小测',retakeReadingAssessment:'重新测试阅读',readingTesting:'阅读测试进行中…',cancelTest:'退出测试',readingAssessmentNote:'题目会根据你的回答调整难度；结果只更新阅读能力。',readingResultTitle:'阅读分级结果',readingScore:'综合',readingAccuracy:'正确率',readingPace:'阅读节奏',readingBreakdown:'阅读能力拆解',readingBreakdownDesc:'由本次分级题的理解、推断、词义与答题节奏形成。',
     teachingStyle:'教学方式',styleBilingual:'双语入门（推荐 N5–N4）',styleImmersion:'日语沉浸',styleCorrection:'即时纠错',styleInterview:'口试训练',recentCalls:'最近通话',reviewGenerating:'正在生成课后复盘…通话记录已经保存，可以先离开。',reviewFailed:'复盘暂时生成失败，通话记录不受影响。',sessionReview:'课后复盘',strengths:'做得不错',moreNatural:'可以更自然',reviewVocab:'课后生词与表达',nextStep:'下一步：',naturalConversation:'自然会话',naturalConversationDesc:'更像会话伙伴，不会每轮都纠错、提问或要求复述。',instantCorrection:'即时纠错',instantCorrectionDesc:'说错立刻提示，课后自动沉淀为长期复习重点。',
     grammarLoading:'正在为你生成这条语法的中文微课…',grammarLoadingDesc:'生成一次后会保存，下次可以直接打开。',formation:'接续',commonMistake:'常见错误',examples:'例句',quiz:'小测验：',answer:'答案：',fluency:'流畅度',
     newArticle:'生成新文章',backArticles:'← 返回文章',sharedArticleHelp:'你可以直接阅读；保存后会加入自己的文章库。',threeLineTitle:'三行对译学习',threeLineDesc:'原文注音 · 逐词语境释义 · 自然对译。点击原文中的词可加入生词本。',original:'原文',wordGloss:'逐词',translation:'对译',stop:'停止',readAloud:'朗读',
@@ -938,7 +968,7 @@ const UI_TEXT={
     streakDays:'day streak',checkedIn:'Checked in today · Keep it going 🔥',todayGoal:'Today’s goal',goalRemaining:'Learn 3 more words to finish today’s goal',generateDialogue:'Generate a scenario',generateDialogueDesc:'Describe any situation and generate natural dialogue',reviewFlashcards:'Review flashcards',reviewFlashcardsDesc:'SM-2 spaced repetition for cards due now',continueLesson:'Continue 「はじめまして」',continueLessonDesc:'Continue from line 4 of your last lesson',
     scenePlaceholder:'For example: order at an izakaya, talk to a landlord…',generatingDialogue:'Generating natural dialogue…',back:'Back',sharedScenarioHelp:'This is a read-only copy. Save it to add it to your own history.',speechRate:'Speed',verySlow:'Very slow',slow:'Slow',normalSpeed:'Normal',interactiveComing:'Interactive mode · Coming soon',vocabSuggestions:'Suggested vocabulary',searchVocab:'Search vocabulary…',
     reviewDone:'Today’s review is complete!',reviewDoneDesc:'Streak +1 day · More cards will be due tomorrow',reviewAgain:'Review again',backToday:'Back to Today',forgot:'Forgot',again:'Again',hard:'Hard',good:'Good',easy:'Easy',day:'day',revealHint:'Tap the card to see its reading and meaning',noFavorites:'No favorite conversations yet',noFavoritesDesc:'Select ★ in a conversation to keep it here for later review.',firstScenario:'Generate your first scenario',
-    oralEvidenceNote:'Listening and speaking are assessed from comprehension, responses, and expression in real conversations. Session reviews mention pronunciation or rhythm only when the original audio provides clear evidence.',oralBreakdown:'Speaking breakdown',oralBreakdownDesc:'Helps the Tutor choose the right level of challenge.',nextPractice:'What to practice next',nextPracticeDesc:'Updated from evidence, not fixed by one assessment.',practiceSpeaking:'Practice speaking at this level',
+    oralEvidenceNote:'Listening and speaking are assessed from comprehension, responses, and expression in real conversations. Session reviews mention pronunciation or rhythm only when the original audio provides clear evidence.',oralBreakdown:'Speaking breakdown',oralBreakdownDesc:'Helps the Tutor choose the right level of challenge.',nextPractice:'What to practice next',nextPracticeDesc:'Updated from evidence, not fixed by one assessment.',practiceSpeaking:'Practice speaking at this level',startReadingAssessment:'Start reading check',retakeReadingAssessment:'Retake reading check',readingTesting:'Reading check in progress…',cancelTest:'Exit test',readingAssessmentNote:'Question difficulty adapts to your answers. Only your reading profile will be updated.',readingResultTitle:'Reading placement result',readingScore:'Overall',readingAccuracy:'Accuracy',readingPace:'Reading pace',readingBreakdown:'Reading breakdown',readingBreakdownDesc:'Built from comprehension, inference, vocabulary, and response pace in this check.',
     teachingStyle:'Teaching style',styleBilingual:'Bilingual support (N5–N4)',styleImmersion:'Japanese immersion',styleCorrection:'Immediate correction',styleInterview:'Oral interview',recentCalls:'Recent calls',reviewGenerating:'Generating the session review… The call is already saved, so you can leave this page.',reviewFailed:'The review could not be generated, but the call was saved.',sessionReview:'Session review',strengths:'What went well',moreNatural:'Make it more natural',reviewVocab:'Words and phrases to review',nextStep:'Next step: ',naturalConversation:'Natural conversation',naturalConversationDesc:'Acts more like a conversation partner without correcting, asking, or requesting repetition every turn.',instantCorrection:'Immediate correction',instantCorrectionDesc:'Highlights important mistakes and saves them as long-term review points.',
     grammarLoading:'Generating this grammar mini-lesson…',grammarLoadingDesc:'It will be saved after the first generation for faster access next time.',formation:'Formation',commonMistake:'Common mistake',examples:'Examples',quiz:'Quick check: ',answer:'Answer: ',fluency:'Fluency',
     newArticle:'Generate article',backArticles:'← Back to articles',sharedArticleHelp:'You can read this copy now. Save it to add it to your own library.',threeLineTitle:'Three-line translation study',threeLineDesc:'Furigana text · contextual word glosses · natural translation. Select a word to save it.',original:'Original',wordGloss:'Word glosses',translation:'Translation',stop:'Stop',readAloud:'Read aloud',
@@ -954,6 +984,19 @@ const UI_TEXT={
     saved:'Saved',languageChinese:'简体中文',languageEnglish:'English',step:'Step {current} of 3'
   }
 };
+const READING_LEVELS=['N5','N4','N3','N2','N1'];
+const READING_TEST_BANK=[
+  {id:'n5-1',level:'N5',skill:'information',passage:'毎朝、山田さんは七時に起きます。晴れの日は駅まで歩きますが、雨の日はバスに乗ります。今日は雨です。',questionZh:'山田さん今天怎样去车站？',questionEn:'How will Yamada get to the station today?',choicesZh:['步行','坐公交车','骑自行车','坐出租车'],choicesEn:['Walk','Take the bus','Ride a bicycle','Take a taxi'],answer:1},
+  {id:'n5-2',level:'N5',skill:'vocabulary',passage:'図書館では本を三冊まで借りることができます。借りた本は二週間以内に返してください。',questionZh:'“二週間以内”是什么意思？',questionEn:'What does 二週間以内 mean here?',choicesZh:['两周以后','两周之内','每两周一次','第二周开始'],choicesEn:['After two weeks','Within two weeks','Once every two weeks','Starting in the second week'],answer:1},
+  {id:'n4-1',level:'N4',skill:'information',passage:'市民プールは火曜日から日曜日まで利用できます。平日は午後八時までですが、土日は午後六時に閉まります。月曜日が祝日の場合も休みです。',questionZh:'星期六最晚可以游到几点？',questionEn:'Until what time can you swim on Saturday?',choicesZh:['下午六点','下午八点','全天开放','星期六不开放'],choicesEn:['6 p.m.','8 p.m.','All day','It is closed on Saturdays'],answer:0},
+  {id:'n4-2',level:'N4',skill:'inference',passage:'電車が遅れているので、約束の時間に十分ほど遅れそうです。先に店に入って待っていてください。着いたら連絡します。',questionZh:'写消息的人希望对方怎么做？',questionEn:'What does the writer want the other person to do?',choicesZh:['取消约会','去车站接人','先进入店里等待','把约会推迟到明天'],choicesEn:['Cancel the meeting','Meet them at the station','Go inside the shop and wait','Postpone until tomorrow'],answer:2},
+  {id:'n3-1',level:'N3',skill:'main',passage:'会社では今月から、週に一度だけ自宅で働ける制度が始まった。通勤時間を減らせる一方、相談がしにくいという声もある。そこで、全員が同じ曜日に出社する日を設けることになった。',questionZh:'公司设置共同到岗日的主要目的是什么？',questionEn:'Why did the company create a day when everyone comes to the office?',choicesZh:['减少工资支出','方便员工面对面商量','取消远程办公','缩短工作时间'],choicesEn:['To reduce salaries','To make in-person discussion easier','To end remote work','To shorten working hours'],answer:1},
+  {id:'n3-2',level:'N3',skill:'vocabulary',passage:'この地域では、ごみを出す曜日が種類によって異なる。ルールを守らないごみは回収されず、そのまま残されることがあるため、引っ越してきた人は市の案内を確認する必要がある。',questionZh:'这里的“回収されず”表示什么？',questionEn:'What does 回収されず mean in this passage?',choicesZh:['没有被收走','没有被分类','已经被回收利用','被送回家中'],choicesEn:['Not collected','Not sorted','Already recycled','Sent back to the home'],answer:0},
+  {id:'n2-1',level:'N2',skill:'inference',passage:'オンライン会議は移動の負担を減らしたが、会議の前後に生まれていた短い雑談まで失わせた。こうした偶然の会話は、一見無駄に見えても、部署を越えた情報共有に役立っていた可能性がある。',questionZh:'作者最想提醒读者什么？',questionEn:'What is the author mainly warning about?',choicesZh:['线上会议一定比线下低效','短暂闲聊可能具有不易察觉的价值','跨部门交流应该全部取消','移动时间越长信息越丰富'],choicesEn:['Online meetings are always less efficient','Brief casual talk may have hidden value','Cross-team communication should end','Longer travel creates better information'],answer:1},
+  {id:'n2-2',level:'N2',skill:'main',passage:'観光客が特定の季節に集中すると、住民の生活や自然環境への負担が大きくなる。そのため自治体は、混雑の少ない時期の魅力を発信し、年間を通して訪問者を分散させようとしている。',questionZh:'地方政府采取了什么策略？',questionEn:'What strategy is the local government using?',choicesZh:['全年限制游客人数为零','只宣传最热门的季节','引导游客在不拥挤的时期来访','停止保护自然环境'],choicesEn:['Ban all visitors year-round','Promote only the busiest season','Encourage visits during quieter periods','Stop protecting the environment'],answer:2},
+  {id:'n1-1',level:'N1',skill:'inference',passage:'数値目標は組織の方向性を共有するうえで有効だが、測定しやすい成果ばかりが重視されると、他者への助言や失敗の予防といった、成果として表れにくい貢献が軽視されかねない。指標は判断を支える道具であって、判断そのものではない。',questionZh:'作者对数值指标持什么态度？',questionEn:'What is the author position on numerical metrics?',choicesZh:['应完全废除','可以辅助判断，但不能替代判断','只有难以测量的成果才重要','指标总能准确反映贡献'],choicesEn:['They should be abolished','They can support but not replace judgment','Only unmeasurable outcomes matter','They always reflect contribution accurately'],answer:1},
+  {id:'n1-2',level:'N1',skill:'main',passage:'効率化は余分な工程を省くことだと考えられがちだ。しかし、非常時に備えた予備や、異なる意見を検討する時間まで削れば、短期的には速くなっても、変化への対応力は弱まる。余裕は常に無駄なのではなく、状況によっては柔軟性を支える資源なのである。',questionZh:'这段文字的核心观点是什么？',questionEn:'What is the central claim of this passage?',choicesZh:['所有备用方案都没有价值','效率越高越能应对变化','适当的余裕有时是保持韧性的资源','讨论不同意见只会浪费时间'],choicesEn:['All backup plans are useless','Higher efficiency always improves adaptability','Some spare capacity supports resilience','Considering different views only wastes time'],answer:2},
+];
 class Component extends DCLogic {
   constructor(props){
     super(props);
@@ -1001,11 +1044,16 @@ class Component extends DCLogic {
     this.adminUsage = null;
     this.sharedContent = null;
     this._streak = null;
+    this._readingCurrent = null;
+    this._readingAnswers = [];
+    this._readingUsed = new Set();
+    this._readingQuestionStartedAt = 0;
+    this._readingResult = null;
     let savedPalette='blue';
     try{ const saved=window.localStorage.getItem('ai-kotoba-palette'); if(['blue','terra','sage'].includes(saved)) savedPalette=saved; }catch(e){}
     this.settings={uiLanguage:'zh-CN',onboardingCompleted:true,selfAssessedLevel:'unsure',learningGoal:'conversation'};
     this.languageOptions=[{code:'zh-CN',label:'简体中文'},{code:'en',label:'English'}];
-    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, articleInput:'介绍日本夏日祭典', articleLevel:'N4', added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorMode:'tutor', tutorActive:false, tutorFinishing:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], tutorRemainingSeconds:720, grammarLevel:'N5', grammarQuery:'', grammarLoading:false, adminLoading:false, adminError:'', shareBusy:false, shareNotice:'', sharedSaved:false, onboardingStep:1, onboardingLanguage:'zh-CN', onboardingLevel:'unsure', onboardingGoal:'conversation' };
+    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, articleInput:'介绍日本夏日祭典', articleLevel:'N4', readingTesting:false, readingResultOpen:false, readingTick:0, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorMode:'tutor', tutorActive:false, tutorFinishing:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], tutorRemainingSeconds:720, grammarLevel:'N5', grammarQuery:'', grammarLoading:false, adminLoading:false, adminError:'', shareBusy:false, shareNotice:'', sharedSaved:false, onboardingStep:1, onboardingLanguage:'zh-CN', onboardingLevel:'unsure', onboardingGoal:'conversation' };
   }
 
   changePalette(dir){
@@ -1594,6 +1642,92 @@ class Component extends DCLogic {
     else this.setState({tutorTalking:false});
   }
 
+  pickReadingQuestion(targetLevel){
+    const target=Math.max(0,READING_LEVELS.indexOf(targetLevel));
+    return READING_TEST_BANK
+      .filter(item=>!this._readingUsed.has(item.id))
+      .sort((a,b)=>Math.abs(READING_LEVELS.indexOf(a.level)-target)-Math.abs(READING_LEVELS.indexOf(b.level)-target))[0]||null;
+  }
+
+  startReadingAssessment(){
+    const prior=this.abilityProfile?.dimensions?.reading?.level;
+    const self=/^N[1-5]$/.test(String(this.settings?.selfAssessedLevel))?this.settings.selfAssessedLevel:null;
+    const oral=/^N[1-5]$/.test(String(this.abilityProfile?.overallLevel))?this.abilityProfile.overallLevel:null;
+    const startLevel=prior||self||oral||'N4';
+    this._readingAnswers=[];
+    this._readingUsed=new Set();
+    this._readingCurrent=this.pickReadingQuestion(startLevel);
+    if(this._readingCurrent) this._readingUsed.add(this._readingCurrent.id);
+    this._readingQuestionStartedAt=Date.now();
+    this._readingResult=null;
+    this.setState({view:'ability',readingTesting:true,readingResultOpen:false,readingTick:Date.now()});
+    this.scrollMainTop();
+  }
+
+  cancelReadingAssessment(){
+    this._readingCurrent=null;
+    this._readingAnswers=[];
+    this._readingUsed=new Set();
+    this.setState({readingTesting:false,readingTick:Date.now()});
+  }
+
+  answerReadingQuestion(choice){
+    if(!this.state.readingTesting||!this._readingCurrent) return;
+    const item=this._readingCurrent;
+    const correct=Number(choice)===item.answer;
+    const elapsedMs=Math.max(800,Math.min(300000,Date.now()-this._readingQuestionStartedAt));
+    this._readingAnswers.push({id:item.id,level:item.level,skill:item.skill,correct,elapsedMs,chars:Array.from(item.passage).length});
+    if(this._readingAnswers.length>=5){
+      this.finishReadingAssessment();
+      return;
+    }
+    const currentIndex=READING_LEVELS.indexOf(item.level);
+    const nextIndex=Math.max(0,Math.min(READING_LEVELS.length-1,currentIndex+(correct?1:-1)));
+    this._readingCurrent=this.pickReadingQuestion(READING_LEVELS[nextIndex]);
+    if(this._readingCurrent) this._readingUsed.add(this._readingCurrent.id);
+    this._readingQuestionStartedAt=Date.now();
+    this.setState({readingTick:Date.now()});
+  }
+
+  finishReadingAssessment(){
+    const answers=this._readingAnswers.slice(0,5);
+    if(!answers.length) return;
+    const base={N5:25,N4:42,N3:58,N2:74,N1:90};
+    const correctCount=answers.filter(item=>item.correct).length;
+    const accuracy=Math.round(correctCount/answers.length*100);
+    const averageDifficulty=answers.reduce((sum,item)=>sum+(base[item.level]||25),0)/answers.length;
+    const score=Math.max(0,Math.min(100,Math.round(averageDifficulty+(accuracy-50)*.24)));
+    const level=score>=82?'N1':score>=66?'N2':score>=50?'N3':score>=34?'N4':'N5';
+    const paceScores=answers.map(item=>{
+      const charsPerSecond={N5:1.2,N4:1.55,N3:1.9,N2:2.25,N1:2.6}[item.level]||1.5;
+      const expectedMs=(10+item.chars/charsPerSecond)*1000;
+      return Math.max(0,Math.min(100,Math.round(72+(expectedMs/item.elapsedMs-1)*35)));
+    });
+    const pace=Math.round(paceScores.reduce((sum,value)=>sum+value,0)/paceScores.length);
+    const categoryScore=skills=>{
+      const rows=answers.filter(item=>skills.includes(item.skill));
+      return rows.length?Math.round(rows.filter(item=>item.correct).length/rows.length*100):accuracy;
+    };
+    const confidence=Math.min(.88,.55+answers.length*.06);
+    const result={
+      level,score,confidence,accuracy,pace,
+      dimensions:{accuracy,information:categoryScore(['information','main']),inference:categoryScore(['inference']),vocabulary:categoryScore(['vocabulary'])},
+      levelsSeen:[...new Set(answers.map(item=>item.level))],
+      completedAt:Date.now(),
+    };
+    try{
+      const data=window.AIKotoba.saveReadingAssessment(result);
+      this.applyData(data);
+      this._readingResult=result;
+      this._readingCurrent=null;
+      this.setState({readingTesting:false,readingResultOpen:true,readingTick:Date.now()});
+      this.scrollMainTop();
+    }catch(error){
+      this.setState({readingTesting:false,readingResultOpen:false});
+      window.alert(error.message||'阅读测试保存失败');
+    }
+  }
+
   renderVals(){
     const v=this.state.view, dir=this.state.dir;
     const language=(this.settings?.uiLanguage==='en'||this.state.onboardingLanguage==='en'&&!this.settings?.onboardingCompleted)?'en':'zh-CN';
@@ -1657,12 +1791,19 @@ class Component extends DCLogic {
       const item=ability.dimensions?.[key]||{};
       const measured=item.status==='assessed'&&Number.isFinite(Number(item.score));
       const score=measured?Math.max(0,Math.min(100,Number(item.score))):0;
-      return{label,level:measured?(item.level||'—'):(language==='en'?'Not assessed':'未测评'),width:`${score}%`,color:measured?'var(--color-accent)':'var(--color-neutral-300)',bg:measured?'var(--color-surface)':'var(--color-neutral-100)',note:measured?(language==='en'?`${Math.round(score)} · Evidence confidence ${Math.round((Number(item.confidence)||0)*100)}%`:`${Math.round(score)} 分 · 证据置信度 ${Math.round((Number(item.confidence)||0)*100)}%`):(language==='en'?'Waiting for relevant learning evidence':'等待对应任务提供证据'),nextStep:item.nextStep||(language==='en'?(key==='reading'?'Complete a leveled reading task':key==='writing'?'Complete a short writing task':'Complete the listening and speaking placement'):(key==='reading'?'完成一次分级阅读任务后更新':key==='writing'?'完成一次短文写作任务后更新':'完成听说分级测评后更新'))};
+      const localizedNextStep=language==='en'?(item.nextStepEnglish||item.nextStep):item.nextStep;
+      return{label,level:measured?(item.level||'—'):(language==='en'?'Not assessed':'未测评'),width:`${score}%`,color:measured?'var(--color-accent)':'var(--color-neutral-300)',bg:measured?'var(--color-surface)':'var(--color-neutral-100)',note:measured?(language==='en'?`${Math.round(score)} · Evidence confidence ${Math.round((Number(item.confidence)||0)*100)}%`:`${Math.round(score)} 分 · 证据置信度 ${Math.round((Number(item.confidence)||0)*100)}%`):(language==='en'?'Waiting for relevant learning evidence':'等待对应任务提供证据'),nextStep:localizedNextStep||(language==='en'?(key==='reading'?'Complete a leveled reading task':key==='writing'?'Complete a short writing task':'Complete the listening and speaking placement'):(key==='reading'?'完成一次分级阅读任务后更新':key==='writing'?'完成一次短文写作任务后更新':'完成听说分级测评后更新'))};
     });
     const oralMeta=language==='en'?[['fluency','Fluency'],['vocabulary','Vocabulary access'],['grammar','Grammar control'],['interaction','Interaction'],['organization','Organization']]:[['fluency','流畅度'],['vocabulary','词汇调用'],['grammar','语法控制'],['interaction','互动应对'],['organization','表达组织']];
     const oralRows=oralMeta.map(([key,label])=>{const item=ability.oralDimensions?.[key]||{};const measured=item.status==='assessed'&&Number.isFinite(Number(item.score));const score=measured?Math.max(0,Math.min(100,Number(item.score))):0;return{label,value:measured?`${Math.round(score)} · ${item.level||''}`:(language==='en'?'Not assessed':'未测评'),width:`${score}%`};});
-    const defaultPriorities=language==='en'?['Complete an 8–10 minute oral placement to establish initial evidence.','Use a leveled reading task to add reading evidence.','Write an 80–150 character passage to add writing evidence.']:['先完成 8–10 分钟听说分级，建立第一批能力证据。','之后用分级阅读任务补全阅读能力。','写一段 80–150 字短文，补全写作能力。'];
+    const readingAssessed=ability.dimensions?.reading?.status==='assessed';
+    const readingMeta=language==='en'?[['accuracy','Accuracy'],['information','Information'],['inference','Inference'],['vocabulary','Vocabulary'],['pace','Pace']]:[['accuracy','准确度'],['information','信息定位'],['inference','推断'],['vocabulary','词义'],['pace','节奏']];
+    const readingRows=readingMeta.map(([key,label])=>{const value=Math.max(0,Math.min(100,Number(ability.readingDimensions?.[key]?.score)||0));return{label,value:Math.round(value),width:`${value}%`};});
+    const defaultPriorities=language==='en'?['Complete an 8–10 minute oral placement to establish initial evidence.',readingAssessed?'Keep building reading evidence with level-matched articles.':'Use a leveled reading task to add reading evidence.','Write an 80–150 character passage to add writing evidence.']:['先完成 8–10 分钟听说分级，建立第一批能力证据。',readingAssessed?'继续阅读匹配当前等级的文章，积累更多阅读证据。':'之后用分级阅读任务补全阅读能力。','写一段 80–150 字短文，补全写作能力。'];
     const abilityPriorities=(ability.priorities?.length?ability.priorities:defaultPriorities).slice(0,3).map((text,index)=>({index:index+1,text}));
+    const abilityUpdatedAt=Math.max(Number(ability.lastAssessmentAt)||0,Number(ability.lastReadingAssessmentAt)||0);
+    const readingQuestion=this._readingCurrent;
+    const readingResult=this._readingResult;
     const levelLabels=language==='en'
       ? [['beginner',ui.levelBeginner],['N5','N5 · Basic'],['N4','N4 · Elementary'],['N3','N3 · Intermediate'],['N2','N2 · Advanced'],['N1','N1 · Proficient'],['unsure',ui.levelUnsure]]
       : [['beginner',ui.levelBeginner],['N5','N5 · 基础'],['N4','N4 · 初级'],['N3','N3 · 中级'],['N2','N2 · 高级'],['N1','N1 · 熟练'],['unsure',ui.levelUnsure]];
@@ -1730,7 +1871,9 @@ class Component extends DCLogic {
       },
       vocabList:localizedSavedVocabulary.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?ui.dueToday:ui.reviewLater,dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
       flash:(()=>{const cards=localizedSavedVocabulary.slice(0,Math.max(1,Math.min(20,localizedSavedVocabulary.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:ui.emptyVocab,reading:'',meaning:ui.addWordsFirst,example:'',exampleTranslation:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,exampleTranslation:c.exampleTranslation,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
-      ability:{overallLevel:ability.overallLevel||(language==='en'?'Not assessed':'待测'),summaryTitle:ability.overallLevel?(language==='en'?`Suggested level ${ability.overallLevel} · Confidence ${Math.round((Number(ability.confidence)||0)*100)}%`:`当前建议水平 ${ability.overallLevel} · 置信度 ${Math.round((Number(ability.confidence)||0)*100)}%`):(language==='en'?'Build your first ability map':'先建立你的第一张能力地图'),summary:ability.summary||(language==='en'?'A natural conversation estimates what you understand and can express. Reading and writing remain unassessed until relevant tasks provide evidence.':'用一段自然对话估计你能听懂什么、能表达什么。阅读和写作会保留为未测评，等对应任务提供真实证据。'),updatedLabel:ability.lastAssessmentAt?(language==='en'?`Updated ${new Date(ability.lastAssessmentAt).toLocaleDateString(locale)}`:`更新于 ${new Date(ability.lastAssessmentAt).toLocaleDateString(locale)}`):(language==='en'?'Not assessed yet':'尚未测评'),assessing:this.state.tutorStatus==='placementReviewing',assessLabel:this.state.tutorStatus==='placementReviewing'?(language==='en'?'Analyzing ability…':'正在分析能力…'):(ability.overallLevel?(language==='en'?'Retake oral placement':'重新进行听说分级'):(language==='en'?'Start 8–10 minute placement':'开始 8–10 分钟听说分级')),onAssess:()=>this.startOralAssessment(),skills:abilitySkills,oral:oralRows,priorities:abilityPriorities},
+      ability:{overallLevel:ability.overallLevel||(language==='en'?'Not assessed':'待测'),summaryTitle:ability.overallLevel?(language==='en'?`Suggested oral level ${ability.overallLevel} · Confidence ${Math.round((Number(ability.confidence)||0)*100)}%`:`当前听说建议 ${ability.overallLevel} · 置信度 ${Math.round((Number(ability.confidence)||0)*100)}%`):readingAssessed?(language==='en'?`Reading ${ability.dimensions.reading.level} · Confidence ${Math.round((Number(ability.dimensions.reading.confidence)||0)*100)}%`:`阅读 ${ability.dimensions.reading.level} · 置信度 ${Math.round((Number(ability.dimensions.reading.confidence)||0)*100)}%`):(language==='en'?'Build your first ability map':'先建立你的第一张能力地图'),summary:ability.summary||(readingAssessed?(language==='en'?'Your reading level is now measured independently. Listening, speaking, and writing remain separate and will update only from relevant evidence.':'阅读能力已独立测出；听力、口语和写作仍会分别等待对应任务提供证据。'):(language==='en'?'A natural conversation estimates what you understand and can express. Reading and writing remain unassessed until relevant tasks provide evidence.':'用一段自然对话估计你能听懂什么、能表达什么。阅读和写作会保留为未测评，等对应任务提供真实证据。')),updatedLabel:abilityUpdatedAt?(language==='en'?`Updated ${new Date(abilityUpdatedAt).toLocaleDateString(locale)}`:`更新于 ${new Date(abilityUpdatedAt).toLocaleDateString(locale)}`):(language==='en'?'Not assessed yet':'尚未测评'),assessing:this.state.tutorStatus==='placementReviewing'||this.state.readingTesting,testingReading:this.state.readingTesting||this.state.tutorStatus==='placementReviewing',assessLabel:this.state.tutorStatus==='placementReviewing'?(language==='en'?'Analyzing ability…':'正在分析能力…'):(ability.overallLevel?(language==='en'?'Retake oral placement':'重新进行听说分级'):(language==='en'?'Start 8–10 minute placement':'开始 8–10 分钟听说分级')),readingAssessLabel:this.state.readingTesting?ui.readingTesting:(readingAssessed?ui.retakeReadingAssessment:ui.startReadingAssessment),onAssess:()=>this.startOralAssessment(),onReadingAssess:()=>this.startReadingAssessment(),skills:abilitySkills,oral:oralRows,hasReading:readingAssessed,reading:readingRows,priorities:abilityPriorities},
+      readingTest:{visible:this.state.readingTesting&&!!readingQuestion,level:readingQuestion?.level||'',progress:language==='en'?`Question ${this._readingAnswers.length+1} of 5`:`第 ${this._readingAnswers.length+1} / 5 题`,passage:readingQuestion?.passage||'',question:language==='en'?(readingQuestion?.questionEn||''):(readingQuestion?.questionZh||''),options:((language==='en'?readingQuestion?.choicesEn:readingQuestion?.choicesZh)||[]).map((label,index)=>({label,onPick:()=>this.answerReadingQuestion(index)})),onCancel:()=>this.cancelReadingAssessment()},
+      readingResult:{visible:this.state.readingResultOpen&&!!readingResult,level:readingResult?.level||'',confidence:language==='en'?`${Math.round((Number(readingResult?.confidence)||0)*100)}% confidence`:`置信度 ${Math.round((Number(readingResult?.confidence)||0)*100)}%`,score:`${ui.readingScore} ${readingResult?.score||0}`,accuracy:`${ui.readingAccuracy} ${readingResult?.accuracy||0}%`,pace:`${ui.readingPace} ${readingResult?.pace||0}`,summary:language==='en'?`This result updates reading only. It does not lower or overwrite your listening or speaking level.`:`本结果只更新阅读能力，不会降低或覆盖你的听力、口语等级。`,onRetake:()=>this.startReadingAssessment()},
       tutor:{assessment:this.state.tutorMode==='assessment',showStyle:this.state.tutorMode!=='assessment',pageTitle:this.state.tutorMode==='assessment'?tutorCopy.assessmentTitle:tutorCopy.tutorTitle,pageDescription:this.state.tutorMode==='assessment'?tutorCopy.assessmentDescription:tutorCopy.tutorDescription,cardTitle:this.state.tutorMode==='assessment'?tutorCopy.assessmentCard:tutorCopy.tutorCard,cardDescription:this.state.tutorMode==='assessment'?tutorCopy.assessmentHelp:tutorCopy.tutorHelp,onToggle:()=>this.toggleTutor(this.state.tutorMode),active:this.state.tutorActive,finishing:this.state.tutorFinishing,buttonDisabled:this.state.tutorFinishing,talking:this.state.tutorTalking,onTalkStart:e=>this.startTutorTalking(e),onTalkEnd:e=>this.stopTutorTalking(e),talkLabel:this.state.tutorTalking?tutorCopy.talking:tutorCopy.hold,style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?(language==='en'?'Natural Japanese by default; brief English help only when you ask, get stuck, or answer in English.':'默认自然日语；只有你求助、没听懂或用中文回答时，才补一句中文，不强制复述。'):this.state.tutorStyle==='conversation'?(language==='en'?'Natural Japanese conversation with only gentle correction of important issues.':'尽量保持全日语自然会话，只温和纠正关键问题。'):this.state.tutorStyle==='correction'?(language==='en'?'Respond to the meaning first, then correct at most one high-value expression.':'回应内容后，每次最多纠正一个最值得改进的表达。'):(language==='en'?'Practice like a Japanese oral interview with brief feedback.':'像日语口试一样逐题练习并简短评价。'),buttonLabel:this.state.tutorFinishing?tutorCopy.finishing:(this.state.tutorActive?(this.state.tutorMode==='assessment'?tutorCopy.endAssessment:tutorCopy.endTutor):(this.state.tutorMode==='assessment'?tutorCopy.startAssessment:tutorCopy.startTutor)),statusLabel:statusLabels[this.state.tutorStatus]||'',timeLabel:`${tutorCopy.time} ${String(Math.floor(this.state.tutorRemainingSeconds/60)).padStart(2,'0')}:${String(this.state.tutorRemainingSeconds%60).padStart(2,'0')}`,hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages,hasHistory:tutorHistory.length>0,history:tutorHistory},
       admin:{visible:!!this.account?.isAdmin,loading:this.state.adminLoading,hasError:!!this.state.adminError,error:this.state.adminError,ready:!!usage&&!this.state.adminLoading,onRefresh:()=>this.openAdmin(),dayLabel:usage?`${usage.day} · ${usage.timezone} ${ui.stats}`:'' ,activeUsers:usage?.activeUsers||0,totalUsers:usage?.totalUsers||0,buckets:(usage?.buckets||[]).map(b=>({label:b.label,used:b.used,limit:b.globalLimit,percent:b.percent,width:`${b.percent}%`,color:b.percent>=90?'#b14c35':b.percent>=70?'var(--color-accent-2)':'var(--color-accent)',note:b.bucket==='realtime'?`${ui.maxPerCall} · ${ui.maxToday} ${b.globalLimit*12} ${ui.minutes}`:`${ui.remaining} ${b.remaining} ${b.unit}`})),users:(usage?.users||[]).map(u=>({email:u.email,ai:u.usage?.ai_text||0,realtime:u.usage?.realtime||0,tts:u.usage?.tts||0,total:u.total||0})),noUsers:!!usage&&!(usage.users||[]).length,history:(usage?.history||[]).map(d=>({day:d.day.slice(5),summary:`AI ${d.usage?.ai_text||0} · RT ${d.usage?.realtime||0} · TTS ${d.usage?.tts||0}`}))},
       grammar:{isN5:this.state.grammarLevel==='N5',isN4:this.state.grammarLevel==='N4',isN3:this.state.grammarLevel==='N3',onN5:()=>this.setState({grammarLevel:'N5'}),onN4:()=>this.setState({grammarLevel:'N4'}),onN3:()=>this.setState({grammarLevel:'N3'}),query:this.state.grammarQuery,onSearch:e=>this.setState({grammarQuery:e.target.value}),items:grammarItems,count:grammarItems.length,total:(this.grammarCatalog||[]).length,mastered:(this.grammarProgress||[]).filter(item=>item.status==='mastered').length,loading:this.state.grammarLoading,hasLesson:!!grammarLesson&&!this.state.grammarLoading,lesson:grammarLesson?{level:this.activeGrammarPoint?.level||'',title:grammarLesson.title||this.grammarTitle(this.activeGrammarPoint?.title),meaning:grammarLesson.meaning||'',explanation:grammarLesson.explanation||'',formation:grammarLesson.formation||this.activeGrammarPoint?.formation||'',pitfall:grammarLesson.pitfall||'',examples:(grammarLesson.examples||[]).map(item=>({japanese:item.japanese||'',translation:item.translation||'',note:item.note||''})),quizPrompt:grammarLesson.quiz?.prompt||'',quizAnswer:grammarLesson.quiz?.answer||'',quizExplanation:grammarLesson.quiz?.explanation||'',masterLabel:grammarProgress?.status==='mastered'?`${ui.mastered} ✓`:ui.markMastered,onMaster:()=>this.setGrammarProgress(grammarProgress?.status==='mastered'?'studying':'mastered')}:{examples:[]}},
