@@ -1,0 +1,537 @@
+// localStorage 持久化层
+const KEYS = {
+  settings: 'kotoba.settings',
+  scenarios: 'kotoba.scenarios',
+  vocab: 'kotoba.vocab',
+  articles: 'kotoba.articles',
+  checkins: 'kotoba.checkins',
+  tutorSessions: 'kotoba.tutorSessions',
+  learningNotes: 'kotoba.learningNotes',
+  grammarProgress: 'kotoba.grammarProgress',
+  abilityProfiles: 'kotoba.abilityProfiles',
+};
+const ARTICLE_LIMIT = 50;
+const TUTOR_SESSION_LIMIT = 100;
+const LEARNING_NOTE_LIMIT = 120;
+const SEED_LOCALIZATION_VERSION = 2;
+
+const HISTORY_LIMIT = 100; // 仅非收藏计入上限
+
+function load(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+function save(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+  scheduleSync();
+}
+
+// ---------- 服务器同步（server.py 持久化到 data.json，跨浏览器共享） ----------
+let syncTimer = null;
+let syncAvailable = true; // 纯静态托管时自动降级为仅 localStorage
+
+function snapshot() {
+  const out = {};
+  for (const [name, key] of Object.entries(KEYS)) {
+    out[name] = load(key, name === 'settings' ? {} : []);
+  }
+  return out;
+}
+function scheduleSync() {
+  if (!syncAvailable) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    fetch('/api/data', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(snapshot()),
+    }).catch(() => { /* 服务器不可用时静默降级 */ });
+  }, 400);
+}
+function mergeById(a, b, tsKey) {
+  const m = new Map();
+  for (const x of [...(a || []), ...(b || [])]) {
+    if (x && x.id && !m.has(x.id)) m.set(x.id, x);
+  }
+  return [...m.values()].sort((x, y) => (y[tsKey] || 0) - (x[tsKey] || 0));
+}
+// 启动时拉取服务器数据并与本地合并（按 id 去重取并集），再回写两边
+export async function initSync() {
+  let server;
+  try {
+    const res = await fetch('/api/data');
+    if (!res.ok) throw new Error();
+    server = await res.json();
+  } catch {
+    syncAvailable = false; // 没有桥接服务（纯静态托管），保持纯本地模式
+    return;
+  }
+  const local = snapshot();
+  const merged = {
+    settings: Object.keys(local.settings || {}).length ? local.settings : (server.settings || {}),
+    scenarios: mergeById(local.scenarios, server.scenarios, 'createdAt'),
+    vocab: mergeById(local.vocab, server.vocab, 'addedAt'),
+    articles: mergeById(local.articles, server.articles, 'createdAt'),
+    checkins: [...new Set([...(local.checkins || []), ...(server.checkins || [])])].sort(),
+    tutorSessions: mergeById(local.tutorSessions, server.tutorSessions, 'createdAt'),
+    learningNotes: mergeById(local.learningNotes, server.learningNotes, 'updatedAt'),
+    grammarProgress: mergeById(local.grammarProgress, server.grammarProgress, 'updatedAt'),
+    abilityProfiles: [...(local.abilityProfiles || []), ...(server.abilityProfiles || [])]
+      .filter(item => item?.id)
+      .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+      .slice(0, 1),
+  };
+  for (const [name, key] of Object.entries(KEYS)) {
+    localStorage.setItem(key, JSON.stringify(merged[name]));
+  }
+  scheduleSync();
+}
+
+export function getSettings() {
+  const stored = load(KEYS.settings, {});
+  const s = Object.assign(
+    {
+      // 公网版的模型密钥只存在服务端；浏览器统一走 /api/ai。
+      provider: 'local', claudeKey: '', openaiKey: '',
+      claudeModel: 'claude-sonnet-5', openaiModel: 'gpt-4o',
+      openaiFastModel: 'gpt-5.6-luna',
+      localEngine: 'openai',
+      ttsProvider: 'system', elevenKey: '',
+      ttsRate: 0.75,
+      // 角色 A / B 双音色（默认 Sarah 女声 / George 男声，多语模型下日语自然）
+      elevenVoiceA: 'EXAVITQu4vr4xnSDxMaL',
+      elevenVoiceB: 'JBFqnCBsd6RMkjVDRZzb',
+      elevenModel: 'eleven_multilingual_v2',
+      realtimeVoice: 'marin',
+      tutorStyle: 'bilingual',
+      showFurigana: true,
+      // 前端使用一个语言选择；后端仍分别保存母语与解释语言。
+      uiLanguage: 'zh-CN',
+      nativeLanguage: 'Chinese',
+      explanationLanguage: 'Simplified Chinese',
+      onboardingCompleted: false,
+      selfAssessedLevel: 'unsure',
+      learningGoal: 'conversation',
+      targetLanguage: 'Japanese',
+      targetLocale: 'ja-JP',
+      levelFramework: 'JLPT',
+    },
+    stored
+  );
+  // 旧用户升级时不要强制重新走新手引导；只有完全没有设置和学习记录的用户才视为新用户。
+  if (typeof stored.onboardingCompleted !== 'boolean') {
+    const legacySettingKeys = Object.keys(stored).filter(key => key !== 'seedsLoaded');
+    const hasLearningData = [
+      KEYS.scenarios,
+      KEYS.vocab,
+      KEYS.articles,
+      KEYS.tutorSessions,
+      KEYS.grammarProgress,
+      KEYS.abilityProfiles,
+    ].some(key => {
+      const value = load(key, []);
+      return Array.isArray(value) && value.some(item => item && item.builtin !== true);
+    });
+    s.onboardingCompleted = legacySettingKeys.length > 0 || hasLearningData;
+  }
+  // 迁移：旧版单一 elevenVoiceId → 音色 A
+  if (s.elevenVoiceId && !stored.elevenVoiceA) s.elevenVoiceA = s.elevenVoiceId;
+  return s;
+}
+export function saveSettings(s) {
+  // 密钥去除首尾空白，避免授权失败
+  s.claudeKey = (s.claudeKey || '').trim();
+  s.openaiKey = (s.openaiKey || '').trim();
+  s.elevenKey = (s.elevenKey || '').trim();
+  s.nativeLanguage = (s.nativeLanguage || 'Chinese').trim();
+  s.explanationLanguage = (s.explanationLanguage || s.nativeLanguage || 'Simplified Chinese').trim();
+  s.onboardingCompleted = !!s.onboardingCompleted;
+  s.selfAssessedLevel = /^(N[1-5]|beginner|unsure)$/.test(String(s.selfAssessedLevel))
+    ? String(s.selfAssessedLevel)
+    : 'unsure';
+  s.learningGoal = ['conversation', 'jlpt', 'travel', 'work', 'media'].includes(String(s.learningGoal))
+    ? String(s.learningGoal)
+    : 'conversation';
+  s.targetLanguage = 'Japanese';
+  s.targetLocale = 'ja-JP';
+  s.levelFramework = 'JLPT';
+  save(KEYS.settings, s);
+}
+export function hasAPIKey() {
+  const s = getSettings();
+  if (s.provider === 'local') return true; // 本地 CLI 免 Key，可用性由桥接服务在调用时报告
+  return s.provider === 'claude' ? !!s.claudeKey : !!s.openaiKey;
+}
+
+export function getScenarios() {
+  return load(KEYS.scenarios, []);
+}
+export function saveScenario(sc) {
+  let list = getScenarios();
+  list.unshift(sc);
+  save(KEYS.scenarios, enforceLimit(list));
+}
+export function updateScenario(sc) {
+  const list = getScenarios();
+  const i = list.findIndex(x => x.id === sc.id);
+  if (i >= 0) list[i] = sc;
+  save(KEYS.scenarios, list);
+}
+export function deleteScenario(id) {
+  save(KEYS.scenarios, getScenarios().filter(x => x.id !== id));
+}
+function enforceLimit(list) {
+  // 收藏与内置范文不计入 100 条上限，也不会被自动删除
+  const others = list.filter(s => !s.favorite && !s.builtin).slice(0, HISTORY_LIMIT);
+  return list.filter(s => s.favorite || s.builtin || others.includes(s));
+}
+
+function localizeSeedVocabulary(item, english) {
+  if (!english) return item;
+  return {
+    ...item,
+    meaningChinese: String(item.meaningChinese || item.meaning || ''),
+    meaningEnglish: String(english.meaning || ''),
+    exampleChinese: String(item.exampleChinese || item.exampleTranslation || ''),
+    exampleEnglish: String(english.example || ''),
+  };
+}
+
+function hydrateSeedLocalizations(seed, localizations) {
+  const scenarioLocalizations = localizations?.scenarios || {};
+  const articleLocalizations = localizations?.articles || {};
+  return {
+    ...seed,
+    scenarios: (seed.scenarios || []).map(scenario => {
+      const english = scenarioLocalizations[scenario.id];
+      if (!english) return scenario;
+      return {
+        ...scenario,
+        titleEnglish: String(english.title || ''),
+        topicEnglish: String(english.topic || ''),
+        lines: (scenario.lines || []).map((line, index) => ({
+          ...line,
+          english: String(english.lines?.[index] || ''),
+        })),
+        vocabulary: (scenario.vocabulary || []).map((item, index) =>
+          localizeSeedVocabulary(item, english.vocabulary?.[index])
+        ),
+      };
+    }),
+    articles: (seed.articles || []).map(article => {
+      const english = articleLocalizations[article.id];
+      if (!english) return article;
+      return {
+        ...article,
+        titleEnglish: String(english.title || ''),
+        paragraphs: (article.paragraphs || []).map((paragraph, index) => ({
+          ...paragraph,
+          english: String(english.paragraphs?.[index] || ''),
+        })),
+        vocabulary: (article.vocabulary || []).map((item, index) =>
+          localizeSeedVocabulary(item, english.vocabulary?.[index])
+        ),
+      };
+    }),
+  };
+}
+
+function mergeSeedItems(existing, seeds) {
+  const freshById = new Map((seeds || []).map(item => [item.id, item]));
+  const merged = (existing || []).map(item => {
+    const fresh = freshById.get(item.id);
+    if (!fresh || !item.builtin) return item;
+    freshById.delete(item.id);
+    return {
+      ...item,
+      ...fresh,
+      favorite: item.favorite ?? fresh.favorite,
+      wordGlosses: item.wordGlosses || fresh.wordGlosses,
+    };
+  });
+  return [...merged, ...freshById.values()];
+}
+
+function addSeedEnglishToSavedVocabulary(vocabulary, seed) {
+  const englishByWord = new Map();
+  for (const collection of [...(seed.scenarios || []), ...(seed.articles || [])]) {
+    for (const item of collection.vocabulary || []) {
+      if (item.word && item.meaningEnglish && !englishByWord.has(item.word)) {
+        englishByWord.set(item.word, item);
+      }
+    }
+  }
+  return (vocabulary || []).map(item => {
+    const localized = englishByWord.get(item.word);
+    if (!localized) return item;
+    return {
+      ...item,
+      meaningChinese: item.meaningChinese || (/[\u3400-\u9fff]/.test(String(item.meaning || '')) ? item.meaning : localized.meaningChinese),
+      meaningEnglish: item.meaningEnglish || localized.meaningEnglish,
+      exampleChinese: item.exampleChinese || item.exampleTranslation || localized.exampleChinese,
+      exampleEnglish: item.exampleEnglish || localized.exampleEnglish,
+    };
+  });
+}
+
+function hasCompleteSeedEnglish(scenarios, articles) {
+  const builtInScenarios = (scenarios || []).filter(item => item?.builtin);
+  const builtInArticles = (articles || []).filter(item => item?.builtin);
+  return builtInScenarios.length >= 10
+    && builtInArticles.length >= 10
+    && builtInScenarios.every(item =>
+      item.titleEnglish
+      && (item.lines || []).length
+      && item.lines.every(line => String(line.english || '').trim())
+    )
+    && builtInArticles.every(item =>
+      item.titleEnglish
+      && (item.paragraphs || []).length
+      && item.paragraphs.every(paragraph => String(paragraph.english || '').trim())
+    );
+}
+
+// ---------- 内置范文（seed.json；版本升级时更新内置内容并保留用户状态） ----------
+export async function loadSeeds() {
+  const s = getSettings();
+  if (
+    s.seedsLoaded
+    && Number(s.seedLocalizationVersion || 0) >= SEED_LOCALIZATION_VERSION
+    && hasCompleteSeedEnglish(getScenarios(), getArticles())
+  ) return;
+  let seed;
+  let localizations;
+  try {
+    const [seedResponse, localizationResponse] = await Promise.all([
+      fetch('/ai-kotoba-web/seed.json'),
+      fetch('/ai-kotoba-web/seed-localizations.en.json'),
+    ]);
+    if (!seedResponse.ok || !localizationResponse.ok) return;
+    seed = await seedResponse.json();
+    localizations = await localizationResponse.json();
+  } catch {
+    return; // 没有 seed 文件或加载失败，跳过
+  }
+  const localizedSeed = hydrateSeedLocalizations(seed, localizations);
+  save(KEYS.scenarios, mergeSeedItems(getScenarios(), localizedSeed.scenarios));
+  save(KEYS.articles, mergeSeedItems(getArticles(), localizedSeed.articles));
+  save(KEYS.vocab, addSeedEnglishToSavedVocabulary(getVocab(), localizedSeed));
+  saveSettings(Object.assign(getSettings(), {
+    seedsLoaded: true,
+    seedLocalizationVersion: SEED_LOCALIZATION_VERSION,
+  }));
+}
+
+export function getVocab() {
+  return load(KEYS.vocab, []);
+}
+export function saveVocabList(list) {
+  save(KEYS.vocab, list);
+}
+export function addVocab(item) {
+  const list = getVocab();
+  if (list.some(v => v.word === item.word)) return false;
+  list.unshift(Object.assign({
+    id: crypto.randomUUID(),
+    addedAt: Date.now(),
+    ease: 2.5, interval: 0, reps: 0,
+    nextReview: Date.now(), // 立即可复习
+  }, item));
+  save(KEYS.vocab, list);
+  return true;
+}
+export function deleteVocab(id) {
+  save(KEYS.vocab, getVocab().filter(v => v.id !== id));
+}
+export function updateVocab(item) {
+  const list = getVocab();
+  const i = list.findIndex(v => v.id === item.id);
+  if (i >= 0) list[i] = item;
+  save(KEYS.vocab, list);
+}
+
+// ---------- Tutor 课程与长期学习记忆 ----------
+export function getTutorSessions() {
+  return load(KEYS.tutorSessions, []);
+}
+export function saveTutorSession(session) {
+  const list = getTutorSessions().filter(item => item.id !== session.id);
+  list.unshift(session);
+  save(KEYS.tutorSessions, list.slice(0, TUTOR_SESSION_LIMIT));
+}
+export function updateTutorSession(id, patch) {
+  const list = getTutorSessions();
+  const index = list.findIndex(item => item.id === id);
+  if (index < 0) return null;
+  list[index] = Object.assign({}, list[index], patch, { updatedAt: Date.now() });
+  save(KEYS.tutorSessions, list);
+  return list[index];
+}
+export function getLearningNotes(limit) {
+  const list = load(KEYS.learningNotes, [])
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  return Number.isFinite(limit) ? list.slice(0, Math.max(0, limit)) : list;
+}
+export function addLearningNote(input) {
+  const clean = (value, max) => String(value || '').trim().slice(0, max);
+  const note = {
+    category: clean(input.category, 24) || '自然表达',
+    original: clean(input.original, 160),
+    better: clean(input.better, 160),
+    note: clean(input.note, 240),
+    source: clean(input.source, 32) || 'tutor',
+  };
+  if (!note.original && !note.better && !note.note) return { created: false, note: null };
+
+  const list = getLearningNotes();
+  const key = `${note.category}|${note.original}|${note.better}`.toLocaleLowerCase();
+  const index = list.findIndex(item =>
+    `${item.category || ''}|${item.original || ''}|${item.better || ''}`.toLocaleLowerCase() === key
+  );
+  const now = Date.now();
+  if (index >= 0) {
+    list[index] = Object.assign({}, list[index], note, {
+      updatedAt: now,
+      seenCount: (list[index].seenCount || 1) + 1,
+    });
+    const updated = list.splice(index, 1)[0];
+    list.unshift(updated);
+    save(KEYS.learningNotes, list.slice(0, LEARNING_NOTE_LIMIT));
+    return { created: false, note: updated };
+  }
+
+  const created = Object.assign({
+    id: crypto.randomUUID(),
+    createdAt: now,
+    updatedAt: now,
+    seenCount: 1,
+  }, note);
+  list.unshift(created);
+  save(KEYS.learningNotes, list.slice(0, LEARNING_NOTE_LIMIT));
+  return { created: true, note: created };
+}
+
+// ---------- 语法课程进度与按需生成的本地化讲解 ----------
+export function getGrammarProgress() {
+  return load(KEYS.grammarProgress, [])
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+}
+export function upsertGrammarProgress(input) {
+  const id = String(input?.id || '').trim();
+  if (!id) throw new Error('语法点 ID 不能为空');
+  const list = getGrammarProgress();
+  const index = list.findIndex(item => item.id === id);
+  const previous = index >= 0 ? list[index] : { id, status: 'unstarted', createdAt: Date.now() };
+  const updated = Object.assign({}, previous, input, { id, updatedAt: Date.now() });
+  if (index >= 0) list.splice(index, 1);
+  list.unshift(updated);
+  save(KEYS.grammarProgress, list.slice(0, 600));
+  return updated;
+}
+
+// ---------- 听说读写能力地图 ----------
+export function getAbilityProfile() {
+  return load(KEYS.abilityProfiles, [])[0] || null;
+}
+export function saveAbilityProfile(profile) {
+  const value = Object.assign({ id: 'current', createdAt: Date.now() }, profile, {
+    id: 'current',
+    updatedAt: Date.now(),
+  });
+  save(KEYS.abilityProfiles, [value]);
+  return value;
+}
+
+// ---------- 阅读文章 ----------
+export function getArticles() {
+  return load(KEYS.articles, []);
+}
+export function saveArticle(a) {
+  const list = getArticles();
+  list.unshift(a);
+  save(KEYS.articles, list.slice(0, ARTICLE_LIMIT));
+}
+export function deleteArticle(id) {
+  save(KEYS.articles, getArticles().filter(x => x.id !== id));
+}
+export function updateArticle(a) {
+  const list = getArticles();
+  const i = list.findIndex(x => x.id === a.id);
+  if (i >= 0) list[i] = a;
+  save(KEYS.articles, list);
+}
+
+// ---------- 每日签到 ----------
+function localDateStr(d = new Date()) {
+  return d.toLocaleDateString('sv'); // YYYY-MM-DD（本地时区）
+}
+export function getCheckins() {
+  return load(KEYS.checkins, []);
+}
+// 任何学习行为都会触发签到；返回 true 表示这是今天第一次
+export function recordActivity() {
+  const today = localDateStr();
+  const list = getCheckins();
+  if (list.includes(today)) return false;
+  list.push(today);
+  save(KEYS.checkins, list);
+  return true;
+}
+export function streakInfo() {
+  const set = new Set(getCheckins());
+  const today = localDateStr();
+  const d = new Date();
+  if (!set.has(today)) d.setDate(d.getDate() - 1); // 今天还没签到时，连续天数从昨天往回数
+  let streak = 0;
+  while (set.has(localDateStr(d))) {
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+  // 最近 7 天（含今天），用于周视图
+  const week = [];
+  for (let i = 6; i >= 0; i--) {
+    const w = new Date();
+    w.setDate(w.getDate() - i);
+    week.push({ date: localDateStr(w), day: '日一二三四五六'[w.getDay()], done: set.has(localDateStr(w)) });
+  }
+  return { streak, total: set.size, todayDone: set.has(today), week };
+}
+
+export function exportAll() {
+  return JSON.stringify({
+    scenarios: getScenarios(),
+    vocab: getVocab(),
+    articles: getArticles(),
+    checkins: getCheckins(),
+    tutorSessions: getTutorSessions(),
+    learningNotes: getLearningNotes(),
+    abilityProfiles: getAbilityProfile() ? [getAbilityProfile()] : [],
+    exportedAt: new Date().toISOString(),
+  }, null, 2);
+}
+export function importAll(json) {
+  const data = JSON.parse(json);
+  if (!Array.isArray(data.scenarios) || !Array.isArray(data.vocab)) {
+    throw new Error('文件格式不正确');
+  }
+  save(KEYS.scenarios, data.scenarios);
+  save(KEYS.vocab, data.vocab);
+  if (Array.isArray(data.articles)) save(KEYS.articles, data.articles);
+  if (Array.isArray(data.checkins)) save(KEYS.checkins, data.checkins);
+  if (Array.isArray(data.tutorSessions)) save(KEYS.tutorSessions, data.tutorSessions);
+  if (Array.isArray(data.learningNotes)) save(KEYS.learningNotes, data.learningNotes);
+  if (Array.isArray(data.abilityProfiles)) save(KEYS.abilityProfiles, data.abilityProfiles.slice(0, 1));
+}
+export function clearAll() {
+  localStorage.removeItem(KEYS.scenarios);
+  localStorage.removeItem(KEYS.vocab);
+  localStorage.removeItem(KEYS.articles);
+  localStorage.removeItem(KEYS.checkins);
+  localStorage.removeItem(KEYS.tutorSessions);
+  localStorage.removeItem(KEYS.learningNotes);
+  localStorage.removeItem(KEYS.abilityProfiles);
+}

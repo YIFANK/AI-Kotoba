@@ -12,3 +12,9 @@ xcuserdata/
 *-credentials.json
 gen-lang-client-*.json
 service-account*.json
+
+# Local API keys and environment overrides
+.env
+.env.*
+!.env.example
+ai-kotoba-web/.tts-cache/

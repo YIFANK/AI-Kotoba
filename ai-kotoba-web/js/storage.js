@@ -5,8 +5,15 @@ const KEYS = {
   vocab: 'kotoba.vocab',
   articles: 'kotoba.articles',
   checkins: 'kotoba.checkins',
+  tutorSessions: 'kotoba.tutorSessions',
+  learningNotes: 'kotoba.learningNotes',
+  pronunciationAttempts: 'kotoba.pronunciationAttempts',
+  grammarProgress: 'kotoba.grammarProgress',
 };
 const ARTICLE_LIMIT = 50;
+const TUTOR_SESSION_LIMIT = 100;
+const LEARNING_NOTE_LIMIT = 120;
+const PRONUNCIATION_ATTEMPT_LIMIT = 60;
 
 const HISTORY_LIMIT = 100; // 仅非收藏计入上限
 
@@ -70,6 +77,10 @@ export async function initSync() {
     vocab: mergeById(local.vocab, server.vocab, 'addedAt'),
     articles: mergeById(local.articles, server.articles, 'createdAt'),
     checkins: [...new Set([...(local.checkins || []), ...(server.checkins || [])])].sort(),
+    tutorSessions: mergeById(local.tutorSessions, server.tutorSessions, 'createdAt'),
+    learningNotes: mergeById(local.learningNotes, server.learningNotes, 'updatedAt'),
+    pronunciationAttempts: mergeById(local.pronunciationAttempts, server.pronunciationAttempts, 'createdAt'),
+    grammarProgress: mergeById(local.grammarProgress, server.grammarProgress, 'updatedAt'),
   };
   for (const [name, key] of Object.entries(KEYS)) {
     localStorage.setItem(key, JSON.stringify(merged[name]));
@@ -80,15 +91,27 @@ export async function initSync() {
 export function getSettings() {
   const s = Object.assign(
     {
-      provider: 'claude', claudeKey: '', openaiKey: '',
+      // 公网版的模型密钥只存在服务端；浏览器统一走 /api/ai。
+      provider: 'local', claudeKey: '', openaiKey: '',
       claudeModel: 'claude-sonnet-5', openaiModel: 'gpt-4o',
-      localEngine: 'claude',
+      openaiFastModel: 'gpt-5.6-luna',
+      localEngine: 'openai',
       ttsProvider: 'system', elevenKey: '',
+      ttsRate: 0.75,
       // 角色 A / B 双音色（默认 Sarah 女声 / George 男声，多语模型下日语自然）
       elevenVoiceA: 'EXAVITQu4vr4xnSDxMaL',
       elevenVoiceB: 'JBFqnCBsd6RMkjVDRZzb',
       elevenModel: 'eleven_multilingual_v2',
+      realtimeVoice: 'marin',
+      tutorStyle: 'bilingual',
       showFurigana: true,
+      // UI 首版中英双语；内容解释语言与母语允许自由填写。
+      uiLanguage: 'zh-CN',
+      nativeLanguage: 'Chinese',
+      explanationLanguage: 'Simplified Chinese',
+      targetLanguage: 'Japanese',
+      targetLocale: 'ja-JP',
+      levelFramework: 'JLPT',
     },
     load(KEYS.settings, {})
   );
@@ -101,6 +124,11 @@ export function saveSettings(s) {
   s.claudeKey = (s.claudeKey || '').trim();
   s.openaiKey = (s.openaiKey || '').trim();
   s.elevenKey = (s.elevenKey || '').trim();
+  s.nativeLanguage = (s.nativeLanguage || 'Chinese').trim();
+  s.explanationLanguage = (s.explanationLanguage || s.nativeLanguage || 'Simplified Chinese').trim();
+  s.targetLanguage = 'Japanese';
+  s.targetLocale = 'ja-JP';
+  s.levelFramework = 'JLPT';
   save(KEYS.settings, s);
 }
 export function hasAPIKey() {
@@ -138,7 +166,7 @@ export async function loadSeeds() {
   if (s.seedsLoaded) return;
   let seed;
   try {
-    const res = await fetch('seed.json');
+    const res = await fetch('/ai-kotoba-web/seed.json');
     if (!res.ok) return;
     seed = await res.json();
   } catch {
@@ -179,6 +207,97 @@ export function updateVocab(item) {
   const i = list.findIndex(v => v.id === item.id);
   if (i >= 0) list[i] = item;
   save(KEYS.vocab, list);
+}
+
+// ---------- Tutor 课程与长期学习记忆 ----------
+export function getTutorSessions() {
+  return load(KEYS.tutorSessions, []);
+}
+export function saveTutorSession(session) {
+  const list = getTutorSessions().filter(item => item.id !== session.id);
+  list.unshift(session);
+  save(KEYS.tutorSessions, list.slice(0, TUTOR_SESSION_LIMIT));
+}
+export function updateTutorSession(id, patch) {
+  const list = getTutorSessions();
+  const index = list.findIndex(item => item.id === id);
+  if (index < 0) return null;
+  list[index] = Object.assign({}, list[index], patch, { updatedAt: Date.now() });
+  save(KEYS.tutorSessions, list);
+  return list[index];
+}
+export function getLearningNotes(limit) {
+  const list = load(KEYS.learningNotes, [])
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  return Number.isFinite(limit) ? list.slice(0, Math.max(0, limit)) : list;
+}
+export function addLearningNote(input) {
+  const clean = (value, max) => String(value || '').trim().slice(0, max);
+  const note = {
+    category: clean(input.category, 24) || '自然表达',
+    original: clean(input.original, 160),
+    better: clean(input.better, 160),
+    note: clean(input.note, 240),
+    source: clean(input.source, 32) || 'tutor',
+  };
+  if (!note.original && !note.better && !note.note) return { created: false, note: null };
+
+  const list = getLearningNotes();
+  const key = `${note.category}|${note.original}|${note.better}`.toLocaleLowerCase();
+  const index = list.findIndex(item =>
+    `${item.category || ''}|${item.original || ''}|${item.better || ''}`.toLocaleLowerCase() === key
+  );
+  const now = Date.now();
+  if (index >= 0) {
+    list[index] = Object.assign({}, list[index], note, {
+      updatedAt: now,
+      seenCount: (list[index].seenCount || 1) + 1,
+    });
+    const updated = list.splice(index, 1)[0];
+    list.unshift(updated);
+    save(KEYS.learningNotes, list.slice(0, LEARNING_NOTE_LIMIT));
+    return { created: false, note: updated };
+  }
+
+  const created = Object.assign({
+    id: crypto.randomUUID(),
+    createdAt: now,
+    updatedAt: now,
+    seenCount: 1,
+  }, note);
+  list.unshift(created);
+  save(KEYS.learningNotes, list.slice(0, LEARNING_NOTE_LIMIT));
+  return { created: true, note: created };
+}
+
+// ---------- 发音诊断 ----------
+export function getPronunciationAttempts(limit) {
+  const list = load(KEYS.pronunciationAttempts, [])
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  return Number.isFinite(limit) ? list.slice(0, Math.max(0, limit)) : list;
+}
+export function savePronunciationAttempt(attempt) {
+  const list = getPronunciationAttempts().filter(item => item.id !== attempt.id);
+  list.unshift(attempt);
+  save(KEYS.pronunciationAttempts, list.slice(0, PRONUNCIATION_ATTEMPT_LIMIT));
+}
+
+// ---------- 语法课程进度与按需生成的本地化讲解 ----------
+export function getGrammarProgress() {
+  return load(KEYS.grammarProgress, [])
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+}
+export function upsertGrammarProgress(input) {
+  const id = String(input?.id || '').trim();
+  if (!id) throw new Error('语法点 ID 不能为空');
+  const list = getGrammarProgress();
+  const index = list.findIndex(item => item.id === id);
+  const previous = index >= 0 ? list[index] : { id, status: 'unstarted', createdAt: Date.now() };
+  const updated = Object.assign({}, previous, input, { id, updatedAt: Date.now() });
+  if (index >= 0) list.splice(index, 1);
+  list.unshift(updated);
+  save(KEYS.grammarProgress, list.slice(0, 600));
+  return updated;
 }
 
 // ---------- 阅读文章 ----------
@@ -242,6 +361,9 @@ export function exportAll() {
     vocab: getVocab(),
     articles: getArticles(),
     checkins: getCheckins(),
+    tutorSessions: getTutorSessions(),
+    learningNotes: getLearningNotes(),
+    pronunciationAttempts: getPronunciationAttempts(),
     exportedAt: new Date().toISOString(),
   }, null, 2);
 }
@@ -254,10 +376,16 @@ export function importAll(json) {
   save(KEYS.vocab, data.vocab);
   if (Array.isArray(data.articles)) save(KEYS.articles, data.articles);
   if (Array.isArray(data.checkins)) save(KEYS.checkins, data.checkins);
+  if (Array.isArray(data.tutorSessions)) save(KEYS.tutorSessions, data.tutorSessions);
+  if (Array.isArray(data.learningNotes)) save(KEYS.learningNotes, data.learningNotes);
+  if (Array.isArray(data.pronunciationAttempts)) save(KEYS.pronunciationAttempts, data.pronunciationAttempts);
 }
 export function clearAll() {
   localStorage.removeItem(KEYS.scenarios);
   localStorage.removeItem(KEYS.vocab);
   localStorage.removeItem(KEYS.articles);
   localStorage.removeItem(KEYS.checkins);
+  localStorage.removeItem(KEYS.tutorSessions);
+  localStorage.removeItem(KEYS.learningNotes);
+  localStorage.removeItem(KEYS.pronunciationAttempts);
 }

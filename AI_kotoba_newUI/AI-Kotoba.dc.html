@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<script type="module" src="./integration.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/organic-a807b147-9906-432d-a234-ecb1661fcdbb/styles.css">
+<style>
+  :root{ --font-jp:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif; }
+  html,body{ margin:0; height:100%; background:var(--color-bg); }
+  .jp{ font-family:var(--font-jp); }
+  ruby>rt{ font-size:.55em; color:color-mix(in srgb,var(--color-text) 52%,transparent); font-weight:400; letter-spacing:0; }
+  [data-furi="off"] ruby>rt{ visibility:hidden; }
+  [data-dir="sage"]{
+    --color-accent:#7a8a5e; --color-accent-500:#8fa073; --color-accent-600:#728157; --color-accent-700:#56633f; --color-accent-800:#3d472b; --color-accent-900:#272e1b;
+    --color-accent-100:#f0fae1; --color-accent-200:#e1eecc; --color-accent-300:#ccdbb2; --color-accent-400:#aebf92;
+    --color-accent-2:#c67139; --color-accent-2-100:#fff2eb; --color-accent-2-200:#ffe1d0; --color-accent-2-300:#ffc6a5; --color-accent-2-400:#f6a06b; --color-accent-2-500:#d67f48; --color-accent-2-600:#b2622d; --color-accent-2-700:#8c491a; --color-accent-2-800:#643312; --color-accent-2-900:#402310;
+  }
+  [data-dir="blue"]{
+    --color-bg:#f6f7f9; --color-surface:#ffffff; --color-text:#1d2433; --color-divider:#e8eaf0;
+    --color-neutral-100:#fafbfd; --color-neutral-200:#f2f4f8; --color-neutral-300:#e4e7ee; --color-neutral-400:#cfd4df; --color-neutral-500:#a5adbd; --color-neutral-600:#7b8494; --color-neutral-700:#596274; --color-neutral-800:#3c4557; --color-neutral-900:#262c3a;
+    --color-accent:#4f6bf5; --color-accent-100:#eef1fe; --color-accent-200:#dfe5fd; --color-accent-300:#c4cefc; --color-accent-400:#91a3fa; --color-accent-500:#667ef7; --color-accent-600:#3d59e8; --color-accent-700:#3048c8; --color-accent-800:#293da1; --color-accent-900:#24357f;
+    --color-accent-2:#8a5cf6; --color-accent-2-100:#f4efff; --color-accent-2-200:#e9ddff; --color-accent-2-300:#d8c2ff; --color-accent-2-400:#b893fc; --color-accent-2-500:#9668f5; --color-accent-2-600:#7848dc; --color-accent-2-700:#6037b5; --color-accent-2-800:#4e3090; --color-accent-2-900:#402873;
+    --shadow-sm:0 1px 3px color-mix(in srgb,#26345f 10%,transparent); --shadow-md:0 5px 16px color-mix(in srgb,#26345f 12%,transparent); --shadow-lg:0 14px 36px color-mix(in srgb,#26345f 16%,transparent);
+  }
+  ::-webkit-scrollbar{ width:11px;height:11px } ::-webkit-scrollbar-thumb{ background:var(--color-neutral-300);border-radius:99px;border:3px solid var(--color-bg) } ::-webkit-scrollbar-thumb:hover{ background:var(--color-neutral-400) }
+  @keyframes fadeUp{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  @keyframes pop{ from{opacity:0;transform:scale(.97)} to{opacity:1;transform:none} }
+  @keyframes spin{ to{transform:rotate(360deg)} }
+  @keyframes flip{ from{opacity:0;transform:rotateX(-12deg)} to{opacity:1;transform:none} }
+  .navbtn:hover{ background:color-mix(in srgb,var(--color-text) 6%,transparent); }
+  .navbtn[data-on="true"]{ background:var(--color-accent-100); color:var(--color-accent-800); }
+  .navbtn[data-on="true"] .ndot{ opacity:1; }
+  .tile:hover{ transform:translateY(-3px); box-shadow:var(--shadow-md); }
+  .linerow{ transition:background .15s,border-color .15s,transform .15s; }
+  .linerow:hover{ background:var(--color-accent-100); }
+  .linerow[data-play="true"]{ background:var(--color-accent-100); box-shadow:inset 0 0 0 2px var(--color-accent); }
+  .vcard:hover{ box-shadow:var(--shadow-md); }
+  .presetchip{ transition:all .15s; }
+  .presetchip:hover{ background:var(--color-accent); color:var(--color-bg); }
+  .recentrow:hover{ background:var(--color-accent-100); }
+  .recentrow:hover .rchev{ transform:translateX(3px); }
+  .ratebtn{ transition:transform .12s,box-shadow .12s; }
+  .ratebtn:hover{ transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+  .segdir{ transition:all .18s; }
+  #account-pill{display:flex;align-items:center;gap:8px;min-height:34px;padding:0 12px;border:1px solid var(--color-divider);border-radius:999px;background:var(--color-surface);font-size:12px;font-weight:650;color:var(--color-text);white-space:nowrap}
+  #account-pill a{color:inherit;text-decoration:none}
+  #account-pill .account-dot{width:8px;height:8px;border-radius:50%;background:var(--color-accent-2)}
+  #account-pill[data-auth="true"] .account-dot{background:var(--color-accent)}
+  .reading-token{border:0;background:transparent;color:inherit;border-radius:7px;padding:1px 2px;cursor:pointer;font:inherit;font-size:18px;line-height:1.9}
+  .reading-token:hover,.reading-token[data-selected="true"]{background:var(--color-accent-200);color:var(--color-accent-900)}
+  .reading-token[data-word="false"]{cursor:default;padding-inline:0}
+  .three-line{display:grid;grid-template-columns:58px 1fr;gap:8px 14px;align-items:start}
+  .three-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent);padding-top:7px}
+  .gloss-line{display:flex;flex-wrap:wrap;gap:6px 8px;padding-top:2px}
+  .gloss-chip{display:inline-flex;align-items:baseline;gap:5px;padding:3px 8px;border-radius:9px;background:var(--color-accent-100);font-size:12px;line-height:1.45}
+  .gloss-chip .jp{font-weight:700;color:var(--color-accent-900)}
+  .word-float{position:fixed;z-index:30;width:min(330px,calc(100vw - 24px));padding:16px 17px;gap:11px;border:1px solid var(--color-divider);background:var(--color-surface);animation:pop .16s ease both}
+  .word-float-close{width:30px;height:30px;border:0;border-radius:10px;background:transparent;color:color-mix(in srgb,var(--color-text) 55%,transparent);cursor:pointer;font-size:20px;line-height:1}
+  .word-float-close:hover{background:var(--color-neutral-200);color:var(--color-text)}
+  .tutor-talk{min-width:168px;padding:14px 24px;border:0;border-radius:999px;background:var(--color-accent);color:var(--color-bg);font:750 15px var(--font-body);cursor:grab;touch-action:none;user-select:none;box-shadow:var(--shadow-sm);transition:transform .12s,box-shadow .12s,background .12s}
+  .tutor-talk:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+  .tutor-talk[data-talking="true"]{transform:scale(.97);background:var(--color-accent-2);cursor:grabbing;box-shadow:0 0 0 7px color-mix(in srgb,var(--color-accent-2) 18%,transparent)}
+  .tutor-history summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;font-weight:700}
+  .tutor-history summary::-webkit-details-marker{display:none}
+  .tutor-history summary::after{content:'⌄';margin-left:auto;color:color-mix(in srgb,var(--color-text) 45%,transparent)}
+  .tutor-history[open] summary::after{transform:rotate(180deg)}
+</style>
+</helmet>
+
+<div style="display:flex;height:100vh;overflow:hidden;font-family:var(--font-body);color:var(--color-text);background:var(--color-bg)" data-dir="{{ dirAttr }}" data-furi="{{ furiAttr }}">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside style="width:256px;flex:none;background:var(--color-surface);display:flex;flex-direction:column;padding:22px 16px;border-right:1px solid var(--color-divider)">
+    <div style="display:flex;align-items:center;gap:12px;padding:2px 8px 20px">
+      <div class="jp" style="width:46px;height:46px;border-radius:16px;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--shadow-sm)">言</div>
+      <div>
+        <div style="font-family:var(--font-heading);font-size:19px;line-height:1">AI-Kotoba</div>
+        <div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:3px">日语情景会话学习</div>
+      </div>
+    </div>
+
+    <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent);padding:0 10px;margin:6px 0 6px">学习</div>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <button class="navbtn" onClick="{{ go.home }}" data-on="{{ nav.home }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <span style="flex:1">今日</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+      </button>
+      <button class="navbtn" onClick="{{ go.practice }}" data-on="{{ nav.practice }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        <span style="flex:1">练习</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+      </button>
+      <button class="navbtn" onClick="{{ go.tutor }}" data-on="{{ nav.tutor }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 19v3"/></svg>
+        <span style="flex:1">AI 语音 Tutor</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+      </button>
+      <button class="navbtn" onClick="{{ go.pron }}" data-on="{{ nav.pron }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v-2M8 16V8M12 19V5M16 16V8M20 12v-2"/></svg>
+        <span style="flex:1">发音诊断</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+      </button>
+      <button class="navbtn" onClick="{{ go.reading }}" data-on="{{ nav.reading }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-4.5-2-8-2v14c3.5 0 6 .5 8 2 2-1.5 4.5-2 8-2V4c-3.5 0-6 .5-8 2z"/><path d="M12 6v14"/></svg>
+        <span style="flex:1">阅读文章</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+      </button>
+      <button class="navbtn" onClick="{{ go.grammar }}" data-on="{{ nav.grammar }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <span class="jp" aria-hidden="true" style="width:19px;text-align:center;font-weight:800">文</span>
+        <span style="flex:1">语法课程</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+      </button>
+    </nav>
+
+    <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent);padding:0 10px;margin:16px 0 6px">词汇 · 记录</div>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <button class="navbtn" onClick="{{ go.vocab }}" data-on="{{ nav.vocab }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z"/><path d="M5 17a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/></svg>
+        <span style="flex:1">生词本</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+      </button>
+      <button class="navbtn" onClick="{{ go.cards }}" data-on="{{ nav.cards }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/><path d="M7 12h5"/></svg>
+        <span style="flex:1">闪卡复习</span><span style="font-size:11px;background:var(--color-accent);color:var(--color-bg);padding:1px 8px;border-radius:99px">{{ dueCount }}</span>
+      </button>
+      <button class="navbtn" onClick="{{ go.history }}" data-on="{{ nav.history }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        <span style="flex:1">历史</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+      </button>
+      <button class="navbtn" onClick="{{ go.fav }}" data-on="{{ nav.fav }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg>
+        <span style="flex:1">收藏</span><span class="ndot" style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);opacity:0"></span>
+      </button>
+    </nav>
+
+    <div style="margin-top:auto;padding-top:14px;border-top:1px solid var(--color-divider)">
+      <button class="navbtn" onClick="{{ go.settings }}" data-on="{{ nav.settings }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:9px 11px;border:none;background:none;border-radius:14px;cursor:pointer;font:inherit;font-size:14px;color:inherit;text-align:left">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>
+        <span>设置</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main style="flex:1;min-width:0;overflow-y:auto;position:relative">
+    <div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:16px 40px;background:color-mix(in srgb,var(--color-bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--color-divider)">
+      <div style="font-family:var(--font-heading);font-size:15px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ crumb }}</div>
+      <div style="flex:1"></div>
+      <div id="account-pill" aria-live="polite"><span class="account-dot"></span><span>检查登录状态…</span></div>
+      <button onClick="{{ toggleFuri }}" class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+        振り仮名 {{ furiLabel }}
+      </button>
+      <div style="display:flex;align-items:center;gap:0;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:999px;padding:3px">
+        <button class="segdir" onClick="{{ dir.blue }}" data-on="{{ dirIsBlue }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ blueBg }};color:{{ blueFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#4f6bf5"></span>蓝白</button>
+        <button class="segdir" onClick="{{ dir.terra }}" data-on="{{ dirIsTerra }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ terraBg }};color:{{ terraFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#c67139"></span>陶土</button>
+        <button class="segdir" onClick="{{ dir.sage }}" data-on="{{ dirIsSage }}" style="border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px;background:{{ sageBg }};color:{{ sageFg }}"><span style="width:11px;height:11px;border-radius:50%;background:#7a8a5e"></span>苔绿</button>
+      </div>
+    </div>
+
+    <div style="padding:32px 40px 72px">
+
+      <!-- ============ HOME ============ -->
+      <sc-if value="{{ nav.home }}" hint-placeholder-val="{{ true }}">
+        <div style="animation:fadeUp .35s ease both;max-width:940px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px">
+            <div>
+              <div style="font-size:13px;color:var(--color-accent);font-weight:700;letter-spacing:.02em;margin-bottom:4px">{{ todayDate }}</div>
+              <h1 style="font-size:38px;margin:0">こんにちは、继续加油 <span class="jp">👋</span></h1>
+            </div>
+            <button class="btn btn-primary" onClick="{{ go.practice }}" style="font-size:14px;padding:11px 20px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>生成新场景</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px">
+            <div class="card elev-sm" style="padding:24px;gap:0">
+              <div style="display:flex;align-items:center;gap:14px">
+                <div style="width:52px;height:52px;border-radius:16px;background:var(--color-accent-100);display:flex;align-items:center;justify-content:center;color:var(--color-accent)"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s5 4.5 5 9.5a5 5 0 0 1-10 0c0-1.6.6-2.7.6-2.7.6 2.2 2.2 2.8 2.2 2.8S9 8.5 12 2z"/></svg></div>
+                <div>
+                  <div style="display:flex;align-items:baseline;gap:6px"><span style="font-family:var(--font-heading);font-size:38px;line-height:1;color:var(--color-accent)">{{ streak }}</span><span style="font-size:14px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">天连续打卡</span></div>
+                  <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin-top:3px">今天已打卡 · 保持下去 🔥</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:22px">
+                <sc-for list="{{ week }}" as="d" hint-placeholder-count="7">
+                  <div style="flex:1;text-align:center">
+                    <div style="height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:{{ d.bg }};color:{{ d.fg }}">{{ d.mark }}</div>
+                    <div style="font-size:11px;margin-top:5px;color:{{ d.labelFg }}">{{ d.label }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div class="card elev-sm" style="padding:24px;align-items:center;justify-content:center;text-align:center;gap:0">
+              <div style="position:relative;width:120px;height:120px">
+                <svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent-200)" stroke-width="13"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent)" stroke-width="13" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="98" transform="rotate(-90 60 60)"/></svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:var(--font-heading);font-size:30px;line-height:1;color:var(--color-accent)">7/10</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">今日目标</span></div>
+              </div>
+              <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 65%,transparent);margin-top:14px">再学 <b style="color:var(--color-text)">3 个词</b> 完成今日目标</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px">
+            <button class="tile card elev-sm" onClick="{{ go.practice }}" style="cursor:pointer;text-align:left;border:none;font:inherit;color:inherit;padding:20px;transition:transform .15s,box-shadow .15s">
+              <div style="width:42px;height:42px;border-radius:13px;background:var(--color-accent-100);color:var(--color-accent);display:flex;align-items:center;justify-content:center;margin-bottom:12px"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+              <div style="font-family:var(--font-heading);font-size:16px">生成场景对话</div>
+              <div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:3px">描述任意场景，AI 生成自然会话</div>
+            </button>
+            <button class="tile card elev-sm" onClick="{{ go.cards }}" style="cursor:pointer;text-align:left;border:none;font:inherit;color:inherit;padding:20px;transition:transform .15s,box-shadow .15s">
+              <div style="width:42px;height:42px;border-radius:13px;background:var(--color-accent-2-100);color:var(--color-accent-2-700);display:flex;align-items:center;justify-content:center;margin-bottom:12px"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/><path d="M7 12h5"/></svg></div>
+              <div style="font-family:var(--font-heading);font-size:16px">复习闪卡 · {{ dueCount }} 张</div>
+              <div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:3px">SM-2 间隔重复，到期待复习</div>
+            </button>
+            <button class="tile card elev-sm" onClick="{{ openDetail }}" style="cursor:pointer;text-align:left;border:none;font:inherit;color:inherit;padding:20px;transition:transform .15s,box-shadow .15s">
+              <div style="width:42px;height:42px;border-radius:13px;background:var(--color-neutral-200);color:var(--color-neutral-700);display:flex;align-items:center;justify-content:center;margin-bottom:12px"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+              <div class="jp" style="font-family:var(--font-heading);font-size:16px">继续「はじめまして」</div>
+              <div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:3px">上次学到第 4 句 · 继续</div>
+            </button>
+          </div>
+
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
+            <h3 style="font-size:20px;margin:0">最近学习</h3>
+            <button class="btn btn-ghost" onClick="{{ go.history }}" style="font-family:var(--font-body);font-weight:600;font-size:13px">全部历史 ›</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ recents }}" as="r" hint-placeholder-count="3">
+            <button class="recentrow card elev-sm" onClick="{{ r.onOpen }}" style="flex-direction:row;align-items:center;gap:16px;cursor:pointer;border:none;font:inherit;color:inherit;text-align:left;padding:15px 18px;transition:background .15s">
+                <div style="width:42px;height:42px;border-radius:12px;flex:none;background:var(--color-accent-100);color:var(--color-accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:17px" class="jp">{{ r.glyph }}</div>
+                <div style="flex:1;min-width:0">
+                  <div class="jp" style="font-family:var(--font-heading);font-size:16px">{{ r.title }}</div>
+                  <div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:1px">{{ r.sub }}</div>
+                </div>
+                <span class="tag tag-neutral">{{ r.level }}</span>
+                <span class="rchev" style="color:var(--color-accent);transition:transform .15s;display:flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ PRACTICE ============ -->
+      <sc-if value="{{ nav.practice }}" hint-placeholder-val="{{ true }}">
+        <div style="animation:fadeUp .35s ease both;max-width:820px">
+          <h1 style="font-size:34px;margin:0 0 4px">练习场景对话</h1>
+          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 24px">描述任意现实场景，AI 用两轮策略生成自然日语会话 + 中文对照。</p>
+
+          <div class="card elev-sm" style="padding:24px;gap:0">
+            <div class="field" style="margin-bottom:14px"><label style="font-size:13px">场景主题</label>
+              <div style="display:flex;gap:10px">
+                <input class="input jp" value="{{ sceneInput }}" onInput="{{ onSceneInput }}" placeholder="例如：在居酒屋点餐、和房东谈租房…" style="flex:1"/>
+                <select class="input" value="{{ sceneLevel }}" onChange="{{ onSceneLevel }}" style="width:96px;flex:none;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23c67139%22 stroke-width=%222.5%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 12px center"><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
+                <button class="btn btn-primary" onClick="{{ onGenerate }}" style="font-size:14px;padding:0 20px">{{ genLabel }}</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ presets }}" as="p" hint-placeholder-count="6">
+                <button class="presetchip tag tag-neutral jp" onClick="{{ p.onPick }}" style="border:none;cursor:pointer;font:inherit;font-size:12.5px;padding:6px 13px">{{ p.label }}</button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ generating }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:10px;margin-top:18px;color:var(--color-accent);font-size:13px">
+                <span style="width:15px;height:15px;border-radius:50%;border:2px solid var(--color-accent-200);border-top-color:var(--color-accent);animation:spin .7s linear infinite;display:inline-block"></span>
+                正在生成自然会话…
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin:28px 0 12px">
+            <h3 style="font-size:19px;margin:0">最近生成</h3>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ recents }}" as="r" hint-placeholder-count="3">
+              <button class="recentrow card elev-sm" onClick="{{ r.onOpen }}" style="flex-direction:row;align-items:center;gap:16px;cursor:pointer;border:none;font:inherit;color:inherit;text-align:left;padding:15px 18px;transition:background .15s">
+                <div class="jp" style="width:42px;height:42px;border-radius:12px;flex:none;background:var(--color-accent-100);color:var(--color-accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:17px">{{ r.glyph }}</div>
+                <div style="flex:1;min-width:0"><div class="jp" style="font-family:var(--font-heading);font-size:16px">{{ r.title }}</div><div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:1px">{{ r.sub }}</div></div>
+                <span class="tag tag-neutral">{{ r.level }}</span>
+                <span class="rchev" style="color:var(--color-accent);transition:transform .15s;display:flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ DETAIL ============ -->
+      <sc-if value="{{ nav.detail }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:820px">
+          <button class="btn btn-ghost" onClick="{{ go.practice }}" style="font-family:var(--font-body);font-weight:600;margin-bottom:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>返回</button>
+
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px">
+            <div>
+              <h1 class="jp" style="font-size:32px;margin:0 0 4px">{{ sc.title }}</h1>
+              <div style="color:color-mix(in srgb,var(--color-text) 58%,transparent);font-size:15px">{{ sc.titleCn }}</div>
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <span class="tag tag-accent">JLPT {{ sc.level }}</span>
+                <span class="tag tag-neutral">{{ sc.topic }}</span>
+                <span class="tag tag-neutral">{{ sc.date }}</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex:none">
+              <label style="height:40px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1.5px solid var(--color-divider);border-radius:12px;background:var(--color-neutral-100);font-size:12px;font-weight:700;color:color-mix(in srgb,var(--color-text) 65%,transparent)">
+                语速
+                <select aria-label="会话朗读语速" value="{{ sc.speechRate }}" onChange="{{ sc.onSpeechRate }}" style="border:none;background:transparent;color:var(--color-text);font:700 13px var(--font-body);outline:none;cursor:pointer">
+                  <option value="0.6">0.6× 很慢</option>
+                  <option value="0.75">0.75× 慢速</option>
+                  <option value="0.9">0.9×</option>
+                  <option value="1">1.0× 原速</option>
+                </select>
+              </label>
+              <button class="btn btn-secondary btn-icon" title="收藏"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg></button>
+              <button class="btn btn-primary" style="font-family:var(--font-body);font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 8a3 3 0 1 0-6 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>互动模式</button>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ sc.lines }}" as="l" hint-placeholder-count="6">
+              <div class="linerow card" onClick="{{ l.onPlay }}" data-play="{{ l.playing }}" style="flex-direction:row;gap:13px;align-items:flex-start;cursor:pointer;padding:15px 18px;background:var(--color-neutral-100)">
+                <span class="jp" style="flex:none;min-width:34px;height:30px;padding:0 9px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:{{ l.badgeBg }};color:{{ l.badgeFg }}">{{ l.sp }}</span>
+                <div style="flex:1;min-width:0">
+                  <p class="jp" style="font-size:17px;margin:0;line-height:1.9"><sc-for list="{{ l.segs }}" as="s" hint-placeholder-count="3"><ruby>{{ s.b }}<rt>{{ s.r }}</rt></ruby></sc-for></p>
+                  <p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin:3px 0 0">{{ l.cn }}</p>
+                </div>
+                <span style="flex:none;color:var(--color-accent);margin-top:3px;display:flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></span>
+              </div>
+            </sc-for>
+          </div>
+
+          <h3 style="font-size:19px;margin:32px 0 12px;display:flex;align-items:center;gap:8px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z"/><path d="M9 8h6"/></svg>生词建议</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">
+            <sc-for list="{{ sc.vocab }}" as="v" hint-placeholder-count="6">
+              <div class="vcard card" style="padding:16px;gap:2px;background:var(--color-neutral-100);transition:box-shadow .15s">
+                <div class="jp" style="font-family:var(--font-heading);font-size:18px">{{ v.word }}</div>
+                <div class="jp" style="font-size:12.5px;color:var(--color-accent)">{{ v.reading }}</div>
+                <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ v.meaning }}</div>
+                <div class="jp" style="font-size:12px;color:color-mix(in srgb,var(--color-text) 52%,transparent);margin-top:6px;padding-top:7px;border-top:1px dashed var(--color-divider)">{{ v.example }}</div>
+                <button class="btn btn-secondary" onClick="{{ v.onAdd }}" disabled="{{ v.added }}" style="align-self:flex-start;margin-top:10px;font-family:var(--font-body);font-weight:600;font-size:12.5px;padding:6px 13px">{{ v.addLabel }}</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ VOCAB (生词本) ============ -->
+      <sc-if value="{{ nav.vocab }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:820px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px">
+            <div><h1 style="font-size:34px;margin:0 0 4px">生词本</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">收藏的词汇会进入 SM-2 间隔复习</p></div>
+            <button class="btn btn-primary" onClick="{{ go.cards }}" style="font-family:var(--font-body);font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/></svg>去复习 {{ dueCount }} 张</button>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:18px">
+            <div style="position:relative;flex:1"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:color-mix(in srgb,var(--color-text) 45%,transparent);display:flex"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><input class="input" placeholder="搜索词汇…" style="padding-left:40px"/></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ vocabList }}" as="v" hint-placeholder-count="6">
+              <div class="card elev-sm" style="flex-direction:row;align-items:center;gap:16px;padding:13px 18px">
+                <button class="btn btn-icon" style="flex:none;color:var(--color-accent);border:1px solid var(--color-divider)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></button>
+                <div class="jp" style="font-family:var(--font-heading);font-size:17px;min-width:120px">{{ v.word }}</div>
+                <div class="jp" style="font-size:12.5px;color:var(--color-accent);min-width:110px">{{ v.reading }}</div>
+                <div style="flex:1;min-width:0;font-size:13.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ v.meaning }}</div>
+                <span class="tag" style="flex:none;background:{{ v.dueBg }};color:{{ v.dueFg }}">{{ v.due }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ FLASHCARDS (闪卡) ============ -->
+      <sc-if value="{{ nav.cards }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:560px;margin:0 auto">
+          <h1 style="font-size:34px;margin:0 0 4px;text-align:center">闪卡复习</h1>
+          <sc-if value="{{ flash.done }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-md" style="align-items:center;text-align:center;padding:48px 32px;margin-top:20px;animation:pop .3s ease both">
+              <div style="width:72px;height:72px;border-radius:50%;background:var(--color-accent-2-100);color:var(--color-accent-2-700);display:flex;align-items:center;justify-content:center;margin-bottom:8px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+              <h3 style="font-size:24px;margin:0">今日复习完成！</h3>
+              <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:4px 0 20px">连续打卡 +1 天 · 明天还有新的到期卡片</p>
+              <div style="display:flex;gap:10px"><button class="btn btn-secondary" onClick="{{ flash.onRestart }}" style="font-family:var(--font-body);font-weight:600">再复习一遍</button><button class="btn btn-primary" onClick="{{ go.home }}" style="font-family:var(--font-body);font-weight:700">回到今日</button></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ flash.revealed }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:16px">
+              <div style="text-align:center;font-size:13px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-bottom:12px">{{ flash.pos }}</div>
+              <div style="height:6px;background:var(--color-neutral-200);border-radius:99px;overflow:hidden;margin-bottom:18px"><div style="height:100%;background:var(--color-accent);border-radius:99px;transition:width .3s;width:{{ flash.pct }}"></div></div>
+              <div class="card elev-md" style="min-height:300px;align-items:center;justify-content:center;text-align:center;padding:40px 30px;animation:flip .3s ease both">
+                <div class="jp" style="font-family:var(--font-heading);font-size:44px">{{ flash.word }}</div>
+                <div class="jp" style="color:var(--color-accent);font-size:17px;margin-top:8px">{{ flash.reading }}</div>
+                <div style="font-size:20px;margin-top:16px">{{ flash.meaning }}</div>
+                <div class="jp" style="font-size:14px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:18px;padding-top:16px;border-top:1px dashed var(--color-divider);width:100%">{{ flash.example }}</div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px">
+                <button class="ratebtn card elev-sm" onClick="{{ flash.r0 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px;color:#b2622d">忘了</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">重来</span></button>
+                <button class="ratebtn card elev-sm" onClick="{{ flash.r3 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px">困难</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">1 天</span></button>
+                <button class="ratebtn card elev-sm" onClick="{{ flash.r4 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px;color:var(--color-accent)">良好</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">3 天</span></button>
+                <button class="ratebtn card elev-sm" onClick="{{ flash.r5 }}" style="cursor:pointer;border:none;font:inherit;align-items:center;text-align:center;padding:14px 8px;gap:2px"><span style="font-family:var(--font-heading);font-size:15px;color:var(--color-accent-2-700)">简单</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">7 天</span></button>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ flash.hidden }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:16px">
+              <div style="text-align:center;font-size:13px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-bottom:12px">{{ flash.pos }}</div>
+              <div style="height:6px;background:var(--color-neutral-200);border-radius:99px;overflow:hidden;margin-bottom:18px"><div style="height:100%;background:var(--color-accent);border-radius:99px;transition:width .3s;width:{{ flash.pct }}"></div></div>
+              <button onClick="{{ flash.onReveal }}" class="card elev-md" style="width:100%;border:none;font:inherit;color:inherit;min-height:300px;align-items:center;justify-content:center;text-align:center;padding:40px 30px;cursor:pointer">
+                <div class="jp" style="font-family:var(--font-heading);font-size:52px">{{ flash.word }}</div>
+                <div style="color:color-mix(in srgb,var(--color-text) 42%,transparent);font-size:13px;margin-top:22px">点击卡片查看读音与释义</div>
+              </button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- ============ HISTORY ============ -->
+      <sc-if value="{{ nav.history }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:820px">
+          <h1 style="font-size:34px;margin:0 0 4px">历史</h1>
+          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">自动保留最近 100 条会话，收藏的会话不受上限限制</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ recents }}" as="r" hint-placeholder-count="3">
+              <button class="recentrow card elev-sm" onClick="{{ r.onOpen }}" style="flex-direction:row;align-items:center;gap:16px;cursor:pointer;border:none;font:inherit;color:inherit;text-align:left;padding:15px 18px">
+                <div class="jp" style="width:42px;height:42px;border-radius:12px;flex:none;background:var(--color-accent-100);color:var(--color-accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:17px">{{ r.glyph }}</div>
+                <div style="flex:1;min-width:0"><div class="jp" style="font-family:var(--font-heading);font-size:16px">{{ r.title }}</div><div style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:1px">{{ r.sub }}</div></div>
+                <span class="tag tag-neutral">{{ r.level }}</span>
+                <span style="color:color-mix(in srgb,var(--color-text) 40%,transparent);display:flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg></span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ FAVORITES (empty state) ============ -->
+      <sc-if value="{{ nav.fav }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:820px">
+          <h1 style="font-size:34px;margin:0 0 4px">收藏</h1>
+          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">给会话加星，收藏后永不自动删除</p>
+          <div class="card" style="align-items:center;text-align:center;padding:60px 32px;background:var(--color-neutral-100)">
+            <div style="width:66px;height:66px;border-radius:50%;background:var(--color-accent-100);color:var(--color-accent);display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9L12 3.5z"/></svg></div>
+            <h3 style="font-size:20px;margin:0">还没有收藏的会话</h3>
+            <p style="color:color-mix(in srgb,var(--color-text) 55%,transparent);margin:4px 0 18px;max-width:340px">在会话详情点击 ★ 即可收藏，随时回来温习最喜欢的场景。</p>
+            <button class="btn btn-primary" onClick="{{ go.practice }}" style="font-family:var(--font-body);font-weight:700">去生成第一个场景</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ TUTOR ============ -->
+      <sc-if value="{{ nav.tutor }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:760px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px"><h1 style="font-size:34px;margin:0">AI 语音 Tutor</h1><span class="tag tag-accent-2" style="align-self:center">GPT Realtime</span></div>
+          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 24px">按住说话，松开发送；结束后自动保存完整对话记录。</p>
+          <div class="card elev-sm" style="align-items:center;text-align:center;padding:40px 32px;background:var(--color-accent-100)">
+            <div style="position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+              <span style="position:absolute;inset:0;border-radius:50%;background:var(--color-accent);opacity:.16;animation:pop 1.6s ease-in-out infinite alternate"></span>
+              <span style="width:72px;height:72px;border-radius:50%;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;justify-content:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 19v3"/></svg></span>
+            </div>
+            <h3 style="font-size:22px;margin:0">准备好开始对话了吗？</h3>
+            <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:4px 0 14px">选择教学方式，用麦克风直接和 Tutor 练习。</p>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:16px">
+              <label for="tutor-style" style="font-size:12px;font-weight:700;color:var(--color-accent-800)">教学方式</label>
+              <select id="tutor-style" aria-label="Tutor 教学方式" value="{{ tutor.style }}" onChange="{{ tutor.onStyle }}" disabled="{{ tutor.active }}" class="input" style="width:auto;min-width:160px;padding:7px 34px 7px 13px;font-size:13px">
+                <option value="bilingual">双语入门（推荐 N5–N4）</option>
+                <option value="conversation">日语沉浸</option>
+                <option value="correction">即时纠错</option>
+                <option value="interview">口试训练</option>
+              </select>
+              <span style="max-width:320px;text-align:left;font-size:11.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ tutor.styleHelp }}</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-primary" onClick="{{ tutor.onToggle }}" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px">{{ tutor.buttonLabel }}</button>
+              <sc-if value="{{ tutor.active }}" hint-placeholder-val="{{ false }}">
+                <button class="tutor-talk" data-talking="{{ tutor.talking }}" aria-label="按住说话，松开发送" onPointerDown="{{ tutor.onTalkStart }}" onPointerUp="{{ tutor.onTalkEnd }}" onPointerCancel="{{ tutor.onTalkEnd }}" onKeyDown="{{ tutor.onTalkStart }}" onKeyUp="{{ tutor.onTalkEnd }}">{{ tutor.talkLabel }}</button>
+              </sc-if>
+            </div>
+            <div style="font-size:12.5px;color:var(--color-accent-800);margin-top:10px">{{ tutor.statusLabel }}</div>
+          </div>
+          <sc-if value="{{ tutor.hasMessages }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-sm" style="padding:18px;margin-top:16px;gap:9px;max-height:260px;overflow:auto">
+              <sc-for list="{{ tutor.messages }}" as="m" hint-placeholder-count="3">
+                <div style="font-size:13px;line-height:1.55"><b style="color:var(--color-accent)">{{ m.who }}</b> <span class="jp">{{ m.text }}</span></div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ tutor.hasHistory }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:22px">
+              <div style="font-family:var(--font-heading);font-size:18px;margin-bottom:10px">最近通话</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ tutor.history }}" as="h" hint-placeholder-count="3">
+                  <details class="card elev-sm tutor-history" style="padding:15px 17px;gap:11px">
+                    <summary><span>{{ h.scene }}</span><span class="tag">{{ h.level }}</span><span style="font-size:11px;font-weight:500;color:color-mix(in srgb,var(--color-text) 48%,transparent)">{{ h.meta }}</span></summary>
+                    <div style="display:flex;flex-direction:column;gap:7px;padding-top:11px;border-top:1px solid var(--color-divider)">
+                      <sc-for list="{{ h.messages }}" as="m" hint-placeholder-count="4">
+                        <div style="font-size:13px;line-height:1.55"><b style="color:var(--color-accent)">{{ m.who }}</b> <span class="jp">{{ m.text }}</span></div>
+                      </sc-for>
+                    </div>
+                    <sc-if value="{{ h.review.generating }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:12px 14px;border-radius:14px;background:var(--color-accent-100);color:var(--color-accent-800);font-size:12.5px">正在生成课后复盘…通话记录已经保存，可以先离开。</div>
+                    </sc-if>
+                    <sc-if value="{{ h.review.error }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:12px 14px;border-radius:14px;background:var(--color-neutral-100);font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">复盘暂时生成失败，通话记录不受影响。</div>
+                    </sc-if>
+                    <sc-if value="{{ h.review.ready }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:15px;border-radius:16px;background:var(--color-accent-100);display:flex;flex-direction:column;gap:12px">
+                        <div><div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--color-accent-800);margin-bottom:4px">课后复盘</div><div style="font-size:13px;line-height:1.65">{{ h.review.summary }}</div></div>
+                        <sc-if value="{{ h.review.hasStrengths }}" hint-placeholder-val="{{ true }}">
+                          <div><b style="font-size:12.5px">做得不错</b><div style="display:flex;flex-direction:column;gap:4px;margin-top:4px"><sc-for list="{{ h.review.strengths }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px;line-height:1.5">✓ {{ x.text }}</div></sc-for></div></div>
+                        </sc-if>
+                        <sc-if value="{{ h.review.hasImprovements }}" hint-placeholder-val="{{ true }}">
+                          <div><b style="font-size:12.5px">可以更自然</b><div style="display:flex;flex-direction:column;gap:7px;margin-top:5px"><sc-for list="{{ h.review.improvements }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px;line-height:1.5"><span class="jp" style="color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ x.original }}</span> → <b class="jp" style="color:var(--color-accent)">{{ x.better }}</b><div style="color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ x.explanation }}</div></div></sc-for></div></div>
+                        </sc-if>
+                        <sc-if value="{{ h.review.hasPhrases }}" hint-placeholder-val="{{ true }}">
+                          <div><b style="font-size:12.5px">带走这些表达</b><div style="display:flex;flex-direction:column;gap:4px;margin-top:4px"><sc-for list="{{ h.review.phrases }}" as="x" hint-placeholder-count="2"><div style="font-size:12.5px"><b class="jp">{{ x.japanese }}</b> · {{ x.meaning }}</div></sc-for></div></div>
+                        </sc-if>
+                        <div style="font-size:12.5px;padding-top:9px;border-top:1px solid color-mix(in srgb,var(--color-accent) 20%,transparent)"><b>下一步：</b>{{ h.review.nextStep }}</div>
+                      </div>
+                    </sc-if>
+                  </details>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px">
+            <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">自然会话</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">更像会话伙伴，不会每轮都纠错、提问或要求复述。</p></div>
+            <div class="card elev-sm" style="padding:20px"><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:4px">即时纠错</div><p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">说错立刻提示，课后自动沉淀为长期复习重点。</p></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ GRAMMAR COURSES ============ -->
+      <sc-if value="{{ nav.grammar }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:960px">
+          <div style="display:flex;align-items:flex-end;gap:18px;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px">
+            <div><h1 style="font-size:34px;margin:0 0 4px">逐语法点学习</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">从 N5 学到 N3，每一条都有中文讲解、例句和小测验。</p></div>
+            <div style="font-size:12.5px;color:var(--color-accent-800);background:var(--color-accent-100);padding:8px 12px;border-radius:999px">已掌握 {{ grammar.mastered }} / {{ grammar.total }}</div>
+          </div>
+          <div class="card elev-sm" style="padding:14px 16px;flex-direction:row;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+            <div style="display:flex;gap:5px;background:var(--color-neutral-100);padding:4px;border-radius:12px">
+              <button class="btn btn-secondary" data-on="{{ grammar.isN5 }}" onClick="{{ grammar.onN5 }}" style="padding:7px 14px">N5</button>
+              <button class="btn btn-secondary" data-on="{{ grammar.isN4 }}" onClick="{{ grammar.onN4 }}" style="padding:7px 14px">N4</button>
+              <button class="btn btn-secondary" data-on="{{ grammar.isN3 }}" onClick="{{ grammar.onN3 }}" style="padding:7px 14px">N3</button>
+            </div>
+            <input class="input" aria-label="搜索语法点" placeholder="搜索语法，例如 〜ながら" value="{{ grammar.query }}" onInput="{{ grammar.onSearch }}" style="flex:1;min-width:220px;padding:9px 13px">
+            <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 52%,transparent)">{{ grammar.count }} 条</span>
+          </div>
+
+          <sc-if value="{{ grammar.loading }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-sm" style="padding:28px;align-items:center;text-align:center;background:var(--color-accent-100)"><b>正在为你生成这条语法的中文微课…</b><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:5px">生成一次后会保存，下次可以直接打开。</span></div>
+          </sc-if>
+          <sc-if value="{{ grammar.hasLesson }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-md" style="padding:24px;margin-bottom:18px;gap:17px;border:1px solid color-mix(in srgb,var(--color-accent) 24%,var(--color-divider))">
+              <div style="display:flex;align-items:flex-start;gap:12px;justify-content:space-between;flex-wrap:wrap"><div><span class="tag tag-accent">{{ grammar.lesson.level }}</span><h2 class="jp" style="font-size:30px;margin:7px 0 3px">{{ grammar.lesson.title }}</h2><div style="font-size:16px;color:var(--color-accent-800)">{{ grammar.lesson.meaning }}</div></div><button class="btn btn-primary" onClick="{{ grammar.lesson.onMaster }}">{{ grammar.lesson.masterLabel }}</button></div>
+              <p style="font-size:14px;line-height:1.75;margin:0">{{ grammar.lesson.explanation }}</p>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+                <div style="padding:14px;border-radius:14px;background:var(--color-neutral-100)"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:5px">接续</div><div class="jp" style="font-size:14px;line-height:1.6">{{ grammar.lesson.formation }}</div></div>
+                <div style="padding:14px;border-radius:14px;background:var(--color-accent-2-100)"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:5px">常见错误</div><div style="font-size:13px;line-height:1.6">{{ grammar.lesson.pitfall }}</div></div>
+              </div>
+              <div><div style="font-family:var(--font-heading);font-size:17px;margin-bottom:8px">例句</div><div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ grammar.lesson.examples }}" as="x" hint-placeholder-count="3"><div style="padding:13px 15px;border-radius:14px;background:var(--color-neutral-100)"><div class="jp" style="font-size:16px;font-weight:650">{{ x.japanese }}</div><div style="font-size:13px;margin-top:3px">{{ x.translation }}</div><div style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 52%,transparent);margin-top:3px">{{ x.note }}</div></div></sc-for></div></div>
+              <details style="padding:14px 15px;border-radius:14px;background:var(--color-accent-100)"><summary style="cursor:pointer;font-weight:750">小测验：{{ grammar.lesson.quizPrompt }}</summary><div class="jp" style="font-size:15px;margin-top:10px"><b>答案：</b>{{ grammar.lesson.quizAnswer }}</div><div style="font-size:12.5px;line-height:1.6;margin-top:4px">{{ grammar.lesson.quizExplanation }}</div></details>
+            </div>
+          </sc-if>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px">
+            <sc-for list="{{ grammar.items }}" as="g" hint-placeholder-count="9">
+              <button class="card elev-sm" onClick="{{ g.onOpen }}" style="border:none;cursor:pointer;color:inherit;text-align:left;padding:16px;gap:7px;font:inherit">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="tag">{{ g.level }}</span><span style="font-size:11px;color:{{ g.statusColor }}">{{ g.statusLabel }}</span></div>
+                <div class="jp" style="font-family:var(--font-heading);font-size:19px;line-height:1.35">{{ g.title }}</div>
+                <div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);line-height:1.5">{{ g.short }}</div>
+              </button>
+            </sc-for>
+          </div>
+          <div style="font-size:11.5px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 48%,transparent);margin-top:18px">语法索引与参考例句来自 <a href="https://hanabira.org/" target="_blank" rel="noreferrer" style="color:var(--color-accent)">Hanabira</a> 的 Creative Commons 开放资料。JLPT 等级为学习参考，并非官方逐条大纲；中文讲解由 AI-Kotoba 按需生成。</div>
+        </div>
+      </sc-if>
+
+      <!-- ============ PRONUNCIATION ============ -->
+      <sc-if value="{{ nav.pron }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:760px">
+          <h1 style="font-size:34px;margin:0 0 4px">发音诊断</h1>
+          <p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0 0 22px">朗读目标句，AI 从可理解度、长音促音、节奏、流畅度给出反馈。</p>
+          <div class="card elev-sm" style="padding:24px;gap:16px">
+            <div class="jp" style="font-size:22px;line-height:1.6">きのう、友だちと映画を見に行きました。</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:18px;padding:22px;border-radius:20px;background:var(--color-accent-100);border:1px dashed var(--color-accent-300)">
+              <button class="btn btn-primary" style="font-family:var(--font-body);font-weight:700;font-size:15px;padding:12px 26px;border-radius:999px"><span style="width:11px;height:11px;border-radius:50%;background:var(--color-bg);display:inline-block"></span>开始录音</button>
+              <span style="font:700 16px ui-monospace,Menlo,monospace;color:color-mix(in srgb,var(--color-text) 55%,transparent)">00:00</span>
+            </div>
+          </div>
+          <div class="card elev-sm" style="padding:24px;margin-top:16px;flex-direction:row;gap:24px;align-items:center">
+            <div style="position:relative;width:112px;height:112px;flex:none"><svg width="112" height="112" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent-200)" stroke-width="13"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent)" stroke-width="13" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="62" transform="rotate(-90 60 60)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:var(--font-heading);font-size:30px;color:var(--color-accent)">81</span><span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">综合分</span></div></div>
+            <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>可理解度</span><b style="color:var(--color-accent)">很好</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:88%;background:var(--color-accent)"></span></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>长音促音</span><b style="color:var(--color-accent)">注意</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:64%;background:var(--color-accent)"></span></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>拍节奏</span><b style="color:var(--color-accent)">良好</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:76%;background:var(--color-accent)"></span></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>流畅度</span><b style="color:var(--color-accent)">良好</b></div><div style="height:5px;margin-top:6px;border-radius:99px;background:var(--color-accent-200);overflow:hidden"><span style="display:block;height:100%;width:79%;background:var(--color-accent)"></span></div></div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ READING ============ -->
+      <sc-if value="{{ nav.reading }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:820px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px">
+            <div><h1 style="font-size:34px;margin:0 0 4px">阅读文章</h1><p style="color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:0">两轮生成日语短文，支持注音、逐段翻译与朗读</p></div>
+            <button class="btn btn-primary" onClick="{{ article.onGenerate }}" style="font-family:var(--font-body);font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>{{ article.generateLabel }}</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px">
+            <sc-for list="{{ articles }}" as="a" hint-placeholder-count="3">
+              <button class="tile card elev-sm" onClick="{{ a.onOpen }}" style="cursor:pointer;border:none;font:inherit;color:inherit;text-align:left;padding:20px;transition:transform .15s,box-shadow .15s">
+                <div class="jp" style="width:44px;height:44px;border-radius:13px;background:var(--color-accent-2-100);color:var(--color-accent-2-700);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:19px;margin-bottom:12px">{{ a.glyph }}</div>
+                <div class="jp" style="font-family:var(--font-heading);font-size:18px">{{ a.title }}</div>
+                <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">{{ a.titleCn }}</div>
+                <div style="display:flex;gap:6px;margin-top:12px"><span class="tag tag-neutral">{{ a.level }}</span><span class="tag tag-neutral">{{ a.mins }}</span></div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ THREE-LINE READING ============ -->
+      <sc-if value="{{ nav.article }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:880px">
+          <button class="btn btn-ghost" onClick="{{ go.reading }}" style="font-family:var(--font-body);font-weight:600;margin-bottom:14px">← 返回文章</button>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px">
+            <div><h1 class="jp" style="font-size:32px;margin:0 0 4px">{{ article.current.title }}</h1><div style="color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ article.current.localizedTitle }}</div></div>
+            <span class="tag tag-accent">JLPT {{ article.current.level }}</span>
+          </div>
+          <div class="card" style="padding:15px 18px;background:var(--color-accent-100);margin-bottom:14px;flex-direction:row;align-items:center;gap:12px">
+            <div style="flex:1"><b>三行对译学习</b><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">原文注音 · 逐词语境释义 · 自然对译。点击原文中的词可加入生词本。</div><div style="font-size:11px;color:var(--color-accent-800);margin-top:3px">{{ article.analysisLabel }}</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:13px">
+            <sc-for list="{{ article.current.paragraphs }}" as="p" hint-placeholder-count="4">
+              <div class="card elev-sm three-line" style="padding:20px 22px;background:var(--color-neutral-100)">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                  <div class="three-label" style="margin:0">原文</div>
+                  <button class="btn btn-ghost" onClick="{{ p.onPlay }}" style="font-family:var(--font-body);font-size:12px;padding:5px 9px">{{ p.playLabel }}</button>
+                </div>
+                <div class="jp" style="font-size:0;line-height:1.9">
+                  <sc-for list="{{ p.tokens }}" as="t" hint-placeholder-count="12"><button class="reading-token" data-word="{{ t.wordLike }}" data-selected="{{ t.selected }}" onClick="{{ t.onSelect }}" title="{{ t.reading }}"><ruby>{{ t.surface }}<rt>{{ t.rubyReading }}</rt></ruby></button></sc-for>
+                </div>
+                <div class="three-label">逐词</div><div class="gloss-line"><sc-for list="{{ p.glosses }}" as="g" hint-placeholder-count="10"><span class="gloss-chip"><span class="jp">{{ g.surface }}</span><span>{{ g.gloss }}</span></span></sc-for></div>
+                <div class="three-label">对译</div><div style="font-size:14px;line-height:1.75;color:color-mix(in srgb,var(--color-text) 72%,transparent)">{{ p.translation }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ article.selection.visible }}" hint-placeholder-val="{{ false }}">
+            <div class="word-float card elev-lg" role="dialog" aria-label="加入生词本" style="left:{{ article.selection.left }};top:{{ article.selection.top }}">
+              <div style="display:flex;align-items:flex-start;gap:10px">
+                <div style="flex:1;min-width:0"><span class="jp" style="font-size:22px;font-weight:750">{{ article.selection.surface }}</span><span class="jp" style="font-size:13px;color:var(--color-accent);margin-left:9px">{{ article.selection.reading }}</span><div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent);margin-top:2px">{{ article.selection.grammar }}</div></div>
+                <button class="word-float-close" onClick="{{ article.selection.onClose }}" aria-label="关闭生词窗口">×</button>
+              </div>
+              <div style="font-size:14px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 78%,transparent)">{{ article.selection.meaning }}</div>
+              <button class="btn btn-primary btn-block" onClick="{{ article.selection.onAdd }}" disabled="{{ article.selection.disabled }}" style="font-family:var(--font-body);font-weight:700;margin-top:1px">{{ article.selection.addLabel }}</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- ============ SETTINGS ============ -->
+      <sc-if value="{{ nav.settings }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeUp .35s ease both;max-width:680px">
+          <h1 style="font-size:34px;margin:0 0 22px">设置</h1>
+          <div class="card elev-sm" style="padding:24px;margin-bottom:16px">
+            <h3 style="font-size:17px;margin:0 0 14px">AI 来源</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+              <div style="border:1.5px solid var(--color-accent);background:var(--color-accent-100);border-radius:16px;padding:14px"><div style="font-family:var(--font-heading);font-size:15px">本地 CLI</div><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">免 API Key</div></div>
+              <div style="border:1.5px solid var(--color-divider);border-radius:16px;padding:14px"><div style="font-family:var(--font-heading);font-size:15px">Claude API</div><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">Anthropic</div></div>
+              <div style="border:1.5px solid var(--color-divider);border-radius:16px;padding:14px"><div style="font-family:var(--font-heading);font-size:15px">OpenAI API</div><div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">GPT</div></div>
+            </div>
+          </div>
+          <div class="card elev-sm" style="padding:24px;margin-bottom:16px">
+            <h3 style="font-size:17px;margin:0 0 14px">学习者档案</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="field"><label>母语</label><input class="input" value="简体中文"/></div>
+              <div class="field"><label>解释语言</label><input class="input" value="简体中文"/></div>
+            </div>
+            <div class="field" style="margin-top:6px"><label>界面语言</label>
+              <div class="seg" style="margin-top:2px"><label class="seg-opt"><input type="radio" name="lang" checked/>简体中文</label><label class="seg-opt"><input type="radio" name="lang"/>English</label></div>
+            </div>
+          </div>
+          <div class="card elev-sm" style="padding:24px">
+            <h3 style="font-size:17px;margin:0 0 14px">数据</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600">导出数据</button><button class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600">导入数据</button><button class="btn btn-secondary" style="font-family:var(--font-body);font-weight:600;color:#b2622d">清空数据</button></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <span data-views-end="1"></span>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.L = [
+      {sp:'田中',jp:'あ、すみません、はじめまして。田中です。',furi:'あ、すみません、はじめまして。田中[たなか]です。',cn:'啊，不好意思，初次见面。我是田中。'},
+      {sp:'王',jp:'はじめまして。王です。よろしくお願いします。',furi:'はじめまして。王[おう]です。よろしくお願[ねが]いします。',cn:'初次见面。我是小王。请多关照。'},
+      {sp:'田中',jp:'王さんは、学生ですか。',furi:'王[おう]さんは、学生[がくせい]ですか。',cn:'王先生／小姐是学生吗？'},
+      {sp:'王',jp:'はい、大学生です。日本語を勉強しています。',furi:'はい、大学生[だいがくせい]です。日本語[にほんご]を勉強[べんきょう]しています。',cn:'是的，我是大学生。在学习日语。'},
+      {sp:'田中',jp:'そうなんですね。日本に来て、どのくらいですか。',furi:'そうなんですね。日本[にほん]に来[き]て、どのくらいですか。',cn:'原来如此。来日本多久了？'},
+      {sp:'王',jp:'まだ三ヶ月です。',furi:'まだ三[さん]ヶ月[かげつ]です。',cn:'才三个月。'},
+    ];
+    this.V = [
+      {word:'はじめまして',reading:'はじめまして',meaning:'初次见面（问候语）',example:'はじめまして。田中です。'},
+      {word:'よろしくお願いします',reading:'よろしくおねがいします',meaning:'请多关照',example:'王です。よろしくお願いします。'},
+      {word:'学生',reading:'がくせい',meaning:'学生',example:'王さんは学生ですか。'},
+      {word:'勉強する',reading:'べんきょうする',meaning:'学习',example:'日本語を勉強しています。'},
+      {word:'どのくらい',reading:'どのくらい',meaning:'多久，多少',example:'日本に来て、どのくらいですか。'},
+      {word:'働く',reading:'はたらく',meaning:'工作，劳动',example:'近くの会社で働いています。'},
+    ];
+    this.presets = ['在便利店结账','和房东谈租房','医院挂号','面试自我介绍','餐厅点餐','问路'];
+    this.recents = [
+      {glyph:'食',title:'レストランで注文',sub:'在餐厅点餐 · 2 天前',level:'N4'},
+      {glyph:'旅',title:'ホテルのチェックイン',sub:'酒店入住 · 3 天前',level:'N4'},
+      {glyph:'初',title:'はじめまして',sub:'初次见面 · 5 天前',level:'N5'},
+    ];
+    this.articles = [
+      {glyph:'旅',title:'京都の秋',titleCn:'京都的秋天',level:'N4',mins:'3 分钟'},
+      {glyph:'食',title:'コンビニの進化',titleCn:'便利店的进化',level:'N3',mins:'4 分钟'},
+      {glyph:'心',title:'早起きのコツ',titleCn:'早起的诀窍',level:'N4',mins:'3 分钟'},
+    ];
+    this.activeScenario = null;
+    this.currentArticle = {title:'',localizedTitle:'',level:'N4',paragraphs:[]};
+    this.selectedToken = null;
+    this._realtime = null;
+    this._tutorTranscript = [];
+    this._tutorMeta = null;
+    this.tutorSessions = [];
+    this.grammarCatalog = [];
+    this.grammarProgress = [];
+    this.activeGrammarPoint = null;
+    this.activeGrammarLesson = null;
+    this._streak = null;
+    let savedPalette='blue';
+    try{ const saved=window.localStorage.getItem('ai-kotoba-palette'); if(['blue','terra','sage'].includes(saved)) savedPalette=saved; }catch(e){}
+    this.state = { view:'home', dir:savedPalette, furi:true, playing:-1, speechRate:.75, generating:false, articleGenerating:false, added:{}, flashIdx:0, flashRevealed:false, flashDone:false, sceneInput:'在便利店结账', sceneLevel:'N4', tutorStyle:'bilingual', tutorActive:false, tutorTalking:false, tutorStatus:'idle', tutorMessages:[], grammarLevel:'N5', grammarQuery:'', grammarLoading:false };
+  }
+
+  changePalette(dir){
+    if(!['blue','terra','sage'].includes(dir)) return;
+    try{ window.localStorage.setItem('ai-kotoba-palette',dir); }catch(e){}
+    this.setState({dir});
+  }
+
+  reveal(){ this.setState({flashRevealed:true}); }
+  rate(q){
+    const cards=this.V.slice(0,4);
+    if(this.state.flashIdx>=cards.length-1){ this.setState({flashDone:true}); }
+    else this.setState(s=>({flashIdx:s.flashIdx+1,flashRevealed:false}));
+  }
+  restartCards(){ this.setState({flashIdx:0,flashRevealed:false,flashDone:false}); }
+
+  parseFuri(furi){
+    if(!furi) return [{b:'',r:''}];
+    const segs=[]; const re=/([\u3400-\u9fff々〆ヶA-Za-z0-9・ー]+)\[([^\]]+)\]/g; let last=0,m;
+    while((m=re.exec(furi))){
+      if(m.index>last) segs.push({b:furi.slice(last,m.index),r:''});
+      segs.push({b:m[1],r:m[2]}); last=m.index+m[0].length;
+    }
+    if(last<furi.length) segs.push({b:furi.slice(last),r:''});
+    return segs.length?segs:[{b:furi,r:''}];
+  }
+
+  scenarioLine(l,i=0){
+    const speaker=l.speaker||l.sp||String.fromCharCode(65+i%2);
+    const raw=this.stripSpeakerPrefix(l.japanese||l.jp||'',speaker);
+    const annotated=this.stripSpeakerPrefix(l.furigana||l.furi||'',speaker)||raw;
+    const plain=this.ttsText(raw);
+    return {sp:speaker,jp:plain,furi:annotated,cn:l.translation||l.chinese||l.cn||''};
+  }
+
+  stripSpeakerPrefix(text,speaker){
+    const source=String(text||'').trimStart();
+    const plain=value=>String(value||'').replace(/\[[^\]\n]+\]/g,'').replace(/[\s　]/g,'');
+    const label=plain(speaker);
+    if(!source||!label) return source;
+    const match=source.match(/^([\s\S]{1,64}?)[、，,:：][\s　]*/u);
+    return match&&plain(match[1])===label?source.slice(match[0].length).trimStart():source;
+  }
+
+  ttsText(text){ return String(text||'').replace(/\[[^\]\n]+\]/g,'').trim(); }
+
+  async playJapanese(key,text,role='a'){
+    if(this.state.playing===key){
+      window.AIKotoba?.stopJapaneseSpeech?.();
+      this.setState({playing:-1});
+      return;
+    }
+    window.AIKotoba?.stopJapaneseSpeech?.();
+    this.setState({playing:key});
+    const finish=()=>this.setState(s=>s.playing===key?{playing:-1}:{});
+    try{
+      if(window.AIKotoba?.speakJapanese){
+        await window.AIKotoba.speakJapanese(this.ttsText(text),{role,rate:this.state.speechRate,onEnd:finish});
+      }else{
+        const u=new SpeechSynthesisUtterance(this.ttsText(text)); u.lang='ja-JP'; u.rate=this.state.speechRate; u.onend=finish;
+        window.speechSynthesis.speak(u);
+      }
+    }catch(e){ finish(); }
+  }
+
+  play(i){ return this.playJapanese(i,this.L[i].jp||this.L[i].furi,i%2===0?'a':'b'); }
+
+  changeSpeechRate(value){
+    const rate=window.AIKotoba?.setSpeechRate?.(value)||Number(value)||.75;
+    window.AIKotoba?.stopJapaneseSpeech?.();
+    this.setState({speechRate:rate,playing:-1});
+  }
+
+  changeTutorStyle(value){
+    const style=window.AIKotoba?.setTutorStyle?.(value)||String(value||'bilingual');
+    this.setState({tutorStyle:style});
+  }
+
+  onGenerate(){
+    this.setState({generating:true});
+    setTimeout(()=>this.setState({generating:false,view:'detail'}),950);
+  }
+
+  addVocab(w){ this.setState(s=>({added:{...s.added,[w]:true}})); }
+
+  renderVals(){
+    const v=this.state.view, dir=this.state.dir;
+    const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',pron:v==='pron',reading:v==='reading',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings'};
+    const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); this.setState({view,playing:-1}); };
+    const crumbs={home:'今日',practice:'练习',detail:'练习 › 会话详情',tutor:'AI 语音 Tutor',pron:'发音诊断',reading:'阅读文章',history:'历史',fav:'收藏',vocab:'生词本',cards:'闪卡复习',settings:'设置'};
+    const badge=(role)=>role==='a'?{bg:'var(--color-accent-100)',fg:'var(--color-accent-800)'}:{bg:'var(--color-accent-2-100)',fg:'var(--color-accent-2-800)'};
+    const days=['日','一','二','三','四','五','六'];
+    return {
+      nav, crumb:crumbs[v],
+      dirAttr:dir, furiAttr:this.state.furi?'on':'off',
+      furiLabel:this.state.furi?'开':'关', toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
+      go:{home:set('home'),practice:set('practice'),tutor:set('tutor'),pron:set('pron'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings')},
+      openDetail:set('detail'),
+      dir:{blue:()=>this.changePalette('blue'),terra:()=>this.changePalette('terra'),sage:()=>this.changePalette('sage')},
+      dirIsBlue:dir==='blue', dirIsTerra:dir==='terra', dirIsSage:dir==='sage',
+      blueBg:dir==='blue'?'var(--color-bg)':'transparent', blueFg:dir==='blue'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
+      terraBg:dir==='terra'?'var(--color-bg)':'transparent', terraFg:dir==='terra'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
+      sageBg:dir==='sage'?'var(--color-bg)':'transparent', sageFg:dir==='sage'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
+      todayDate:'2 月 21 日 · 星期六', streak:7, dueCount:12,
+      week:days.map((label,i)=>{ const done=i<=3; const today=i===3; return {label, mark:done?'✓':'', bg:done?'var(--color-accent)':'var(--color-neutral-200)', fg:done?'var(--color-bg)':'color-mix(in srgb,var(--color-text) 40%,transparent)', labelFg: today?'var(--color-accent)':'color-mix(in srgb,var(--color-text) 50%,transparent)'}; }),
+      recents:this.recents,
+      presets:this.presets,
+      generating:this.state.generating, genLabel:this.state.generating?'生成中…':'生成', onGenerate:()=>this.onGenerate(),
+      sc:{
+        title:'はじめまして', titleCn:'初次见面 · 自我介绍', level:'N5', topic:'初次见面的自我介绍', date:'2 月 16 日',
+        lines:this.L.map((l,i)=>{ const role=i%2===0?'a':'b'; const b=badge(role); return {sp:l.sp, cn:l.cn, segs:this.parseFuri(l.furi), playing:i===this.state.playing, onPlay:()=>this.play(i), badgeBg:b.bg, badgeFg:b.fg}; }),
+        vocab:this.V.map(x=>{ const added=!!this.state.added[x.word]; return {word:x.word,reading:x.reading,meaning:x.meaning,example:x.example,added,addLabel:added?'已加入 ✓':'+ 加入生词本',onAdd:()=>this.addVocab(x.word)}; }),
+      },
+      vocabList:(()=>{ const dues=['今天到期','今天到期','2 天后','5 天后','明天','1 周后']; return this.V.map((x,i)=>({word:x.word,reading:x.reading,meaning:x.meaning,due:dues[i],dueNow:i<2,dueBg:i<2?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:i<2?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'})); })(),
+      flash:(()=>{ const cards=this.V.slice(0,4); const c=cards[Math.min(this.state.flashIdx,cards.length-1)]; return {
+        word:c.word, reading:c.reading, meaning:c.meaning, example:c.example,
+        revealed:this.state.flashRevealed && !this.state.flashDone, hidden:!this.state.flashRevealed && !this.state.flashDone, done:this.state.flashDone,
+        pos:(this.state.flashIdx+1)+' / '+cards.length,
+        pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',
+        onReveal:()=>this.reveal(),
+        r0:()=>this.rate(0), r3:()=>this.rate(3), r4:()=>this.rate(4), r5:()=>this.rate(5),
+        onRestart:()=>this.restartCards(),
+      }; })(),
+      articles:this.articles,
+      backHome:()=>this.setState({view:'home'}),
+    };
+  }
+
+  componentDidMount(){
+    this._bridgeReady=()=>this.loadRealData();
+    this._escapeSelection=event=>{ if(event.key==='Escape'&&this.selectedToken) this.closeSelectedToken(); };
+    window.addEventListener('keydown',this._escapeSelection);
+    if(window.AIKotoba) this.loadRealData();
+    else window.addEventListener('ai-kotoba-ready',this._bridgeReady,{once:true});
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener('ai-kotoba-ready',this._bridgeReady);
+    window.removeEventListener('keydown',this._escapeSelection);
+    window.AIKotoba?.stopJapaneseSpeech?.();
+    this._realtime?.stop();
+    this._realtime=null;
+  }
+
+  async loadRealData(){
+    try{
+      const [data,catalog]=await Promise.all([window.AIKotoba.init(),window.AIKotoba.loadGrammarCatalog?.()||[]]);
+      this.grammarCatalog=Array.isArray(catalog)?catalog:[];
+      this.applyData(data);
+    }
+    catch(e){ console.error(e); }
+  }
+
+  applyData(data){
+    this.scenarios=Array.isArray(data.scenarios)?data.scenarios:[];
+    if(this.scenarios.length && !this.activeScenario){
+      this.activeScenario=this.scenarios[0];
+      this.L=(this.activeScenario.lines||[]).map((l,i)=>this.scenarioLine(l,i));
+    }
+    if(Array.isArray(data.vocab) && data.vocab.length) this.V=data.vocab;
+    this.articles=(data.articles||[]).map(a=>window.AIKotoba.prepareArticle(a));
+    this.tutorSessions=Array.isArray(data.tutorSessions)?data.tutorSessions:[];
+    this.grammarProgress=Array.isArray(data.grammarProgress)?data.grammarProgress:[];
+    this._streak=data.streak||this._streak;
+    if(this.currentArticle?.id){
+      this.currentArticle=this.articles.find(a=>a.id===this.currentArticle.id)||this.currentArticle;
+    }
+    const savedRate=Number(data.settings?.ttsRate);
+    const savedTutorStyle=String(data.settings?.tutorStyle||'bilingual');
+    this.setState({dataReady:true,speechRate:Number.isFinite(savedRate)?savedRate:.75,tutorStyle:savedTutorStyle});
+  }
+
+  openScenario(sc){
+    if(!sc) return;
+    this.activeScenario=sc;
+    this.L=(sc.lines||[]).map((l,i)=>this.scenarioLine(l,i));
+    this.setState({view:'detail',playing:-1});
+  }
+
+  async openArticle(article){
+    if(!article) return;
+    this.currentArticle=article;
+    this.selectedToken=null;
+    this.setState({view:'article',articleAnalyzing:true});
+    try{
+      this.currentArticle=await window.AIKotoba.prepareArticleForStudy(article);
+      this.setState({articleTokenized:true,articleAnalyzing:false});
+    }catch(e){ this.setState({articleAnalyzing:false}); console.error(e); }
+  }
+
+  tokenPopoverPosition(event){
+    const rect=event?.currentTarget?.getBoundingClientRect?.();
+    const viewportWidth=Math.max(360,window.innerWidth||360);
+    const viewportHeight=Math.max(480,window.innerHeight||480);
+    const width=Math.min(330,viewportWidth-24);
+    const height=184;
+    const left=Math.max(12,Math.min(viewportWidth-width-12,rect?.left??12));
+    const below=(rect?.bottom??80)+10;
+    const top=below+height<=viewportHeight-12?below:Math.max(12,(rect?.top??viewportHeight/2)-height-10);
+    return {left:`${Math.round(left)}px`,top:`${Math.round(top)}px`};
+  }
+
+  selectToken(token,event){
+    if(!token?.wordLike) return;
+    const existing=this.V.find(v=>[token.surface,token.dictionaryForm,token.normalizedForm].includes(v.word));
+    const hasChineseMeaning=existing&&/[\u3400-\u9fff]/.test(String(existing.meaning||''));
+    this._selectionPosition=this.tokenPopoverPosition(event);
+    this.selectedToken={...token,added:!!hasChineseMeaning};
+    this.setState({tokenTick:Date.now()});
+  }
+
+  closeSelectedToken(){
+    this.selectedToken=null;
+    this.setState({tokenTick:Date.now()});
+  }
+
+  async addSelectedToken(){
+    if(!this.selectedToken||this.selectedToken.added||this.selectedToken.adding) return;
+    this.selectedToken={...this.selectedToken,adding:true};
+    this.setState({tokenTick:Date.now()});
+    try{
+      const result=await window.AIKotoba.addVocabulary({word:this.selectedToken.dictionaryForm||this.selectedToken.surface,sourceSurface:this.selectedToken.surface,...this.selectedToken});
+      this.selectedToken={...this.selectedToken,adding:false,added:true};
+      this.applyData(result.data);
+    }catch(e){
+      this.selectedToken={...this.selectedToken,adding:false};
+      this.setState({tokenTick:Date.now()});
+      window.alert(e.message||'生成生词释义失败');
+    }
+  }
+
+  async addVocabItem(item){
+    try{
+      const result=await window.AIKotoba.addVocabulary(item);
+      this.applyData(result.data);
+      this.setState(s=>({added:{...s.added,[item.word]:true}}));
+    }catch(e){ window.alert(e.message||'生成生词释义失败'); }
+  }
+
+  async onGenerate(topic){
+    if(this.state.generating) return;
+    const request=String(topic||this.state.sceneInput||'日常会话').trim();
+    this.setState({generating:true});
+    try{
+      const sc=await window.AIKotoba.createScenario(request,this.state.sceneLevel,()=>{});
+      this.activeScenario=sc;
+      this.L=(sc.lines||[]).map((l,i)=>this.scenarioLine(l,i));
+      this.applyData(window.AIKotoba.snapshot());
+      this.setState({generating:false,view:'detail'});
+    }catch(e){ this.setState({generating:false}); window.alert(e.message||'生成失败'); }
+  }
+
+  async generateArticle(){
+    if(this.state.articleGenerating) return;
+    const request=window.prompt('想读什么主题？','介绍日本夏日祭典');
+    if(!request?.trim()) return;
+    const level=window.prompt('JLPT 等级（N5–N1）',this.state.sceneLevel)||this.state.sceneLevel;
+    this.setState({articleGenerating:true});
+    try{
+      const article=await window.AIKotoba.createArticle(request.trim(),/^N[1-5]$/.test(level)?level:'N4',()=>{});
+      this.applyData(window.AIKotoba.snapshot());
+      this.currentArticle=article;
+      this.setState({articleGenerating:false,view:'article'});
+    }catch(e){ this.setState({articleGenerating:false}); window.alert(e.message||'文章生成失败'); }
+  }
+
+  grammarTitle(value){
+    return String(value||'').replace(/\s*\([^)]*[A-Za-z][^)]*\)\s*$/,'').trim();
+  }
+
+  async openGrammar(point){
+    if(!point||this.state.grammarLoading) return;
+    this.activeGrammarPoint=point;
+    this.activeGrammarLesson=null;
+    this.setState({grammarLoading:true});
+    try{
+      const result=await window.AIKotoba.openGrammarLesson(point);
+      this.activeGrammarPoint=result.point||point;
+      this.activeGrammarLesson=result.lesson||null;
+      this.applyData(result.data||window.AIKotoba.snapshot());
+      this.setState({grammarLoading:false});
+    }catch(e){ this.setState({grammarLoading:false}); window.alert(e.message||'语法课程生成失败'); }
+  }
+
+  setGrammarProgress(status){
+    if(!this.activeGrammarPoint?.id) return;
+    this.applyData(window.AIKotoba.setGrammarStatus(this.activeGrammarPoint.id,status));
+  }
+
+  async toggleTutor(){
+    if(this._realtime){
+      this.finishTutor(); return;
+    }
+    const topic=this.state.sceneInput||'日常会話';
+    this._tutorTranscript=[];
+    this._tutorMeta={scene:topic,level:this.state.sceneLevel,style:this.state.tutorStyle,createdAt:Date.now()};
+    this.setState({tutorStatus:'connecting',tutorMessages:[],tutorTalking:false});
+    try{
+      this._realtime=await window.AIKotoba.startTutor({
+        topic,level:this.state.sceneLevel,style:this.state.tutorStyle,
+        onUserText:text=>this.appendTutorMessage('me',text),
+        onAIDelta:()=>{},
+        onAIDone:text=>this.appendTutorMessage('tutor',text),
+        onStatus:status=>this.setState({tutorStatus:status}),
+        onError:message=>{ this.setState({tutorStatus:'disconnected'}); console.error(message); },
+      });
+      this.setState({tutorActive:true,tutorStatus:'idle'});
+    }catch(e){ this._realtime=null; this._tutorMeta=null; this._tutorTranscript=[]; this.setState({tutorActive:false,tutorTalking:false,tutorStatus:'idle'}); window.alert(e.message||'Tutor 连接失败'); }
+  }
+
+  appendTutorMessage(role,text){
+    const value=String(text||'').trim();
+    if(!value) return;
+    const item={role:role==='me'?'me':'tutor',text:value,at:Date.now()};
+    this._tutorTranscript.push(item);
+    this.setState(s=>({tutorMessages:[...s.tutorMessages,{who:item.role==='me'?'你':'Tutor',text:value}]}));
+  }
+
+  finishTutor(){
+    const realtime=this._realtime;
+    if(!realtime) return;
+    realtime.stopTalking?.();
+    realtime.stop();
+    this._realtime=null;
+    const messages=[...this._tutorTranscript];
+    const meta=this._tutorMeta||{};
+    let status='idle';
+    if(messages.length&&window.AIKotoba?.saveTutorSession){
+      const data=window.AIKotoba.saveTutorSession({...meta,endedAt:Date.now(),messages});
+      this.applyData(data);
+      status='reviewing';
+      const sessionId=data.savedTutorSessionId;
+      if(sessionId&&window.AIKotoba.reviewTutorSession){
+        window.AIKotoba.reviewTutorSession(sessionId).then(next=>{
+          this.applyData(next);
+          if(!this.state.tutorActive) this.setState({tutorStatus:'saved'});
+        }).catch(error=>{
+          this.applyData(window.AIKotoba.snapshot());
+          if(!this.state.tutorActive) this.setState({tutorStatus:'reviewError'});
+          console.error(error);
+        });
+      }else status='saved';
+    }
+    this._tutorTranscript=[];
+    this._tutorMeta=null;
+    this.setState({tutorActive:false,tutorTalking:false,tutorStatus:status});
+  }
+
+  startTutorTalking(event){
+    if(event?.type==='keydown'&&![' ','Enter'].includes(event.key)) return;
+    if(event?.repeat) return;
+    event?.preventDefault?.();
+    if(event?.pointerId!==undefined) event.currentTarget?.setPointerCapture?.(event.pointerId);
+    if(this._realtime?.startTalking?.()) this.setState({tutorTalking:true});
+  }
+
+  stopTutorTalking(event){
+    if(event?.type==='keyup'&&![' ','Enter'].includes(event.key)) return;
+    event?.preventDefault?.();
+    if(event?.pointerId!==undefined&&event.currentTarget?.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if(this._realtime?.stopTalking?.()) this.setState({tutorTalking:false});
+    else this.setState({tutorTalking:false});
+  }
+
+  renderVals(){
+    const v=this.state.view, dir=this.state.dir;
+    const nav={home:v==='home',practice:v==='practice',detail:v==='detail',tutor:v==='tutor',pron:v==='pron',reading:v==='reading',article:v==='article',grammar:v==='grammar',history:v==='history',fav:v==='fav',vocab:v==='vocab',cards:v==='cards',settings:v==='settings'};
+    const set=(view)=>()=>{ window.AIKotoba?.stopJapaneseSpeech?.(); if(view!=='tutor'&&this._realtime) this.finishTutor(); this.setState({view,playing:-1}); };
+    const crumbs={home:'今日',practice:'练习',detail:'练习 › 会话详情',tutor:'AI 语音 Tutor',pron:'发音诊断',reading:'阅读文章',article:'阅读文章 › 三行对译',grammar:'语法课程',history:'历史',fav:'收藏',vocab:'生词本',cards:'闪卡复习',settings:'设置'};
+    const badge=(role)=>role==='a'?{bg:'var(--color-accent-100)',fg:'var(--color-accent-800)'}:{bg:'var(--color-accent-2-100)',fg:'var(--color-accent-2-800)'};
+    const active=this.activeScenario||{title:'はじめまして',localizedTitle:'初次见面 · 自我介绍',titleChinese:'初次见面 · 自我介绍',level:'N5',topic:'初次见面的自我介绍',vocabulary:this.V};
+    const scenarios=this.scenarios?.length?this.scenarios:[];
+    const recents=scenarios.slice(0,12).map(sc=>({glyph:(sc.title||'言').slice(0,1),title:sc.title||'会話',sub:(sc.localizedTitle||sc.titleChinese||sc.topic||'日语会话')+' · '+new Date(sc.createdAt||Date.now()).toLocaleDateString(),level:sc.level||'N4',onOpen:()=>this.openScenario(sc)}));
+    const actualRecents=recents.length?recents:this.recents.map(r=>({...r,onOpen:()=>this.openScenario(active)}));
+    const dueCount=this.V.filter(x=>(x.nextReview||0)<=Date.now()).length;
+    const streak=this._streak||{streak:7,week:['日','一','二','三','四','五','六'].map((day,i)=>({day,done:i<=3,date:''}))};
+    const statusLabels={idle:this.state.tutorActive?'按住“说话”按钮开始':'准备开始',saved:'通话与课后复盘已保存',reviewing:'通话已保存，正在生成课后复盘…',reviewError:'通话已保存；课后复盘暂时生成失败',connecting:'正在连接 GPT Realtime…',listening:'正在听你说，松开发送…',thinking:'Tutor 正在思考…',speaking:'Tutor 正在说话；按住说话可打断',disconnected:'连接已断开，结束通话仍会保存已有记录'};
+    const tutorHistory=(this.tutorSessions||[]).slice(0,12).map(session=>{
+      let messages=Array.isArray(session.messages)?session.messages.map(item=>({who:item.role==='me'?'你':'Tutor',text:String(item.text||'')})).filter(item=>item.text):[];
+      if(!messages.length&&session.transcript) messages=String(session.transcript).split('\n').map(line=>{const mine=/^(Learner|我|你)[:：]/.test(line);return{who:mine?'你':'Tutor',text:line.replace(/^[^:：]+[:：]\s*/,'')}}).filter(item=>item.text);
+      const mins=Math.max(1,Math.round((Number(session.durationMs)||0)/60000));
+      const rawReview=session.review||{};
+      const review={ready:session.reviewStatus==='ready'&&!!rawReview.summary,generating:['pending','generating'].includes(session.reviewStatus),error:session.reviewStatus==='error',summary:rawReview.summary||'',strengths:(rawReview.strengths||[]).map(text=>({text})),improvements:rawReview.improvements||[],phrases:rawReview.usefulPhrases||[],hasStrengths:(rawReview.strengths||[]).length>0,hasImprovements:(rawReview.improvements||[]).length>0,hasPhrases:(rawReview.usefulPhrases||[]).length>0,nextStep:rawReview.nextStep||''};
+      return{scene:session.scene||'日常会話',level:session.level||'N4',meta:`${new Date(session.createdAt||Date.now()).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · ${session.userTurns||messages.filter(item=>item.who==='你').length} 轮 · ${mins} 分钟`,messages,review};
+    });
+    const progressById=new Map((this.grammarProgress||[]).map(item=>[item.id,item]));
+    const grammarRows=(this.grammarCatalog||[]).filter(item=>item.level===this.state.grammarLevel);
+    const grammarQuery=String(this.state.grammarQuery||'').trim().toLocaleLowerCase();
+    const grammarItems=grammarRows.filter(item=>!grammarQuery||`${item.title} ${item.short_explanation||''} ${item.formation||''}`.toLocaleLowerCase().includes(grammarQuery)).map(item=>{
+      const status=progressById.get(item.id)?.status||'unstarted';
+      return{...item,title:this.grammarTitle(item.title),short:item.short_explanation||item.formation||'打开生成中文讲解',statusLabel:status==='mastered'?'已掌握':status==='studying'?'学习中':'未学习',statusColor:status==='mastered'?'var(--color-accent)':status==='studying'?'var(--color-accent-2)':'color-mix(in srgb,var(--color-text) 42%,transparent)',onOpen:()=>this.openGrammar(item)};
+    });
+    const grammarProgress=this.activeGrammarPoint?progressById.get(this.activeGrammarPoint.id):null;
+    const grammarLesson=this.activeGrammarLesson;
+    const selected=this.selectedToken;
+    const grammarParts=selected?[selected.dictionaryForm&&selected.dictionaryForm!==selected.surface?'词典形 '+selected.dictionaryForm:'',selected.pos,(selected.partOfSpeech||[])[5]].filter(x=>x&&x!=='*'):[];
+    const current=this.currentArticle||{title:'',localizedTitle:'',level:'N4',paragraphs:[]};
+    const selectedKey=selected?.surface+'|'+selected?.reading;
+    return {
+      nav,crumb:crumbs[v],dirAttr:dir,furiAttr:this.state.furi?'on':'off',
+      furiLabel:this.state.furi?'开':'关',toggleFuri:()=>this.setState(s=>({furi:!s.furi})),
+      go:{home:set('home'),practice:set('practice'),tutor:set('tutor'),pron:set('pron'),reading:set('reading'),grammar:set('grammar'),history:set('history'),fav:set('fav'),vocab:set('vocab'),cards:set('cards'),settings:set('settings')},
+      openDetail:()=>this.openScenario(active),
+      dir:{blue:()=>this.changePalette('blue'),terra:()=>this.changePalette('terra'),sage:()=>this.changePalette('sage')},dirIsBlue:dir==='blue',dirIsTerra:dir==='terra',dirIsSage:dir==='sage',
+      blueBg:dir==='blue'?'var(--color-bg)':'transparent',blueFg:dir==='blue'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
+      terraBg:dir==='terra'?'var(--color-bg)':'transparent',terraFg:dir==='terra'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
+      sageBg:dir==='sage'?'var(--color-bg)':'transparent',sageFg:dir==='sage'?'var(--color-text)':'color-mix(in srgb,var(--color-text) 55%,transparent)',
+      todayDate:new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'}),streak:streak.streak,dueCount,
+      week:(streak.week||[]).map((d,i)=>({label:d.day,mark:d.done?'✓':'',bg:d.done?'var(--color-accent)':'var(--color-neutral-200)',fg:d.done?'var(--color-bg)':'color-mix(in srgb,var(--color-text) 40%,transparent)',labelFg:i===(streak.week||[]).length-1?'var(--color-accent)':'color-mix(in srgb,var(--color-text) 50%,transparent)'})),
+      recents:actualRecents,
+      presets:this.presets.map(label=>({label,onPick:()=>this.setState({sceneInput:label})})),
+      sceneInput:this.state.sceneInput,sceneLevel:this.state.sceneLevel,onSceneInput:e=>this.setState({sceneInput:e.target.value}),onSceneLevel:e=>this.setState({sceneLevel:e.target.value}),
+      generating:this.state.generating,genLabel:this.state.generating?'生成中…':'生成',onGenerate:()=>this.onGenerate(),
+      sc:{
+        title:active.title||'はじめまして',titleCn:active.localizedTitle||active.titleChinese||'',level:active.level||'N4',topic:active.topic||'',date:new Date(active.createdAt||Date.now()).toLocaleDateString(),speechRate:String(this.state.speechRate),onSpeechRate:e=>this.changeSpeechRate(e.target.value),
+        lines:this.L.map((l,i)=>{const b=badge(i%2===0?'a':'b');return{sp:l.sp,cn:l.cn,segs:this.parseFuri(l.furi),playing:i===this.state.playing,onPlay:()=>this.play(i),badgeBg:b.bg,badgeFg:b.fg};}),
+        vocab:(active.vocabulary||this.V.slice(0,8)).map(x=>{const added=!!this.state.added[x.word]||this.V.some(v=>v.word===x.word);return{word:x.word,reading:x.reading,meaning:x.meaning,example:x.example,added,addLabel:added?'已加入 ✓':'+ 加入生词本',onAdd:()=>this.addVocabItem(x)};}),
+      },
+      vocabList:this.V.map(x=>{const due=(x.nextReview||0)<=Date.now();return{word:x.word,reading:x.reading,meaning:x.meaning,due:due?'今天到期':'稍后复习',dueNow:due,dueBg:due?'var(--color-accent-2-100)':'var(--color-neutral-100)',dueFg:due?'var(--color-accent-2-700)':'color-mix(in srgb,var(--color-text) 45%,transparent)'};}),
+      flash:(()=>{const cards=this.V.slice(0,Math.max(1,Math.min(20,this.V.length)));const c=cards[Math.min(this.state.flashIdx,cards.length-1)]||{word:'暂无词汇',reading:'',meaning:'请先加入生词',example:''};return{word:c.word,reading:c.reading,meaning:c.meaning,example:c.example,revealed:this.state.flashRevealed&&!this.state.flashDone,hidden:!this.state.flashRevealed&&!this.state.flashDone,done:this.state.flashDone,pos:(this.state.flashIdx+1)+' / '+cards.length,pct:Math.round((this.state.flashIdx/cards.length)*100)+'%',onReveal:()=>this.reveal(),r0:()=>this.rate(0),r3:()=>this.rate(3),r4:()=>this.rate(4),r5:()=>this.rate(5),onRestart:()=>this.restartCards()};})(),
+      tutor:{onToggle:()=>this.toggleTutor(),active:this.state.tutorActive,talking:this.state.tutorTalking,onTalkStart:e=>this.startTutorTalking(e),onTalkEnd:e=>this.stopTutorTalking(e),talkLabel:this.state.tutorTalking?'正在说话…松开发送':'按住说话',style:this.state.tutorStyle,onStyle:e=>this.changeTutorStyle(e.target.value),styleHelp:this.state.tutorStyle==='bilingual'?'默认自然日语；只有你求助、没听懂或用中文回答时，才补一句中文，不强制复述。':this.state.tutorStyle==='conversation'?'尽量保持全日语自然会话，只温和纠正关键问题。':this.state.tutorStyle==='correction'?'回应内容后，每次最多纠正一个最值得改进的表达。':'像日语口试一样逐题练习并简短评价。',buttonLabel:this.state.tutorActive?'结束并保存':'开始通话',statusLabel:statusLabels[this.state.tutorStatus]||'',hasMessages:this.state.tutorMessages.length>0,messages:this.state.tutorMessages,hasHistory:tutorHistory.length>0,history:tutorHistory},
+      grammar:{isN5:this.state.grammarLevel==='N5',isN4:this.state.grammarLevel==='N4',isN3:this.state.grammarLevel==='N3',onN5:()=>this.setState({grammarLevel:'N5'}),onN4:()=>this.setState({grammarLevel:'N4'}),onN3:()=>this.setState({grammarLevel:'N3'}),query:this.state.grammarQuery,onSearch:e=>this.setState({grammarQuery:e.target.value}),items:grammarItems,count:grammarItems.length,total:(this.grammarCatalog||[]).length,mastered:(this.grammarProgress||[]).filter(item=>item.status==='mastered').length,loading:this.state.grammarLoading,hasLesson:!!grammarLesson&&!this.state.grammarLoading,lesson:grammarLesson?{level:this.activeGrammarPoint?.level||'',title:grammarLesson.title||this.grammarTitle(this.activeGrammarPoint?.title),meaning:grammarLesson.meaning||'',explanation:grammarLesson.explanation||'',formation:grammarLesson.formation||this.activeGrammarPoint?.formation||'',pitfall:grammarLesson.pitfall||'',examples:(grammarLesson.examples||[]).map(item=>({japanese:item.japanese||'',translation:item.translation||'',note:item.note||''})),quizPrompt:grammarLesson.quiz?.prompt||'',quizAnswer:grammarLesson.quiz?.answer||'',quizExplanation:grammarLesson.quiz?.explanation||'',masterLabel:grammarProgress?.status==='mastered'?'已掌握 ✓':'标记为已掌握',onMaster:()=>this.setGrammarProgress(grammarProgress?.status==='mastered'?'studying':'mastered')}:{examples:[]}},
+      articles:this.articles.map(a=>({glyph:(a.title||'文').slice(0,1),title:a.title,titleCn:a.localizedTitle||a.titleChinese||'',level:a.level||'N4',mins:Math.max(1,Math.ceil((a.paragraphs||[]).reduce((n,p)=>n+(p.japanese||'').length,0)/350))+' 分钟',onOpen:()=>this.openArticle(a)})),
+      article:{
+        onGenerate:()=>this.generateArticle(),generateLabel:this.state.articleGenerating?'生成中…':'生成新文章',analysisLabel:this.state.articleAnalyzing?'正在生成逐词语境释义…':(current.tokenizer||''),current:{...current,paragraphs:(current.paragraphs||[]).map((p,i)=>({...p,playLabel:this.state.playing===`article-${i}`?'停止':'朗读',onPlay:()=>this.playJapanese(`article-${i}`,p.japanese,'a'),tokens:(p.tokens||[]).map(t=>({...t,rubyReading:/[\u3400-\u9fff々〆ヶ]/.test(t.surface)?t.reading:'',selected:selectedKey===t.surface+'|'+t.reading,onSelect:event=>this.selectToken(t,event)}))}))},
+        selection:{visible:!!selected,left:this._selectionPosition?.left||'12px',top:this._selectionPosition?.top||'84px',surface:selected?.surface||'',reading:selected?.reading||'',grammar:grammarParts.join(' · '),meaning:selected?.gloss||selected?.meaning||'加入时自动生成释义',added:!!selected?.added,disabled:!!selected?.added||!!selected?.adding,addLabel:selected?.adding?'正在生成释义…':(selected?.added?'已加入 ✓':'+ 加入生词本'),onAdd:()=>this.addSelectedToken(),onClose:()=>this.closeSelectedToken()},
+      },
+      backHome:()=>this.setState({view:'home'}),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1195 @@
+{
+  "version": 2,
+  "language": "en",
+  "scenarios": {
+    "seed-scenario-n5-1": {
+      "title": "Nice to meet you",
+      "topic": "Self-introduction when meeting for the first time",
+      "lines": [
+        "Ah, excuse me, nice to meet you. I'm Tanaka.",
+        "Nice to meet you. I'm Wang. It's a pleasure to meet you.",
+        "Are you a student, Wang-san?",
+        "Yes, I'm a university student. I'm studying Japanese.",
+        "I see. How long have you been in Japan?",
+        "It's been three months.",
+        "Then, your Japanese is still just starting out. Please do your best.",
+        "Thank you very much. What do you do for work, Tanaka-san?",
+        "I'm a company employee. I work at a company nearby.",
+        "I see. I look forward to getting to know you.",
+        "Likewise. It's a pleasure to meet you."
+      ],
+      "vocabulary": [
+        {
+          "word": "はじめまして",
+          "meaning": "Nice to meet you",
+          "example": "Nice to meet you. I'm Tanaka."
+        },
+        {
+          "word": "よろしくお願いします",
+          "meaning": "a polite phrase meaning “I look forward to working with you / thank you in advance”",
+          "example": "I'm Wang. It's a pleasure to meet you."
+        },
+        {
+          "word": "学生",
+          "meaning": "student",
+          "example": "Are you a student, Wang-san?"
+        },
+        {
+          "word": "勉強する",
+          "meaning": "to study",
+          "example": "I'm studying Japanese."
+        },
+        {
+          "word": "どのくらい",
+          "meaning": "how long",
+          "example": "How long have you been in Japan?"
+        },
+        {
+          "word": "頑張ってください",
+          "meaning": "Please do your best",
+          "example": "Please do your best with your Japanese."
+        },
+        {
+          "word": "お仕事",
+          "meaning": "work",
+          "example": "What do you do for work?"
+        },
+        {
+          "word": "働く",
+          "meaning": "to work",
+          "example": "I work at a company nearby."
+        },
+        {
+          "word": "こちらこそ",
+          "meaning": "likewise",
+          "example": "Likewise. It's a pleasure to meet you."
+        }
+      ]
+    },
+    "seed-scenario-n5-2": {
+      "title": "Shopping at the Convenience Store",
+      "topic": "shopping",
+      "lines": [
+        "Welcome.",
+        "Excuse me, I'll take this.",
+        "Certainly. Would you like your bento warmed up?",
+        "Oh, yes please.",
+        "Do you have a points card?",
+        "No, I don't have one.",
+        "Do you need a bag?",
+        "Oh, that's okay. I have my own bag.",
+        "Understood. Your total is 550 yen.",
+        "Can I pay with a card?",
+        "Yes, that's fine. Please come this way to swipe your card.",
+        "Thank you."
+      ],
+      "vocabulary": [
+        {
+          "word": "温める",
+          "meaning": "to warm up",
+          "example": "Please warm up the bento."
+        },
+        {
+          "word": "ポイントカード",
+          "meaning": "points card",
+          "example": "Would you like to make a points card?"
+        },
+        {
+          "word": "持つ",
+          "meaning": "to hold",
+          "example": "I have an umbrella."
+        },
+        {
+          "word": "袋",
+          "meaning": "bag",
+          "example": "I don't need a bag."
+        },
+        {
+          "word": "必要",
+          "meaning": "necessary",
+          "example": "This is the necessary document."
+        },
+        {
+          "word": "会計",
+          "meaning": "payment",
+          "example": "Please take care of the payment."
+        },
+        {
+          "word": "払う",
+          "meaning": "to pay",
+          "example": "I will pay in cash."
+        },
+        {
+          "word": "大丈夫",
+          "meaning": "it's okay",
+          "example": "Is it okay?"
+        }
+      ]
+    },
+    "seed-scenario-n4-1": {
+      "title": "Ordering at a Restaurant",
+      "topic": "restaurant order",
+      "lines": [
+        "Welcome. How many people are there?",
+        "Two.",
+        "This way, please. Here is the menu.",
+        "Excuse me, what dish is this?",
+        "That is stir-fried chicken and vegetables. It's a bit spicy.",
+        "Then I'll have that, please. Also, one of this set meal.",
+        "How about something to drink?",
+        "I'll have an orange juice, please.",
+        "Understood. Please wait a moment.",
+        "Oh, excuse me, could I have another pair of chopsticks?",
+        "Yes, I'll bring that right away."
+      ],
+      "vocabulary": [
+        {
+          "word": "何名様",
+          "meaning": "how many people (polite, used to ask for number of guests)",
+          "example": "How many people are there?"
+        },
+        {
+          "word": "料理",
+          "meaning": "dish, cuisine",
+          "example": "This dish is very delicious."
+        },
+        {
+          "word": "炒め物",
+          "meaning": "stir-fry",
+          "example": "I like stir-fried vegetables."
+        },
+        {
+          "word": "辛い",
+          "meaning": "spicy",
+          "example": "This dish is a bit spicy."
+        },
+        {
+          "word": "定食",
+          "meaning": "set meal",
+          "example": "I had a curry set meal today."
+        },
+        {
+          "word": "飲み物",
+          "meaning": "beverage",
+          "example": "What would you like to drink?"
+        },
+        {
+          "word": "少々お待ちください",
+          "meaning": "please wait a moment (polite)",
+          "example": "I will check right away, so please wait a moment."
+        },
+        {
+          "word": "お箸",
+          "meaning": "chopsticks",
+          "example": "Could I have another pair of chopsticks?"
+        }
+      ]
+    },
+    "seed-scenario-n4-2": {
+      "title": "Asking for Directions to the Station",
+      "topic": "Asking a passerby for directions",
+      "lines": [
+        "Excuse me, I have a quick question.",
+        "Yes, what is it?",
+        "Could you tell me the way to the station?",
+        "Ah, the station. Go straight from here and turn right at the second traffic light.",
+        "Right at the second traffic light, got it.",
+        "That's right. If you keep going, you'll see a convenience store on the left, and the station is just beyond that.",
+        "How long will it take?",
+        "I think it will take about 10 minutes on foot.",
+        "I understand. Thank you very much.",
+        "No problem, take care."
+      ],
+      "vocabulary": [
+        {
+          "word": "お伺いする",
+          "meaning": "to ask (humble form of 'to ask' or 'to inquire')",
+          "example": "Excuse me, may I ask where the post office is?"
+        },
+        {
+          "word": "教えていただけますか",
+          "meaning": "Could you tell me? (polite request for information)",
+          "example": "Excuse me, could you tell me the way?"
+        },
+        {
+          "word": "まっすぐ",
+          "meaning": "straight",
+          "example": "Please go straight down this road."
+        },
+        {
+          "word": "二つ目",
+          "meaning": "the second",
+          "example": "Turn left at the second corner."
+        },
+        {
+          "word": "信号",
+          "meaning": "traffic light",
+          "example": "Please turn right at the next traffic light."
+        },
+        {
+          "word": "曲がる",
+          "meaning": "to turn",
+          "example": "If you turn at that corner, you will see the station."
+        },
+        {
+          "word": "左側",
+          "meaning": "left side",
+          "example": "There is a convenience store on the left side."
+        },
+        {
+          "word": "気をつけて",
+          "meaning": "please be careful",
+          "example": "It's raining, so please be careful on your way home."
+        }
+      ]
+    },
+    "seed-scenario-n3-1": {
+      "title": "Describing Symptoms at the Hospital",
+      "topic": "Communicating symptoms to a doctor",
+      "lines": [
+        "What seems to be the problem?",
+        "I've had a fever for three days, and my throat really hurts.",
+        "How high is your fever?",
+        "It went up to 38.5 degrees yesterday. This morning it was 37.8 degrees.",
+        "Do you have a cough or a runny nose?",
+        "I have a slight cough, but not much runny nose. More than that, I feel very weak and have no appetite.",
+        "I see. Please open your mouth and let me take a look at your throat.",
+        "Okay.",
+        "It's quite red and swollen. Just to be safe, let's do a flu test as well.",
+        "Understood. Please go ahead.",
+        "I'll prescribe some medicine, so please take it easy and rest today.",
+        "Thank you very much."
+      ],
+      "vocabulary": [
+        {
+          "word": "熱が上がる",
+          "meaning": "to have a fever, to raise in temperature",
+          "example": "At night, my fever rose again."
+        },
+        {
+          "word": "だるい",
+          "meaning": "feeling sluggish, fatigued",
+          "example": "I've felt sluggish ever since I caught a cold."
+        },
+        {
+          "word": "食欲がない",
+          "meaning": "to have no appetite",
+          "example": "With the hot days continuing, I have no appetite."
+        },
+        {
+          "word": "腫れる",
+          "meaning": "to swell",
+          "example": "I fell and my ankle swelled up."
+        },
+        {
+          "word": "念のため",
+          "meaning": "just in case",
+          "example": "Let's double-check just in case."
+        },
+        {
+          "word": "測る",
+          "meaning": "to measure",
+          "example": "I make it a habit to measure my temperature every morning."
+        },
+        {
+          "word": "咳が出る",
+          "meaning": "to cough",
+          "example": "I tend to cough when I'm in an air-conditioned room."
+        },
+        {
+          "word": "ゆっくり休む",
+          "meaning": "to rest well",
+          "example": "Please don't push yourself, and take a good rest today."
+        }
+      ]
+    },
+    "seed-scenario-n3-2": {
+      "title": "Part-time Job Interview",
+      "topic": "Job Interview",
+      "lines": [
+        "Please, have a seat. Thank you for coming today.",
+        "Thank you for having me. I'm nervous, but I will do my best.",
+        "Right away, could you tell me why you chose this part-time job?",
+        "Yes. I like talking to people, so I became interested in customer service work.",
+        "I see. How many days a week do you think you can work?",
+        "I have classes on weekdays, so I can work about three days a week, mainly on weekends.",
+        "Understood. Do you have any experience working in a restaurant?",
+        "Actually, this is my first time, but I think I learn quickly.",
+        "It's okay if you have no experience. The staff will teach you carefully at first.",
+        "Thank you very much. I would really like to do my best.",
+        "Well then, I will contact you by email with the results next week.",
+        "Understood. Thank you for your time today."
+      ],
+      "vocabulary": [
+        {
+          "word": "応募者",
+          "meaning": "applicant",
+          "example": "There were a total of 10 applicants this time."
+        },
+        {
+          "word": "接客",
+          "meaning": "customer service",
+          "example": "Customer service jobs are suitable for people who like talking to others."
+        },
+        {
+          "word": "経験",
+          "meaning": "experience",
+          "example": "He has experience working at a café."
+        },
+        {
+          "word": "未経験",
+          "meaning": "no experience",
+          "example": "I am looking for part-time jobs that accept applicants with no experience."
+        },
+        {
+          "word": "平日",
+          "meaning": "weekdays",
+          "example": "I am busy on weekdays, so I shop on weekends."
+        },
+        {
+          "word": "中心に",
+          "meaning": "mainly",
+          "example": "I schedule shifts mainly on weekends."
+        },
+        {
+          "word": "丁寧に",
+          "meaning": "carefully",
+          "example": "My senior taught me the job carefully."
+        },
+        {
+          "word": "連絡する",
+          "meaning": "to contact",
+          "example": "I will contact you by phone when the results are out."
+        }
+      ]
+    },
+    "seed-scenario-n2-1": {
+      "title": "Report on Deadline Delay and Explanation of Causes",
+      "topic": "Reporting work progress and explaining mistakes to a superior",
+      "lines": [
+        "Manager, may I report on the matter we discussed earlier?",
+        "Sure, go ahead. How is the progress?",
+        "Actually, it has become clear that we won't meet the deadline.",
+        "What do you mean by that?",
+        "There was an oversight during the data verification process, and it took longer to correct.",
+        "I see. Have you identified the cause?",
+        "Yes, I believe the main reason is a lack of communication among the responsible parties.",
+        "That's a problem. How do you plan to address it moving forward?",
+        "I will finish the revised version by the end of today and have it ready for your review first thing tomorrow morning.",
+        "Understood. Please make sure to report regularly from now on.",
+        "I apologize for the inconvenience. I will be more careful in the future."
+      ],
+      "vocabulary": [
+        {
+          "word": "進捗",
+          "meaning": "progress",
+          "example": "We are required to report the project's progress every week."
+        },
+        {
+          "word": "判明する",
+          "meaning": "to become clear",
+          "example": "The investigation revealed that the cause was a manufacturing error."
+        },
+        {
+          "word": "見落とし",
+          "meaning": "oversight",
+          "example": "Please check again to see if there are any oversights in the documents."
+        },
+        {
+          "word": "修正",
+          "meaning": "correction",
+          "example": "Since there were many typos, we decided to correct the entire document."
+        },
+        {
+          "word": "連絡不足",
+          "meaning": "lack of communication",
+          "example": "The lack of communication between departments caused the trouble."
+        },
+        {
+          "word": "対応する",
+          "meaning": "to respond",
+          "example": "It is necessary to respond quickly to complaints."
+        },
+        {
+          "word": "仕上げる",
+          "meaning": "to finish",
+          "example": "I must finish the materials by the deadline."
+        },
+        {
+          "word": "以後",
+          "meaning": "from now on",
+          "example": "I will be careful to avoid such mistakes from now on."
+        }
+      ]
+    },
+    "seed-scenario-n2-2": {
+      "title": "Searching for an Apartment at a Real Estate Agency",
+      "topic": "Consulting a real estate agent for renting",
+      "lines": [
+        "Excuse me, I'm looking for a rental apartment. Can I ask you a few questions?",
+        "Yes, of course. Have you already decided on the area and budget for rent?",
+        "I'm thinking of something within a 10-minute walk from the station, with a budget of around 70,000 yen.",
+        "Understood. In that case, there are a few properties that might fit your criteria. Are you concerned about the age of the building?",
+        "I'm not too particular about that, but I would prefer a room with good sunlight. Also, how much are the deposit and key money?",
+        "For this property, both the deposit and key money are one month's rent each. We also charge a renewal fee of one month's rent every year.",
+        "I see. If a guarantor is needed, can I use a guarantor company?",
+        "Yes, even if you can't find a guarantor, you can sign the contract as long as you pass the guarantor company's screening. Just prepare your income proof.",
+        "Got it. Also, are there any properties that allow pets? I have a small dog.",
+        "We have a few rooms where pets are allowed with consultation. If you're interested, would you like to view them this weekend?",
+        "Yes, please. If possible, I would like to move in at the beginning of next month.",
+        "Understood. I will pick out about three options and contact you later."
+      ],
+      "vocabulary": [
+        {
+          "word": "賃貸",
+          "meaning": "rental",
+          "example": "There are many rental apartments in this area."
+        },
+        {
+          "word": "敷金・礼金",
+          "meaning": "deposit and key money (unique fees in Japan)",
+          "example": "The initial costs include a security deposit and key money."
+        },
+        {
+          "word": "更新料",
+          "meaning": "renewal fee",
+          "example": "You need to pay a renewal fee each time you renew the contract."
+        },
+        {
+          "word": "保証人",
+          "meaning": "guarantor",
+          "example": "If you can't find a guarantor, you can use a guarantor company."
+        },
+        {
+          "word": "収入証明書",
+          "meaning": "income certificate",
+          "example": "I was asked to submit proof of income at the time of signing the contract."
+        },
+        {
+          "word": "内見",
+          "meaning": "property viewing",
+          "example": "It's best to view the property before signing the contract."
+        },
+        {
+          "word": "築年数",
+          "meaning": "age of the building",
+          "example": "Properties that are newer are very popular."
+        },
+        {
+          "word": "日当たり",
+          "meaning": "sunlight exposure",
+          "example": "I am looking for a room with good sunlight."
+        },
+        {
+          "word": "入居",
+          "meaning": "move-in",
+          "example": "I plan to move into a new apartment next month."
+        },
+        {
+          "word": "物件",
+          "meaning": "property",
+          "example": "It's hard to find properties that meet the conditions."
+        }
+      ]
+    },
+    "seed-scenario-n1-1": {
+      "title": "At a Price Negotiation",
+      "topic": "Business negotiation with a client",
+      "lines": [
+        "Thank you very much for taking the time out of your busy schedule today. Without further ado, I would like to hear your honest opinion regarding the estimate you provided the other day.",
+        "Likewise, I appreciate it. To be honest, the unit price slightly exceeds our budget, and the internal view is that it would be difficult to proceed with the contract as it stands.",
+        "I see, understood. By the way, what do you think would be a reasonable compromise?",
+        "Ideally, I would like you to lower the current estimate by about 10%. However, if that level of concession is difficult, I would be fine with extending the delivery time a bit.",
+        "Regarding a 10% discount, to be honest, there are parts I cannot answer immediately. However, if you can allow some leeway on the delivery time, I could positively consider a reduction of about 5%.",
+        "I see. Then, how about considering a 5% discount if we extend the delivery time by one month?",
+        "I would like to take this back and discuss it with my superior, but I have a feeling we could reach an agreement along those lines. However, I would also like to discuss the payment terms.",
+        "Regarding the payment terms, it would be helpful if you could be a bit flexible due to our internal cash flow situation.",
+        "Understood. Then I will take this back for now and would like to finalize the numbers with you early next week.",
+        "Understood. I look forward to your positive response. Thank you for today."
+      ],
+      "vocabulary": [
+        {
+          "word": "率直",
+          "meaning": "frank",
+          "example": "Please share your frank opinion."
+        },
+        {
+          "word": "落としどころ",
+          "meaning": "compromise point",
+          "example": "We are looking for a compromise point that both sides can agree on."
+        },
+        {
+          "word": "譲歩",
+          "meaning": "concession",
+          "example": "Further concessions are difficult."
+        },
+        {
+          "word": "即答しかねる",
+          "meaning": "difficult to answer immediately",
+          "example": "This is a question I find difficult to answer immediately."
+        },
+        {
+          "word": "前向きに検討する",
+          "meaning": "consider positively",
+          "example": "We will consider your proposal positively."
+        },
+        {
+          "word": "支払いサイト",
+          "meaning": "payment terms",
+          "example": "Extend the payment terms to 60 days."
+        },
+        {
+          "word": "融通を利かせる",
+          "meaning": "be flexible",
+          "example": "Could you be a little flexible?"
+        },
+        {
+          "word": "持ち帰る",
+          "meaning": "take back (for internal discussion)",
+          "example": "I will take this matter back to the company."
+        },
+        {
+          "word": "感触",
+          "meaning": "feeling, sense",
+          "example": "I have a feeling that the negotiation will come together."
+        },
+        {
+          "word": "詰める",
+          "meaning": "finalize",
+          "example": "We need to finalize the detailed conditions."
+        }
+      ]
+    },
+    "seed-scenario-n1-2": {
+      "title": "Q&A After the Conference Presentation",
+      "topic": "Questions and discussions at an academic conference",
+      "lines": [
+        "I found your presentation earlier very interesting. May I confirm one point with you?",
+        "Sure, go ahead.",
+        "Could you explain in more detail about the consistency with previous research? I feel that the difference in sample size may have influenced the results.",
+        "As you pointed out, the difference in sample size is indeed a significant factor. However, since we have observed a statistically significant difference, I believe the trend is valid.",
+        "I see. So, do you have plans to conduct a follow-up experiment?",
+        "Currently, we are conducting a follow-up experiment in collaboration with another institution. We will report back as soon as we have results.",
+        "That's reassuring. May I ask one more thing?",
+        "Of course.",
+        "When applying this method, are there any ethical issues that might arise?",
+        "You are correct; we recognize that as a challenge to address in the future. Thank you for your valuable input."
+      ],
+      "vocabulary": [
+        {
+          "word": "拝聴する",
+          "meaning": "to listen respectfully",
+          "example": "I listened to your talk and learned a lot."
+        },
+        {
+          "word": "整合性",
+          "meaning": "consistency, coherence",
+          "example": "It is necessary to confirm the consistency between the data."
+        },
+        {
+          "word": "先行研究",
+          "meaning": "previous research, prior studies",
+          "example": "Based on previous research, I formulated a new hypothesis."
+        },
+        {
+          "word": "有意",
+          "meaning": "statistically significant",
+          "example": "No statistically significant difference was observed between the two groups."
+        },
+        {
+          "word": "追試",
+          "meaning": "replication study, follow-up experiment",
+          "example": "We decided to conduct a replication study to enhance the reliability of the results."
+        },
+        {
+          "word": "心強い",
+          "meaning": "reassuring, encouraging",
+          "example": "Hearing the expert's opinion was very reassuring."
+        },
+        {
+          "word": "倫理的",
+          "meaning": "ethical, moral",
+          "example": "Ethical considerations are essential when conducting experiments."
+        },
+        {
+          "word": "妥当",
+          "meaning": "valid, appropriate",
+          "example": "I judged that this conclusion is valid."
+        }
+      ]
+    }
+  },
+  "articles": {
+    "seed-article-n5-1": {
+      "title": "My Day",
+      "paragraphs": [
+        "I wake up at six o'clock every morning. After I wake up, I first wash my face and brush my teeth. Then, I eat bread and eggs. I also drink milk. Breakfast doesn't take much time. I leave the house at seven-thirty and walk to the station.",
+        "On the train, I read the news on my smartphone. I arrive at the university at eight o'clock. Since I have classes from nine o'clock, I talk a little with my friends in the classroom. The classes are difficult, but the teacher's talk is very interesting.",
+        "Lunch break is from twelve to one o'clock. I eat rice in the cafeteria with my friends. I like the curry in the cafeteria the most. It's cheap and delicious. After eating, I go to the library and do my homework.",
+        "After class, I go to my part-time job. I work at the cash register in a supermarket. It's busy, but everyone in the store is kind. Work ends at six o'clock. After that, I have dinner with my family.",
+        "In the evening, I study Japanese and watch TV. Sometimes, I talk on the phone with my mother. After taking a bath, I go to bed around eleven o'clock. I'm busy every day, but I like this life."
+      ],
+      "vocabulary": [
+        {
+          "word": "起きます",
+          "meaning": "wake up",
+          "example": "I wake up at six o'clock every morning."
+        },
+        {
+          "word": "磨きます",
+          "meaning": "brush, polish",
+          "example": "I brush my teeth after meals."
+        },
+        {
+          "word": "歩きます",
+          "meaning": "walk",
+          "example": "I walk to the station."
+        },
+        {
+          "word": "着きます",
+          "meaning": "arrive",
+          "example": "I arrive at the university at eight o'clock."
+        },
+        {
+          "word": "学食",
+          "meaning": "cafeteria",
+          "example": "I like the curry in the cafeteria."
+        },
+        {
+          "word": "忙しい",
+          "meaning": "busy",
+          "example": "I am busy every day."
+        },
+        {
+          "word": "親切",
+          "meaning": "kind",
+          "example": "The people in the store are kind."
+        },
+        {
+          "word": "終わります",
+          "meaning": "end",
+          "example": "Work ends at six o'clock."
+        },
+        {
+          "word": "図書館",
+          "meaning": "library",
+          "example": "I do my homework in the library."
+        },
+        {
+          "word": "生活",
+          "meaning": "life",
+          "example": "I like this life."
+        }
+      ]
+    },
+    "seed-article-n5-2": {
+      "title": "My Family",
+      "paragraphs": [
+        "Nice to meet you. I will introduce my family. There are five people in my family. They are my father, mother, older brother, younger sister, and me. Everyone is healthy, and every day is fun.",
+        "My father is a company employee. He wakes up early every morning and goes to work. His job is very busy, but he always spends time with the family on weekends. My father is good at cooking, and on his days off, he often makes curry for us.",
+        "My mother is kind and is good at both cooking and cleaning. She likes playing the piano and sometimes plays it at home. I love listening to her music.",
+        "My older brother is a university student. He is a bit strict, but he always helps me. My younger sister is still in elementary school and is very energetic. She often sings songs.",
+        "My family is not very large, but we get along very well. I love this family."
+      ],
+      "vocabulary": [
+        {
+          "word": "紹介する",
+          "meaning": "to introduce",
+          "example": "I will introduce my family."
+        },
+        {
+          "word": "会社員",
+          "meaning": "company employee",
+          "example": "My father is a company employee."
+        },
+        {
+          "word": "忙しい",
+          "meaning": "busy",
+          "example": "His job is very busy."
+        },
+        {
+          "word": "一緒に",
+          "meaning": "together",
+          "example": "He spends time with the family."
+        },
+        {
+          "word": "上手",
+          "meaning": "good at",
+          "example": "My mother is good at cooking."
+        },
+        {
+          "word": "優しい",
+          "meaning": "kind",
+          "example": "My mother is very kind."
+        },
+        {
+          "word": "大学生",
+          "meaning": "university student",
+          "example": "My older brother is a university student."
+        },
+        {
+          "word": "助ける",
+          "meaning": "to help",
+          "example": "My older brother helps me."
+        },
+        {
+          "word": "仲がいい",
+          "meaning": "get along well",
+          "example": "Our family gets along very well."
+        },
+        {
+          "word": "過ごす",
+          "meaning": "to spend (time)",
+          "example": "He spends time with the family on weekends."
+        }
+      ]
+    },
+    "seed-article-n4-1": {
+      "title": "The Four Seasons and Seasonal Events in Japan",
+      "paragraphs": [
+        "Japan has four seasons: spring, summer, autumn, and winter. In each season, there are events and activities that Japanese people look forward to. Today, I will introduce how to enjoy each season.",
+        "In spring, cherry blossoms bloom. Many people go to parks to enjoy hanami. It is very enjoyable to eat bento with friends and family while viewing the beautiful cherry blossoms. Since the cherry blossoms only bloom for about a week, everyone rushes to see them.",
+        "Summer is hot, but there are many fun events. In particular, fireworks festivals and summer festivals are popular. The fireworks that light up the night sky are very beautiful. Many people wear yukata to go to the festivals.",
+        "In autumn, the leaves of the trees in the mountains turn red and yellow. This is called momiji. Going to see the autumn leaves is one of the pleasures of the season. Also, autumn is a season when food is delicious, so it is also called 'shokuyoku no aki' (the season of appetite).",
+        "In winter, many regions experience snowfall. In Hokkaido and Tohoku, snow festivals are held. When it is cold, the best thing is to warm up in an onsen. In this way, each of Japan's four seasons has its own unique charm."
+      ],
+      "vocabulary": [
+        {
+          "word": "花見",
+          "meaning": "cherry blossom viewing",
+          "example": "In spring, we enjoy cherry blossom viewing."
+        },
+        {
+          "word": "紅葉狩り",
+          "meaning": "autumn leaf viewing",
+          "example": "I went to see the autumn leaves in autumn."
+        },
+        {
+          "word": "浴衣",
+          "meaning": "yukata (light summer kimono)",
+          "example": "I wear a yukata to the summer festival."
+        },
+        {
+          "word": "花火大会",
+          "meaning": "fireworks festival",
+          "example": "There is a fireworks festival tonight."
+        },
+        {
+          "word": "食欲の秋",
+          "meaning": "the season of appetite (referring to the rich food in autumn)",
+          "example": "Since it is the season of appetite, I want to eat a lot."
+        },
+        {
+          "word": "温泉",
+          "meaning": "hot spring",
+          "example": "I like to go to hot springs in winter."
+        },
+        {
+          "word": "季節",
+          "meaning": "season",
+          "example": "Japan has four seasons."
+        },
+        {
+          "word": "景色",
+          "meaning": "scenery, landscape",
+          "example": "The mountain scenery is very beautiful."
+        },
+        {
+          "word": "急いで",
+          "meaning": "hurry, in a rush",
+          "example": "I hurried to school."
+        },
+        {
+          "word": "魅力",
+          "meaning": "charm",
+          "example": "This town has a lot of charm."
+        }
+      ]
+    },
+    "seed-article-n4-2": {
+      "title": "My Hobby: Solo Travel",
+      "paragraphs": [
+        "My hobby is traveling alone. On my days off, traveling with friends is fun too, but I prefer to go by myself. When I'm alone, I can wake up at my favorite time and go wherever I want. I don't have to wait for anyone, and I don't have to force myself to go to places I don't want to visit.",
+        "Last winter, I traveled to Hokkaido alone for the first time. I spent a very quiet time eating a bento on the train and looking at the scenery outside. While walking in an unfamiliar town, I found a small, beautiful shop. The time I spent drinking warm coffee in that shop while watching the snow fall is unforgettable.",
+        "There are many good things about solo travel. First, I can travel at my own pace. Also, I have more opportunities to talk to strangers. When I get lost, if I ask someone nearby, they often kindly help me. Thanks to that, I make new friends every time I travel.",
+        "Of course, there are also challenging aspects to solo travel. There is no one to take pictures for me, and if I get sick, I have to manage on my own. Still, I have no intention of giving up solo travel. From now on, I want to travel alone to various towns and have many experiences."
+      ],
+      "vocabulary": [
+        {
+          "word": "一人旅",
+          "meaning": "solo travel",
+          "example": "I want to try solo travel during summer vacation."
+        },
+        {
+          "word": "景色",
+          "meaning": "scenery",
+          "example": "The scenery from the top of the mountain was very beautiful."
+        },
+        {
+          "word": "様子",
+          "meaning": "appearance, situation",
+          "example": "I will decide whether to go out after checking the situation outside."
+        },
+        {
+          "word": "機会",
+          "meaning": "opportunity",
+          "example": "Traveling gives me the opportunity to talk to new people."
+        },
+        {
+          "word": "親切",
+          "meaning": "kindness",
+          "example": "When I asked for directions at the station, they kindly helped me."
+        },
+        {
+          "word": "経験",
+          "meaning": "experience",
+          "example": "I think solo travel will be a good experience."
+        },
+        {
+          "word": "迷う",
+          "meaning": "to get lost, to hesitate",
+          "example": "I got lost in an unfamiliar town."
+        },
+        {
+          "word": "過ごす",
+          "meaning": "to spend (time)",
+          "example": "I spent a quiet time on the train."
+        }
+      ]
+    },
+    "seed-article-n3-1": {
+      "title": "Japanese Convenience Store Culture",
+      "paragraphs": [
+        "Anyone who has traveled to Japan will notice that there are convenience stores everywhere in the city. A convenience store, abbreviated as \"convenience store,\" is a small shop that operates twenty-four hours a day. It offers almost everything necessary for daily life, including food and drinks, magazines, medicine, and stationery.",
+        "One particularly convenient feature is the ability to pay public utility bills. If you bring your electricity or gas bill, the clerk will process it on the spot. Additionally, you can send and receive parcels, making it an indispensable presence for busy office workers.",
+        "Convenience store rice balls and bento boxes are also very popular. New products are lined up every day, and the menu changes with the seasons, so it is said that you never get tired of going there. In particular, convenience store sweets are known for their high quality and are reputed to be as delicious as those from specialty shops.",
+        "Thus, convenience stores are not just places for shopping; they have become an important infrastructure that supports the lives of Japanese people. Even if you suddenly need something late at night, you can usually solve it by going to a nearby convenience store. For travelers, trying out Japan's convenience stores will be a great opportunity to experience the convenience of this country."
+      ],
+      "vocabulary": [
+        {
+          "word": "略",
+          "meaning": "abbreviation",
+          "example": "This word is an abbreviation in English."
+        },
+        {
+          "word": "揃う",
+          "meaning": "to be complete",
+          "example": "All necessary items are complete."
+        },
+        {
+          "word": "支払い",
+          "meaning": "payment",
+          "example": "You can make payments at the convenience store."
+        },
+        {
+          "word": "請求書",
+          "meaning": "bill",
+          "example": "The electricity bill has arrived."
+        },
+        {
+          "word": "欠かせない",
+          "meaning": "indispensable",
+          "example": "Convenience stores are indispensable for busy people."
+        },
+        {
+          "word": "飽きる",
+          "meaning": "to get tired of",
+          "example": "It's a taste that you never get tired of, no matter how many times you eat it."
+        },
+        {
+          "word": "評判",
+          "meaning": "reputation",
+          "example": "This sweet has a good reputation."
+        },
+        {
+          "word": "支える",
+          "meaning": "to support",
+          "example": "Convenience stores support the lives of Japanese people."
+        },
+        {
+          "word": "実感する",
+          "meaning": "to realize",
+          "example": "I realized the convenience of Japan."
+        }
+      ]
+    },
+    "seed-article-n3-2": {
+      "title": "How to Enjoy a Hot Spring",
+      "paragraphs": [
+        "Japan has many hot springs. Many people visit hot springs while traveling, but if they do not know the proper manners, they may disturb others. Today, I will introduce the rules for entering a hot spring.",
+        "First, before entering the hot spring, be sure to wash your body. After cleaning your hair and body with a shower, let's enter the bath. It is important to rinse thoroughly so that soap and shampoo bubbles do not remain in the bath.",
+        "Next, do not put your towel in the bath. Keep the towel on your head or outside the bath. Also, please be aware that taking photos is prohibited.",
+        "Furthermore, swimming in the bath or talking loudly is also a violation of manners. The hot spring is a place to relax slowly, so let's enjoy it quietly.",
+        "Finally, there are some hot springs that do not allow people with tattoos. If you are concerned, it is better to check in advance. By following the rules, you should be able to enjoy the hot spring even more comfortably."
+      ],
+      "vocabulary": [
+        {
+          "word": "マナー",
+          "meaning": "manners",
+          "example": "It is important to follow the manners at the hot spring."
+        },
+        {
+          "word": "湯船",
+          "meaning": "bath",
+          "example": "I relax by soaking slowly in the bath."
+        },
+        {
+          "word": "泡",
+          "meaning": "bubbles",
+          "example": "Please rinse off the soap bubbles thoroughly."
+        },
+        {
+          "word": "違反",
+          "meaning": "violation",
+          "example": "Talking loudly is a violation of manners."
+        },
+        {
+          "word": "禁止",
+          "meaning": "prohibited",
+          "example": "Taking photos is prohibited here."
+        },
+        {
+          "word": "迷惑をかける",
+          "meaning": "to disturb others",
+          "example": "Let's avoid disturbing others."
+        },
+        {
+          "word": "リラックス",
+          "meaning": "to relax",
+          "example": "Relax in a warm bath."
+        },
+        {
+          "word": "事前に",
+          "meaning": "in advance",
+          "example": "If you are concerned, it is better to check in advance."
+        }
+      ]
+    },
+    "seed-article-n2-1": {
+      "title": "Japan's Overtime Culture and Its Changes",
+      "paragraphs": [
+        "When it comes to Japanese company employees, many people have the image of them working long hours. In fact, Japan has had a long-standing era where 'overtime' was considered normal. Even if work ends at the scheduled time, there was a strong atmosphere in the workplace where it felt awkward to leave early while colleagues were still working.",
+        "The background of this overtime culture is said to be related to the lifetime employment system. Since it was assumed that employees would work for one company for a long time, many employees pushed themselves to work overtime to be favored by their superiors. Additionally, there was a trend where 'showing that you are working hard' itself was valued, and there were often cases where the length of working hours was prioritized over efficiency.",
+        "However, in recent years, this situation has been gradually changing. In 2019, a law related to 'work style reform' was enacted, and strict limits on overtime hours were established. As a result, companies have had to manage their employees' working hours and have started to make efforts to reduce overtime compared to before.",
+        "Furthermore, the rapid spread of telework triggered by the COVID-19 pandemic has also brought about significant changes. With the ability to work without being tied to an office, there has been an increase in younger generations who value the balance between work and personal life. It has become less uncommon for employees to think, 'I want to prioritize my own time over promotion.'",
+        "Of course, the overtime culture has not completely disappeared. In some industries and companies, long working hours still continue. Nevertheless, it can be said that Japan's work style is certainly in the process of change."
+      ],
+      "vocabulary": [
+        {
+          "word": "気が引ける",
+          "meaning": "to feel awkward or hesitant",
+          "example": "It feels awkward to leave alone when everyone else is still there."
+        },
+        {
+          "word": "根強い",
+          "meaning": "deep-rooted",
+          "example": "This habit remains deep-rooted in the workplace."
+        },
+        {
+          "word": "終身雇用",
+          "meaning": "lifetime employment",
+          "example": "Lifetime employment is a traditional employment system in Japan."
+        },
+        {
+          "word": "風潮",
+          "meaning": "trend",
+          "example": "The trend of valuing overtime as a virtue has been gradually changing."
+        },
+        {
+          "word": "施行される",
+          "meaning": "to be enacted",
+          "example": "The new law will be enacted starting next year."
+        },
+        {
+          "word": "上限",
+          "meaning": "upper limit",
+          "example": "The upper limit of overtime hours is determined by law."
+        },
+        {
+          "word": "~せざるを得ない",
+          "meaning": "to have no choice but to...",
+          "example": "The situation changed, and I had no choice but to change my plans."
+        },
+        {
+          "word": "縛られる",
+          "meaning": "to be bound or restricted",
+          "example": "I want to work without being bound by time or place."
+        },
+        {
+          "word": "出世",
+          "meaning": "promotion",
+          "example": "He values time with his family more than promotion."
+        },
+        {
+          "word": "依然として",
+          "meaning": "still",
+          "example": "Long working hours continue in many companies still."
+        }
+      ]
+    },
+    "seed-article-n2-2": {
+      "title": "The Impact of Declining Birthrate and Aging Population on Japanese Society",
+      "paragraphs": [
+        "Japan is currently experiencing a rare speed of declining birthrate and aging population. The number of children continues to decrease year by year, and those aged 65 and over now account for about 30% of the population. This change has serious impacts on various fields such as the economy, healthcare, and local communities.",
+        "First, the shortage of labor has become a significant issue. With the decrease in the younger generation, companies are unable to secure enough personnel, and there is a particularly severe labor shortage in industries such as nursing and construction. The government is trying to address this challenge by expanding the acceptance of foreign workers and supporting the employment of women and the elderly.",
+        "Additionally, social security systems such as pensions and healthcare are facing major challenges. The proportion of the younger generation supporting the elderly is decreasing, leading to an increasing burden on each working-age individual year by year. If this continues, future generations may bear an even greater burden.",
+        "On the other hand, in rural areas, population decline has led to the closure of schools and hospitals, resulting in an increase in what are called 'marginal villages' where the community itself can no longer be maintained. There are not a few elderly people who find it difficult even to shop or visit the doctor.",
+        "To improve this situation, various measures such as enhancing childcare support and reforming work styles are being promoted. The declining birthrate and aging population is a problem that cannot be easily solved, but it is necessary for society as a whole to collaborate and create a sustainable system."
+      ],
+      "vocabulary": [
+        {
+          "word": "少子高齢化",
+          "meaning": "declining birthrate and aging population",
+          "example": "The declining birthrate and aging population is a serious social issue in Japan."
+        },
+        {
+          "word": "労働力不足",
+          "meaning": "labor shortage",
+          "example": "The labor shortage is becoming more serious due to the decrease in young people."
+        },
+        {
+          "word": "確保する",
+          "meaning": "to secure",
+          "example": "It is difficult to secure enough talent."
+        },
+        {
+          "word": "就労",
+          "meaning": "employment",
+          "example": "There are increasing systems to support employment for the elderly."
+        },
+        {
+          "word": "社会保障制度",
+          "meaning": "social security system",
+          "example": "The social security system supports pensions and healthcare."
+        },
+        {
+          "word": "負担",
+          "meaning": "burden",
+          "example": "The burden on the working generation is getting heavier year by year."
+        },
+        {
+          "word": "限界集落",
+          "meaning": "marginal village",
+          "example": "In marginal villages, more than half of the residents are elderly."
+        },
+        {
+          "word": "持続可能な",
+          "meaning": "sustainable",
+          "example": "There is a demand for the realization of a sustainable society."
+        }
+      ]
+    },
+    "seed-article-n1-1": {
+      "title": "Ambiguous Expressions in Japanese and the Culture of 'Sasshi'",
+      "paragraphs": [
+        "In Japanese, there are many expressions that leave the conclusion unclear and delegate judgment to the other person. For example, when wanting to decline an invitation, Japanese people prefer to use ambiguous phrases like \"Please invite me again next time\" or \"It might be a bit difficult.\" This is not just a roundabout way of speaking, but is rooted in the consideration of not hurting the other person's feelings.",
+        "Behind such expressions lies a unique culture known as 'sasshi.' Sasshi refers to the ability to infer and understand the unspoken true feelings or intentions of others from the situation or tone. In Japanese society, explaining everything in words is often considered rather rude, and the ability to read the other person's intentions is seen as an essential element in building smooth interpersonal relationships.",
+        "That said, this culture often becomes a source of confusion for foreign learners. If one takes the response \"I'll think about it\" at face value, it is not uncommon to later realize they have been declined, leading to bewilderment. In other words, it is necessary to read the meaning not only from the text but also from pauses, silence, and expressions.",
+        "However, in recent years, there has been a growing trend in workplaces and international settings to seek clearer expressions of intent, as ambiguity can lead to misunderstandings. Nevertheless, the culture of sasshi is also a reflection of the Japanese aesthetic sense and compassion, and it is unlikely to disappear easily. The ability to decipher the true feelings hidden behind ambiguity can be said to be the key to deeply understanding the Japanese language."
+      ],
+      "vocabulary": [
+        {
+          "word": "委ねる",
+          "meaning": "to entrust, to delegate",
+          "example": "To delegate judgment to the other person."
+        },
+        {
+          "word": "遠回し",
+          "meaning": "indirect, roundabout",
+          "example": "I was declined in an indirect way."
+        },
+        {
+          "word": "配慮",
+          "meaning": "consideration, thoughtfulness",
+          "example": "I do not lack consideration for others."
+        },
+        {
+          "word": "独特",
+          "meaning": "unique, distinctive",
+          "example": "Japan has a unique culture."
+        },
+        {
+          "word": "汲み取る",
+          "meaning": "to understand, to grasp",
+          "example": "To understand the other person's feelings."
+        },
+        {
+          "word": "円滑",
+          "meaning": "smooth, harmonious",
+          "example": "To build smooth interpersonal relationships."
+        },
+        {
+          "word": "戸惑い",
+          "meaning": "bewilderment, confusion",
+          "example": "Foreigners often feel bewilderment."
+        },
+        {
+          "word": "額面通り",
+          "meaning": "at face value, literally",
+          "example": "You should not take words at face value."
+        },
+        {
+          "word": "風潮",
+          "meaning": "trend, tendency",
+          "example": "A trend is spreading to seek clear expressions of intent."
+        },
+        {
+          "word": "美意識",
+          "meaning": "aesthetic sense",
+          "example": "The culture of sasshi is a reflection of the Japanese aesthetic sense."
+        }
+      ]
+    },
+    "seed-article-n1-2": {
+      "title": "The Significance and Challenges of Education in the AI Era",
+      "paragraphs": [
+        "The rapid development of artificial intelligence (AI) is bringing significant transformations not only to the way we work but also to the very nature of learning. The ability to memorize knowledge and reproduce it accurately is no longer a privilege exclusive to humans. So, what significance will education continue to hold in an era where AI can derive answers instantly?",
+        "AI has the potential to adjust educational materials according to each learner's understanding and progress, enabling efficient learning. Traditionally, the detailed guidance that teachers could not provide individually is becoming possible with the support of AI. As a result, learners can benefit from deepening their knowledge at their own pace.",
+        "However, on the other hand, challenges that cannot be overlooked are also emerging. There is a fear that relying too much on AI may lead to a loss of the ability to think for oneself and engage in trial and error. Learners who become accustomed to being given answers may gradually lose their curiosity and willingness to persistently explore questions. The essence of education should not merely be the transmission of information but the cultivation of thinking skills.",
+        "Therefore, the true challenge of education in the AI era boils down to how to wisely utilize technology while fostering human creativity and critical thinking. Rather than viewing AI as an enemy, seeking a path to coexistence is the attitude that will be required in future education."
+      ],
+      "vocabulary": [
+        {
+          "word": "変革",
+          "meaning": "transformation",
+          "example": "The spread of the internet brought about a significant transformation in society."
+        },
+        {
+          "word": "恩恵",
+          "meaning": "benefit",
+          "example": "Thanks to the benefits of science and technology, life has become more convenient."
+        },
+        {
+          "word": "看過できない",
+          "meaning": "cannot be overlooked",
+          "example": "This issue has become serious enough that it cannot be overlooked."
+        },
+        {
+          "word": "試行錯誤",
+          "meaning": "trial and error",
+          "example": "He found a solution after going through trial and error."
+        },
+        {
+          "word": "粘り強く",
+          "meaning": "persistently",
+          "example": "It is important to continue to work hard persistently even in difficult situations."
+        },
+        {
+          "word": "探究",
+          "meaning": "inquiry",
+          "example": "She continues to maintain an attitude of inquiry into the truth."
+        },
+        {
+          "word": "本質",
+          "meaning": "essence",
+          "example": "Unless we identify the essence of the problem, we cannot achieve a fundamental solution."
+        },
+        {
+          "word": "模索する",
+          "meaning": "to seek",
+          "example": "The two countries are seeking a peaceful solution."
+        }
+      ]
+    }
+  }
+}
